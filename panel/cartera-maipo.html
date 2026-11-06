@@ -197,6 +197,26 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
 .gantt .sumtxt{color:var(--brand2);font-weight:600}
 .gantt .pillx{font-size:.7rem;padding:1px 6px;border-radius:999px;justify-self:start}
 @media (max-width:700px){.gantt .bl,.gantt .hdr .m{display:none}.gantt .gl{grid-template-columns:1fr}.gantt .gl .c2,.gantt .gl .c3{display:none}.gantt .gr{grid-template-columns:42% 1fr}}
+.utc{display:grid;gap:12px}
+.utc .u{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;background:var(--surface);display:grid;gap:6px}
+.utc .uh{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;align-items:baseline}
+.utc .uh h3{font-size:.95rem;cursor:pointer;color:var(--brand)}
+.utc .uh h3:hover{text-decoration:underline}
+.utc .uh .s{font-size:.8rem;color:var(--muted)}
+.utc .r{display:grid;grid-template-columns:150px 1fr minmax(230px,32%);gap:10px;align-items:center;font-size:.8rem}
+.utc .r .lb{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.utc .r .lb b{color:var(--fg)}
+.utc .tw{height:16px}
+.utc .tk{position:relative;height:16px;background:var(--sunk);border-radius:4px;overflow:hidden;min-width:3px}
+.utc .sg{position:absolute;top:0;bottom:0}
+.utc .sg.tr{background:repeating-linear-gradient(45deg,var(--c-sagir) 0 4px,transparent 4px 7px);opacity:.75}
+.utc .nums{font-variant-numeric:tabular-nums;color:var(--muted);line-height:1.35}
+.utc .nums b{color:var(--fg)}
+.utc .nums .w{color:var(--c-dev);font-weight:600}
+.segbtn{display:inline-flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.segbtn button{border:0;background:var(--surface);padding:4px 10px;font-size:.78rem;color:var(--muted)}
+.segbtn button[aria-pressed="true"]{background:var(--accent);color:var(--surface);font-weight:600}
+@media (max-width:700px){.utc .r{grid-template-columns:1fr}.utc .r .lb{white-space:normal}}
 .leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--muted)}
 .leg i{display:inline-block;width:14px;height:8px;border-radius:4px;margin-right:6px;vertical-align:middle}
 #tip{position:fixed;z-index:60;pointer-events:none;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:.78rem;max-width:320px;box-shadow:0 4px 14px rgba(0,0,0,.15)}
@@ -280,7 +300,11 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
   </div>
 
   <div id="tab-cargas" role="tabpanel" hidden style="display:grid;gap:14px">
-    <section class="panel"><div class="panel-head"><h2>Recorrido de las solicitudes</h2><span class="note" id="rutaNote"></span></div>
+    <section class="panel"><div class="panel-head"><h2>Resumen por unidad técnica</h2><span class="segbtn" role="group" aria-label="Escala"><button data-escala="pct" aria-pressed="true">% de avance</button><button data-escala="monto" aria-pressed="false">Montos</button></span><span class="note" id="utcNote"></span></div>
+      <div class="leg"><span><i style="background:var(--c-fin)"></i>Rendido (Sub. 33) o pagado (Sub. 22, 29 y 31)</span><span><i style="background:var(--c-sagir)"></i>Transferido, aún sin rendir</span><span><i style="background:repeating-linear-gradient(45deg,var(--c-sagir) 0 4px,transparent 4px 7px)"></i>En trámite</span><span><i style="background:var(--sunk);border:1px solid var(--line)"></i>Por transferir o por pagar</span><span>La barra completa es lo contratado (o lo aprobado si no hay contrato) · toca una unidad técnica para filtrar por ella</span></div>
+      <div class="utc" id="utc"></div>
+    </section>
+    <section class="panel"><div class="panel-head"><h2>Detalle por trámite</h2><span class="note" id="rutaNote"></span></div>
       <div class="leg"><span><i style="background:var(--c-sgd)"></i>Memo en SGD (creado → enviado)</span><span><i style="background:var(--c-sagir)"></i>En SAGIR, en trámite</span><span><i style="background:var(--c-fin)"></i>Cursado o pagado</span><span><i style="background:var(--c-dev)"></i>Devuelto a tu bandeja o rechazado</span><span><i style="background:var(--brand2);height:5px"></i>Duración total del proyecto</span><span>● paso por una bandeja o V°B° (bitácora DAF)</span><span><i style="background:none;border-left:2px dashed var(--hot);border-radius:0;width:2px"></i>Hoy</span><span>Toca un proyecto para abrir o cerrar sus trámites</span></div>
       <div class="ruta" id="ruta"></div>
     </section>
@@ -647,7 +671,7 @@ function fillFilters(){
 const val = (k,v) => v===null||v===undefined||v==='' ? '—' : k==='etapa' ? (ETAPAS[v]||v) : ['monto','aprobado','contratado','transferido','rendido'].includes(k) ? fmt$(v) : /fecha|inicio|termino|vb/i.test(k) && /^\d{4}-/.test(v) ? fmtD(v) : k==='enArchivo' ? (v?'sí':'no') : k==='avance' ? v+'%' : String(v);
 const cambioTxt = h => h.evento ? esc(h.evento) : Object.entries(h.cambios).map(([k,[a,b]])=>`${esc(CAMPOS[k]||k)}: ${esc(val(k,a))} → <b>${esc(val(k,b))}</b>`).join('<br>');
 function renderCargas(){
-  renderRuta();
+  renderUTC(); renderRuta();
   const C=state.cargas, last=C[C.length-1];
   $('cargas').innerHTML = C.length ? `<thead><tr><th>Carga</th><th class="r">Nuevos</th><th class="r">Con cambios</th><th class="r">Ya no vienen</th><th class="r">Proyectos con cambios</th><th class="r">Diferencias cuadratura</th><th>Archivos</th></tr></thead><tbody>`+
     [...C].reverse().map(c=>`<tr><td class="num">${fmtD(c.fecha)}</td><td class="r num">${c.nuevos}</td><td class="r num">${c.cambiados}</td><td class="r num">${c.desaparecidos}</td><td class="r num">${c.proyectosCambiados}</td><td class="r num">${c.cuadratura}</td><td style="white-space:normal" class="muted">${c.archivos.map(esc).join('<br>')}</td></tr>`).join('')+'</tbody>'
@@ -661,6 +685,40 @@ function renderCargas(){
     : `<tbody><tr><td class="empty">${C.length<2?'Esta fue la carga inicial del libro. Desde el próximo viernes aquí verás qué cambió de una semana a otra.':'Nada cambió en esta carga.'}</td></tr></tbody>`;
 }
 
+/* ---------- resumen por unidad técnica ---------- */
+function renderUTC(){
+  const el=$('utc'); if(!el) return;
+  const P=scoped().filter(textProj);
+  if (!P.length){ el.innerHTML='<div class="empty">No hay proyectos para esta selección.</div>'; $('utcNote').textContent=''; return; }
+  const enTr = (bip,cl) => vivos().filter(m=>m.bip===bip && m.etapa==='tramite' && (cl ? clase(m.tipo)===cl : clase(m.tipo)!=='rendicion')).reduce((s,m)=>s+(m.monto||0),0);
+  const U={};
+  P.forEach(p=>{ const u=p.unidadTecnica||'Sin unidad técnica'; const sub=p.sub||'—';
+    const r=((U[u]||(U[u]={u,base:0,subs:{}})).subs[sub] ||= {sub,n:0,base:0,tr:0,re:0,tram:0,tramR:0,dev:0});
+    const b=baseDe(p)||0; r.n++; r.base+=b; U[u].base+=b; r.tr+=p.transferido||0; r.re+=sub==='33'?(p.rendido||0):0;
+    r.tram+=enTr(p.bip); if(sub==='33') r.tramR+=enTr(p.bip,'rendicion');
+    r.dev+=vivos().filter(m=>m.bip===p.bip && devuelto(m)).length; });
+  const L=Object.values(U).sort((a,b)=>b.base-a.base);
+  const esc2=state.utcEscala||'pct', maxB=Math.max(...L.flatMap(u=>Object.values(u.subs).map(r=>Math.max(r.base,r.tr+r.tram))),1);
+  const pc=(v,b)=>b>0?Math.round(v/b*100)+'%':'—';
+  const ORD={'33':0,'31':1,'29':2,'22':3};
+  $('utcNote').textContent=`${L.length} ${L.length===1?'unidad técnica':'unidades técnicas'} · ${P.length} proyectos de tu selección · montos acumulados de la planilla, más lo que sigue en trámite`;
+  el.innerHTML = L.map(u=>{
+    const filas=Object.values(u.subs).sort((a,b)=>(ORD[a.sub]??9)-(ORD[b.sub]??9)).map(r=>{
+      const es33=r.sub==='33', tot=Math.max(r.base, r.tr+r.tram, 1), W=v=>(v/tot*100).toFixed(2)+'%';
+      const verde=es33?Math.min(r.re,r.tr):r.tr, azul=es33?Math.max(0,r.tr-verde):0;
+      const ancho = esc2==='monto' ? Math.max(.6, tot/maxB*100).toFixed(2)+'%' : '100%';
+      const tip=es33?`Sub. 33 · contratado ${fmt$(r.base)} · transferido ${fmt$(r.tr)} (${pc(r.tr,r.base)}) · rendido ${fmt$(r.re)} (${pc(r.re,r.tr)} de lo transferido) · transferencias en trámite ${fmt$(r.tram)} · rendiciones en trámite ${fmt$(r.tramR)}`
+                    :`Sub. ${r.sub} · contratado ${fmt$(r.base)} · pagado ${fmt$(r.tr)} (${pc(r.tr,r.base)}) · estados de pago en trámite ${fmt$(r.tram)}`;
+      const nums=es33
+        ? `Transferido <b>${pc(r.tr,r.base)}</b> · rendido <b>${pc(r.re,r.tr)}</b> de lo transferido<br>Por transferir <b>MM$ ${fmtMM(Math.max(0,r.base-r.tr))}</b> · por rendir <b>MM$ ${fmtMM(Math.max(0,r.tr-r.re))}</b>${r.tram?` · en trámite MM$ ${fmtMM(r.tram)}`:''}`
+        : `Pagado <b>${pc(r.tr,r.base)}</b> · por pagar <b>MM$ ${fmtMM(Math.max(0,r.base-r.tr))}</b>${r.tram?`<br>En trámite MM$ ${fmtMM(r.tram)}`:''}`;
+      return `<div class="r" data-tip="${esc(tip)}"><span class="lb">Sub. <b>${esc(r.sub)}</b> · ${r.n} ${r.n===1?'proyecto':'proyectos'}<br>MM$ ${fmtMM(r.base)}</span>
+        <div class="tw"><div class="tk" style="width:${ancho}"><span class="sg" style="left:0;width:${W(verde)};background:var(--c-fin)"></span>${azul?`<span class="sg" style="left:${W(verde)};width:${W(azul)};background:var(--c-sagir)"></span>`:''}${r.tram?`<span class="sg tr" style="left:${W(r.tr)};width:${W(r.tram)}"></span>`:''}</div></div>
+        <span class="nums">${nums}${r.dev?`<br><span class="w">${r.dev} ${r.dev===1?'trámite devuelto':'trámites devueltos'} a tu bandeja</span>`:''}</span></div>`; }).join('');
+    const n=Object.values(u.subs).reduce((s,r)=>s+r.n,0);
+    return `<div class="u"><div class="uh"><h3 data-utf="${esc(u.u)}" title="Filtrar por esta unidad técnica">${esc(utNom(u.u))}</h3><span class="s">${n} ${n===1?'proyecto':'proyectos'} · MM$ ${fmtMM(u.base)} contratado</span></div>${filas}</div>`;
+  }).join('');
+}
 /* ---------- recorrido SGD → SAGIR ---------- */
 const dnum = d => d ? Date.UTC(+d.slice(0,4), +d.slice(5,7)-1, +d.slice(8,10))/864e5 : null;
 const MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -864,6 +922,8 @@ document.addEventListener('click', e=>{
   if (e.target.id==='fClear'){ ['lk','fS','fC','fU','fT','fE'].forEach(id=>$(id).value=''); $('fGrupo').value=''; state._bip=false; setPer('mes'); onFiltro(); return; }
   const tb=e.target.closest('[data-tab]');
   if (tb){ state.tab=tb.dataset.tab; try{localStorage.setItem('cm-tab',state.tab);}catch(_){} renderScope(); if(state.tab==='cargas') renderRuta(); return; }
+  const esb=e.target.closest('[data-escala]'); if (esb){ state.utcEscala=esb.dataset.escala; document.querySelectorAll('[data-escala]').forEach(b=>b.setAttribute('aria-pressed',String(b===esb))); renderUTC(); return; }
+  const utf=e.target.closest('[data-utf]'); if (utf){ const u=utf.dataset.utf, sel=$('fU'); if([...sel.options].some(o=>o.value===u)){ sel.value= sel.value===u ? '' : u; onFiltro(); } return; }
   const gt=e.target.closest('[data-gt]'); if (gt && !e.target.closest('[data-open]')){ const k=gt.dataset.gt, o=state._gOpen||(state._gOpen={}); o[k]=o[k]===false; renderRuta(); return; }
   const t=e.target.closest('[data-al],[data-open],[data-com],[data-comsave],[data-comcancel],#sheetClose,#sheetBg,#gSave,#eAdd,[data-del]');
   if(!t) return;

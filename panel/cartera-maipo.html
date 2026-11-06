@@ -1,0 +1,958 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Cartera Provincia de Maipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: libro de movimientos. Header, barra única de filtros (texto, subtítulo, comuna, UT, tipo, estado, período), totals band, tabs: movimientos (detalle según la selección) (rango de fechas, comentarios), por revisar, proyectos, historial de cargas; slide-in project sheet. */
+:root{
+  /* Paleta GORE Metropolitano: azul institucional #0f3a5d, morado #671CA8, naranjo #eb4606 */
+  --bg:#f5f7f9; --surface:#ffffff; --sunk:#ebeef2; --line:#d9dfe6;
+  --fg:#2b2f33; --muted:#5f6670; --accent:#0f3a5d; --accent-soft:#e1e9f1; --brand:#0f3a5d; --brand2:#671ca8; --hot:#eb4606;
+  --crit:#a32e00; --crit-soft:#fbe4da; --warn:#8a5a00; --warn-soft:#fbefd6; --ok:#1e7a5f; --ok-soft:#dcf1ea; --info:#671ca8; --info-soft:#f3ecff;
+  --c-sgd:#8a9099; --c-sagir:#2f7fc1; --c-fin:#2e9a78; --c-dev:#eb4606;
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d141b; --surface:#152029; --sunk:#1c2a35; --line:#2c3c4a;
+  --fg:#e4eaf0; --muted:#9aa7b4; --accent:#8cb8de; --accent-soft:#1a3247; --brand:#cfe0f0; --brand2:#c39af0; --hot:#ff7a45;
+  --crit:#ff9a7a; --crit-soft:#3d2018; --warn:#e8b24a; --warn-soft:#3a2d12; --ok:#5fd0aa; --ok-soft:#153429; --info:#c39af0; --info-soft:#2a1d3d;
+  --c-sgd:#6f7a86; --c-sagir:#4f8fcf; --c-fin:#2ea67c; --c-dev:#e8612a;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d141b; --surface:#152029; --sunk:#1c2a35; --line:#2c3c4a;
+  --fg:#e4eaf0; --muted:#9aa7b4; --accent:#8cb8de; --accent-soft:#1a3247; --brand:#cfe0f0; --brand2:#c39af0; --hot:#ff7a45;
+  --crit:#ff9a7a; --crit-soft:#3d2018; --warn:#e8b24a; --warn-soft:#3a2d12; --ok:#5fd0aa; --ok-soft:#153429; --info:#c39af0; --info-soft:#2a1d3d;
+  --c-sgd:#6f7a86; --c-sagir:#4f8fcf; --c-fin:#2ea67c; --c-dev:#e8612a;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.45}
+.wrap{max-width:1280px;margin:0 auto;padding-inline:16px;padding-block:16px 48px;display:grid;gap:20px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em;color:var(--brand)}
+h1{font-size:1.6rem;font-weight:800}
+h2{font-size:1.05rem;font-weight:700}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--f-mono);font-size:.85em}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+header.top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px;border-bottom:4px solid;border-image:linear-gradient(90deg,var(--brand),var(--brand2)) 1;padding-bottom:12px}
+header.top h1{color:var(--brand)}
+header.top .sub{color:var(--muted);font-size:.9rem}
+.load{font-size:.8rem;color:var(--muted);text-align:right}
+.load b{color:var(--fg);font-weight:600}
+.scope{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface);width:fit-content;max-width:100%}
+.scope button{border:none;background:none;padding:9px 16px;display:grid;gap:1px;text-align:left;border-right:1px solid var(--line)}
+.scope button:last-child{border-right:none}
+@media (max-width:560px){.scope{width:100%;flex-direction:column}.scope button{border-right:none;border-bottom:1px solid var(--line)}.scope button:last-child{border-bottom:none}}
+.scope button b{font-family:var(--f-display);font-size:.95rem}
+.scope button span{font-size:.75rem;color:var(--muted)}
+.scope button[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
+.scope button[aria-pressed="true"] span{color:var(--surface);opacity:.85}
+
+.totals{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.tot{background:var(--surface);padding:12px 14px;display:grid;gap:2px;align-content:start;flex:1 1 var(--tb,160px);min-width:0}
+.tot .v{white-space:nowrap;font-family:var(--f-display);font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums}
+.tot .h{font-size:.78rem;color:var(--muted)}
+@media (max-width:560px){.tot{padding:10px}.tot .v{font-size:1.02rem}}
+.panel.cxs{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;padding:12px 14px}
+.cxs-res{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.cxs-res .v{font-family:var(--f-display);font-size:1.6rem;font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums}
+.cxs-res .h{font-size:.85rem;color:var(--muted)}
+
+.alerts{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:.85rem}
+.chip .n{font-weight:700;font-variant-numeric:tabular-nums}
+.chip.crit{border-color:var(--crit);background:var(--crit-soft);color:var(--crit)}
+.chip.warn{border-color:var(--warn);background:var(--warn-soft);color:var(--warn)}
+.chip.info{border-color:var(--info);background:var(--info-soft);color:var(--info)}
+.chip[aria-pressed="true"]{outline:2px solid currentColor;outline-offset:1px}
+.chip.zero{opacity:.55}
+
+.two{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+@media (max-width:860px){.two{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:10px;min-width:0;align-content:start}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;white-space:nowrap}
+td.r,th.r{text-align:right}
+td.num,td.r{white-space:nowrap}
+tbody tr:hover{background:var(--sunk)}
+.bar{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--accent)}
+
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:.74rem;font-weight:600;white-space:nowrap;background:var(--sunk);color:var(--muted)}
+.pill.g-ejec{background:var(--accent-soft);color:var(--accent)}
+.pill.g-cierre{background:var(--warn-soft);color:var(--warn)}
+.pill.g-cerrado{background:var(--ok-soft);color:var(--ok)}
+.pill.g-reev{background:var(--info-soft);color:var(--info)}
+.pill.g-par{background:var(--crit-soft);color:var(--crit)}
+.flags{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.flag{font-size:.7rem;padding:0 6px;border-radius:3px;border:1px solid currentColor}
+.flag.crit{color:var(--crit)} .flag.warn{color:var(--warn)} .flag.info{color:var(--info)}
+.mine{font-size:.7rem;color:var(--accent);font-weight:600}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filters input,.filters select{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;min-width:0}
+.filters input{flex:1 1 220px}
+.count{color:var(--muted);font-size:.85rem}
+#reg tbody tr{cursor:pointer}
+.name{font-weight:500;max-width:420px}
+.muted{color:var(--muted)}
+.empty{padding:28px 12px;text-align:center;color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:6px 12px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:600}
+.btn:disabled{opacity:.5;cursor:default}
+.monthnav{display:flex;align-items:center;gap:6px}
+.monthnav span{min-width:120px;text-align:center;font-weight:600}
+
+/* project sheet */
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20}
+.sheet{position:fixed;top:0;right:0;bottom:0;width:min(640px,100%);background:var(--bg);z-index:21;overflow-y:auto;border-left:1px solid var(--line);padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:16px;align-content:start}
+.sheet header{display:flex;justify-content:space-between;gap:12px;align-items:start}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px 16px}
+.kv div{display:grid;gap:1px;min-width:0}
+.kv dt{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.kv dd{margin:0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.desc{background:var(--sunk);border-radius:var(--r);padding:10px;white-space:pre-wrap;font-size:.85rem}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.form label{display:grid;gap:4px;font-size:.8rem;color:var(--muted)}
+.form .wide{grid-column:1/-1}
+.form input,.form select,.form textarea{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:7px 8px;color:var(--fg)}
+.entries{display:grid;gap:6px}
+.entry-add{display:grid;grid-template-columns:120px 130px minmax(0,1fr) 120px auto;gap:6px}
+@media (max-width:560px){.entry-add{grid-template-columns:1fr 1fr}}
+.entry-add input,.entry-add select{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;min-width:0}
+.x{border:none;background:none;color:var(--muted);padding:0 4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:8px 16px;border-radius:var(--r);z-index:30;font-size:.85rem}
+.note{font-size:.8rem;color:var(--muted)}
+[hidden]{display:none!important}
+.wrap,[role=tabpanel],#uts{grid-template-columns:minmax(0,1fr)}
+nav.tabs{flex-wrap:nowrap;overflow-x:auto}
+nav.tabs button{white-space:nowrap}
+
+.tabs{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--line)}
+.tabs button{border:none;background:none;padding:9px 14px;border-bottom:3px solid transparent;font-family:var(--f-display);font-weight:600;color:var(--muted);font-size:.95rem}
+.tabs button[aria-selected="true"]{border-bottom-color:var(--hot);color:var(--brand)}
+.tabs button .n{font-family:var(--f-body);font-size:.75rem;background:var(--crit-soft);color:var(--crit);border-radius:999px;padding:0 6px;margin-left:4px}
+.range{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+.range label{display:grid;gap:3px;font-size:.75rem;color:var(--muted)}
+.range input,.range select{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;color:var(--fg);min-width:0}
+.range label.grow{flex:1 1 280px}
+.range label.grow input{width:100%}
+.sel{font-size:.95rem;color:var(--fg)}
+.sel b{color:var(--brand)}
+.quick .btn{padding:5px 10px;font-size:.8rem}
+details.ut{border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+details.ut>summary{cursor:pointer;padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;list-style:none}
+details.ut>summary::-webkit-details-marker{display:none}
+details.ut>summary::before{content:"▸";color:var(--muted);transition:transform .15s}
+details.ut[open]>summary::before{transform:rotate(90deg)}
+details.ut>summary h3{font-size:1rem}
+details.ut>summary .s{font-size:.82rem;color:var(--muted)}
+details.ut>summary .s b{color:var(--fg);font-variant-numeric:tabular-nums}
+details.ut .inner{padding:0 14px 12px}
+.com{display:grid;gap:4px;min-width:220px;max-width:380px;white-space:normal}
+.com .mine-c{font-size:.8rem;background:var(--accent-soft);border-radius:4px;padding:3px 6px}
+.com .mine-c .d{color:var(--muted);font-size:.72rem}
+.com-add{display:flex;gap:4px}
+.com-add input{flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:5px 7px;color:var(--fg)}
+.linkbtn{border:none;background:none;padding:0;color:var(--accent);font-size:.78rem;text-align:left}
+.open{cursor:pointer}
+.open:hover .nm{text-decoration:underline}
+td.proy{white-space:normal;min-width:220px;max-width:340px}
+td.proy .nm{font-size:.84rem;line-height:1.3}
+.gone{font-size:.7rem;color:var(--warn);font-weight:600}
+.gantt{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;font-size:.78rem}
+.gantt .gr{display:grid;grid-template-columns:minmax(150px,34%) 1fr;border-top:1px solid var(--line);min-height:30px}
+.gantt .gr:first-child{border-top:none}
+.gantt .gl{display:grid;grid-template-columns:1fr 92px 96px;align-items:center;gap:6px;padding:4px 8px;border-right:1px solid var(--line);min-width:0}
+.gantt .gl > *{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gantt .gh{background:var(--sunk);font-weight:600;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.03em}
+.gantt .gp{background:var(--bg)}
+.gantt .gp .gl{font-weight:600;color:var(--brand)}
+.gantt .gp .tg{cursor:pointer;display:inline-block;width:14px;color:var(--muted)}
+.gantt .gc .gl{padding-left:28px}
+.gantt .gt{position:relative;min-width:0}
+.gantt .gt .mo{position:absolute;top:0;bottom:0;border-left:1px solid var(--line);opacity:.7}
+.gantt .gt .hy{position:absolute;top:0;bottom:0;border-left:2px dashed var(--hot);z-index:2}
+.gantt .hdr .gt{height:44px}
+.gantt .hdr .lab{position:absolute;font-size:.7rem;color:var(--muted);white-space:nowrap;transform:translateX(4px)}
+.gantt .hdr .q{top:4px;font-weight:600;color:var(--fg)}
+.gantt .hdr .m{top:24px}
+.gantt .hdr .hyl{position:absolute;top:24px;transform:translateX(-50%);background:var(--hot);color:#fff;font-weight:700;font-size:.68rem;padding:1px 5px;border-radius:4px;z-index:3;white-space:nowrap}
+.gantt .bar{position:absolute;top:50%;height:12px;margin-top:-6px;border-radius:4px;min-width:4px}
+.gantt .sum{position:absolute;top:50%;height:5px;margin-top:-2px;border-radius:3px;background:var(--brand2)}
+.gantt .pt{position:absolute;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--fg);box-shadow:0 0 0 2px var(--surface);z-index:1}
+.gantt .bl{position:absolute;top:50%;transform:translateY(-50%);white-space:nowrap;font-size:.72rem;color:var(--fg);padding:0 6px}
+.gantt .bl.izq{transform:translate(-100%,-50%)}
+.gantt .bl.den{margin-left:8px;background:var(--surface);border-radius:4px;z-index:2;line-height:1.3}
+.gantt .gt{overflow:hidden}
+.gantt .sumtxt{color:var(--brand2);font-weight:600}
+.gantt .pillx{font-size:.7rem;padding:1px 6px;border-radius:999px;justify-self:start}
+@media (max-width:700px){.gantt .bl,.gantt .hdr .m{display:none}.gantt .gl{grid-template-columns:1fr}.gantt .gl .c2,.gantt .gl .c3{display:none}.gantt .gr{grid-template-columns:42% 1fr}}
+.leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--muted)}
+.leg i{display:inline-block;width:14px;height:8px;border-radius:4px;margin-right:6px;vertical-align:middle}
+#tip{position:fixed;z-index:60;pointer-events:none;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:.78rem;max-width:320px;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.hist{margin:4px 0 0;padding-left:18px;font-size:.78rem;white-space:normal}
+.lic{display:grid;gap:6px;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;background:var(--surface)}
+.lic .top{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.lic a{color:var(--accent);font-weight:600}
+.lic .nm{font-size:.85rem}
+.lic .kv{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px 14px}
+.lic.dudosa{border-style:dashed}
+.licref{font-size:.72rem;color:var(--muted)}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Gobierno Regional Metropolitano · Subtítulos 22, 29, 31 y 33</div>
+      <h1>Cartera Provincia de Maipo</h1>
+      <div class="sub">Buin · Calera de Tango · Paine · San Bernardo</div>
+    </div>
+    <div class="load" id="load">Cargando datos…</div>
+  </header>
+
+
+  <section class="panel filtros" aria-label="Buscar y filtrar">
+    <div class="panel-head"><h2>Buscar y filtrar</h2><button class="linkbtn" id="fClear">Limpiar filtros</button></div>
+    <div class="range">
+      <label class="grow">Proyecto, memo o proveedor<input type="search" id="lk" placeholder="Código BIP, nombre del proyecto, N° de memo o factura, proveedor o monto" autocomplete="off"></label>
+      <label>Subtítulo<select id="fS"><option value="">Todos</option><option value="22">22 · Pagos</option><option value="29">29 · Pagos</option><option value="31">31 · Pagos</option><option value="33">33 · Transferencias</option></select></label>
+      <label>Comuna<select id="fC"><option value="">Todas</option></select></label>
+      <label>Unidad técnica<select id="fU"><option value="">Todas</option></select></label>
+      <label>Tipo<select id="fT"><option value="">Todos</option><option value="transferencia">Transferencia</option><option value="rendicion">Rendición</option><option value="pago">Pago</option></select></label>
+      <label>Estado<select id="fE"><option value="">Todos</option><option value="cursado">Cursado / pagado</option><option value="tramite">En trámite</option><option value="devuelto">Devuelto a tu bandeja</option><option value="otros">Rechazado o reemplazado</option></select></label>
+      <label>Período<select id="fP"><option value="mes">Mes en curso</option><option value="ant">Mes anterior</option><option value="anio">Año en curso</option><option value="todo">Todo el período</option><option value="rango">Fechas a elección</option></select></label>
+      <label>Desde<input type="date" id="rDesde"></label>
+      <label>Hasta<input type="date" id="rHasta"></label>
+    </div>
+    <div class="note">Los filtros valen para todas las pestañas. El período solo afecta a los movimientos.</div>
+  </section>
+
+  <section class="totals" id="totals" aria-label="Totales"></section>
+
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-tab="mov" aria-selected="true">Movimientos</button>
+    <button role="tab" data-tab="rev" aria-selected="false">Por revisar<span class="n" id="nRev" hidden></span></button>
+    <button role="tab" data-tab="proy" aria-selected="false">Proyectos</button>
+    <button role="tab" data-tab="cargas" aria-selected="false">Recorrido de solicitudes</button>
+  </nav>
+
+  <div id="tab-mov" role="tabpanel" style="display:grid;gap:14px">
+    <section class="panel">
+      <div id="lkCard" style="display:grid;gap:10px"></div>
+      <div class="note" id="rNote"></div>
+      <div class="totals" id="rTotals" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))"></div>
+    </section>
+    <div id="uts" style="display:grid;gap:10px"></div>
+  </div>
+
+  <div id="tab-rev" role="tabpanel" hidden style="display:grid;gap:14px">
+    <section class="panel"><div class="panel-head"><h2>Devueltos a tu bandeja</h2><span class="note" id="devNote"></span></div><div class="scroll"><table id="dev"></table></div></section>
+    <section class="panel"><div class="panel-head"><h2>Pendiente de curse</h2><span class="note" id="pendNote"></span></div><div class="scroll"><table id="pend"></table></div></section>
+    <section class="panel"><div class="panel-head"><h2>Cuadratura planilla de proyectos vs libro</h2><span class="note" id="cuadNote"></span></div><div class="scroll"><table id="cuad"></table></div></section>
+    <section class="panel"><div class="panel-head"><h2>Casos de borde de la ley de compras públicas</h2><span class="note" id="normaNote"></span></div><div class="scroll"><table id="norma"></table></div></section>
+    <section class="panel"><div class="panel-head"><h2>Ya no vienen en los archivos</h2><span class="note">Movimientos sin curse que desaparecieron de la última carga</span></div><div class="scroll"><table id="gone"></table></div></section>
+  </div>
+
+  <div id="tab-proy" role="tabpanel" hidden style="display:grid;gap:14px">
+    <section class="panel">
+      <div class="panel-head"><h2>Puntos críticos</h2><span class="note">Toca uno para filtrar los proyectos</span></div>
+      <div class="alerts" id="alerts"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>Cartera de proyectos</h2><span class="count" id="count"></span></div>
+      <div class="filters">
+        <select id="fGrupo" aria-label="Etapa"><option value="">Todas las etapas</option></select>
+        <span class="note">Además de los filtros de arriba</span>
+      </div>
+      <div class="scroll"><table id="reg"></table></div>
+    </section>
+  </div>
+
+  <div id="tab-cargas" role="tabpanel" hidden style="display:grid;gap:14px">
+    <section class="panel"><div class="panel-head"><h2>Recorrido de las solicitudes</h2><span class="note" id="rutaNote"></span></div>
+      <div class="leg"><span><i style="background:var(--c-sgd)"></i>Memo en SGD (creado → enviado)</span><span><i style="background:var(--c-sagir)"></i>En SAGIR, en trámite</span><span><i style="background:var(--c-fin)"></i>Cursado o pagado</span><span><i style="background:var(--c-dev)"></i>Devuelto a tu bandeja o rechazado</span><span><i style="background:var(--brand2);height:5px"></i>Duración total del proyecto</span><span>● paso por una bandeja o V°B° (bitácora DAF)</span><span><i style="background:none;border-left:2px dashed var(--hot);border-radius:0;width:2px"></i>Hoy</span><span>Toca un proyecto para abrir o cerrar sus trámites</span></div>
+      <div class="ruta" id="ruta"></div>
+    </section>
+    <section class="panel" hidden><div class="panel-head"><h2>Cambios de la última carga</h2><span class="note" id="ultNote"></span></div><div class="scroll"><table id="ult"></table></div></section>
+    <section class="panel" hidden><div class="panel-head"><h2>Cargas</h2><span class="note">Cada viernes se compara con la carga anterior; nada se borra del libro</span></div><div class="scroll"><table id="cargas"></table></div></section>
+  </div>
+</div>
+<div id="sheetRoot" hidden></div>
+<div id="tip" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+const GRUPOS = {
+  ejec:{label:'En ejecución', cls:'g-ejec', s:['EN EJECUCION','ADJUDICADO','EN LICITACION','POR LICITAR','POR LICITAR 3 O MÁS','OBRA PARALIZADA']},
+  reev:{label:'En reevaluación', cls:'g-reev', s:['EN REEVALUACION']},
+  cierre:{label:'En cierre', cls:'g-cierre', s:['TERMINADO OBRAS','TERMINADO','PENDIENTE CIERRE ADMINISTRATIVO','ENVIADO A CIERRE FINANCIERO']},
+  cerrado:{label:'Cerrado / no se ejecuta', cls:'g-cerrado', s:['CERRADO CONTABLE','NO SE EJECUTARA']},
+};
+const ESTADOS = ['EN LICITACION','ADJUDICADO','EN EJECUCION','OBRA PARALIZADA','EN REEVALUACION','TERMINADO OBRAS','TERMINADO','PENDIENTE CIERRE ADMINISTRATIVO','ENVIADO A CIERRE FINANCIERO','Cerrado Contable','NO SE EJECUTARA'];
+const ALERTAS = {
+  paralizada:{label:'Obras paralizadas', sev:'crit'},
+  vencido:{label:'Contratos vencidos', sev:'crit'},
+  porVencer:{label:'Contratos por vencer (30 días)', sev:'warn'},
+  sinAct:{label:'Sin actualización hace +30 días', sev:'warn'},
+  devuelto:{label:'Devueltos a tu bandeja', sev:'crit'},
+  rechazado:{label:'Memos rechazados', sev:'warn'},
+  tramite:{label:'Trámites sin cursar hace +30 días', sev:'warn'},
+  cuadratura:{label:'Diferencias de cuadratura', sev:'warn'},
+  cierreLento:{label:'Terminados sin cerrar hace +90 días', sev:'warn'},
+  porRendir:{label:'Con saldo transferido sin rendir', sev:'info'},
+  normativa:{label:'Casos de borde de compras públicas', sev:'warn'},
+};
+const REGLAS = {
+  tramite_sobre_saldo:'En trámite más de lo que queda por transferir o pagar',
+  sobre_base:'Transferido o pagado sobre lo contratado',
+  rendido_sobre_transferido:'Rendido sobre lo transferido',
+  delta_transferido:'El aumento de la planilla no calza con lo cursado',
+  delta_rendido:'El aumento de lo rendido no calza con lo cursado',
+};
+const CAMPOS = {etapa:'Etapa', estado:'Estado SAGIR', ubicacion:'Ubicación', carpeta:'Carpeta', monto:'Monto', fechaCurso:'Fecha de curse', fechaPago:'Fecha de pago', vb:'VºBº Presupuesto', memo:'Memo', reemplazo:'Reemplazado por', enArchivo:'En archivos',
+  situacion:'Situación', aprobado:'Aprobado', contratado:'Contratado', transferido:'Transferido / pagado', rendido:'Rendido', avance:'Avance', inicio:'Inicio', termino:'Término', duracion:'Duración', empresa:'Empresa'};
+const ETAPAS = {cursado:'Cursado', tramite:'En trámite', rechazado:'Rechazado', reemplazado:'Reemplazado'};
+
+const state = {projects:[], libro:[], meta:null, gestion:{}, hist:{}, lic:{}, licAct:'', sgd:{}, sgdMeta:null, cargas:[], cuad:[], filter:{alerta:''}, open:null, scope:'33', tab:'mov', comentando:null, desde:'', hasta:''};
+state.scope='todos'; state.per='mes';
+try{ const t=localStorage.getItem('cm-tab'); if(['mov','rev','proy','cargas'].includes(t)) state.tab=t; }catch(_){}
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=t=>String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const fmt$ = n => '$ ' + Math.round(n||0).toLocaleString('es-CL');
+const fmtMM = n => (Math.round((n||0)/1e5)/10).toLocaleString('es-CL',{minimumFractionDigits:1,maximumFractionDigits:1});
+const fmtD = iso => iso ? iso.slice(8,10)+'-'+iso.slice(5,7)+'-'+iso.slice(0,4) : '—';
+const iso = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const today = new Date(); today.setHours(0,0,0,0);
+const hoy = iso(today);
+const daysFrom = s => s ? Math.round((new Date(s+'T00:00:00') - today)/864e5) : null;
+const famDe = p => p.sub==='33' ? '33' : 'pagos';
+const PB = () => state._pb || (state._pb = Object.fromEntries(state.projects.map(p=>[p.bip,p])));
+const famMov = x => x.fam || (PB()[x.bip] ? famDe(PB()[x.bip]) : (/pago/i.test(x.tipo)?'pagos':'33'));
+/* filtros únicos (barra "Buscar y filtrar") */
+const F = () => ({t:$('lk').value.trim(), s:$('fS').value, c:$('fC').value, u:$('fU').value, ti:$('fT').value, e:$('fE').value});
+const subMov = x => (String(x.tipo||'').match(/(\d+)\s*$/)||[])[1] || PB()[x.bip]?.sub || '';
+const syncScope = () => { const s=$('fS').value; state.scope = s==='33' ? '33' : s ? 'pagos' : 'todos'; };
+const projOk = p => { const f=F(); return (!f.s||p.sub===f.s) && (!f.c||p.comuna===f.c) && (!f.u||p.unidadTecnica===f.u); };
+const movOk = x => { const f=F(), p=PB()[x.bip]; return (!f.s||subMov(x)===f.s) && (!f.c||(x.comuna||p?.comuna)===f.c) && (!f.u||(x.ut||p?.unidadTecnica)===f.u); };
+const esBipQ = () => /^\d{5,}$/.test($('lk').value.trim());
+const bipMatch = (b,q) => q.length>=8 ? String(b)===q : String(b).startsWith(q);
+const textProj = p => { const q=norm($('lk').value.trim()); if(!q) return true; return esBipQ() ? bipMatch(p.bip,q) : (p.bip.includes(q) || norm(p.nombre).includes(q) || norm(p.empresa||'').includes(q) || (state.lic[p.bip]||[]).some(l=>norm(l.codigo).includes(q)) || (state.sgd[p.bip]||[]).some(d=>d.numero===q||d.nDoc===q)); };
+const textMov = x => { const q=norm($('lk').value.trim()); if(!q) return true; if (esBipQ()) return bipMatch(x.bip,q);
+  const pr=PB()[x.bip], qd=q.replace(/[^0-9]/g,'');
+  return x.bip.includes(q) || norm(pr?.nombre||'').includes(q) || (x.memo||'')===q || (x.factura||'')===q || norm(x.proveedor||'').includes(q) || (qd.length>=4 && qd===q && String(x.monto).includes(qd)); };
+const scoped = () => state.projects.filter(projOk);
+const cuadOk = c => { const p=PB()[c.bip]; return p ? projOk(p) : (state.scope==='todos' || c.fam===state.scope); };
+const baseDe = p => p.contratado>0 ? p.contratado : p.aprobado;
+const saldoDe = p => Math.max(0, baseDe(p)-p.transferido);
+const porRendirDe = p => Math.max(0, p.transferido - p.rendido);
+const grupoDe = sit => { const u=(sit||'').toUpperCase(); for (const k in GRUPOS) if (GRUPOS[k].s.includes(u)) return k; return 'otro'; };
+const sitDe = p => (state.gestion[p.bip]?.estado) || p.situacion;
+const terminoDe = p => (state.gestion[p.bip]?.vigencia) || p.termino;
+const clase = t => /rendic/i.test(t)?'rendicion':/transf|remesa/i.test(t)?'transferencia':'pago';
+const devuelto = x => x.etapa==='tramite' && /\(\d+\)\s*$/.test(x.ubicacion||'');
+const fechaMov = x => state.base==='memo' ? (x.fechaMemo||x.creado) : state.base==='envio' ? (x.enviado||x.creado) : x.etapa==='cursado' ? x.fechaCurso : x.creado;
+const FUENTE_ENV = {bitacora:'Según la bitácora DAF: día en que la siguiente bandeja recibió el memo', memo:'Fecha del memo', creado:'Fecha de creación del trámite (el memo tiene fecha anterior)'};
+const memoHtml = x => x.fechaMemo ? `<span class="num">${fmtD(x.fechaMemo)}</span>` : '<span class="muted" title="El archivo cargado no trae la fecha del memo">—</span>';
+const envHtml = x => x.enviado ? `<span class="num" title="${esc(FUENTE_ENV[x.enviadoFuente]||'')}">${fmtD(x.enviado)}</span>` : '<span class="muted">—</span>';
+const vivos = () => state.libro.filter(x=>x.enArchivo!==false);
+const pendDe = bip => vivos().filter(m=>m.bip===bip && m.etapa==='tramite' && clase(m.tipo)!=='rendicion');
+state.desde = hoy.slice(0,8)+'01'; state.hasta = hoy;
+try{ const s=localStorage.getItem('cm-sub'); if(['33','29','31','22'].includes(s)) state._sub0=s; }catch(_){}
+
+function allMoves(){
+  const out=state.libro.map(m=>({...m, origen:'Libro'}));
+  for (const bip in state.gestion){ const g=state.gestion[bip]; const p=PB()[bip]; (g.entradas||[]).forEach((e,i)=>out.push({id:`panel-${bip}-${i}`, bip, tipo:e.tipo, creado:e.fecha, monto:e.monto, nota:e.nota||'', origen:'Panel', ut:p?.unidadTecnica||'', fam:p?famDe(p):undefined})); }
+  return out;
+}
+
+function alertasDe(p){
+  const a=[]; const sit=sitDe(p).toUpperCase(); const g=grupoDe(sit); const mv=vivos().filter(m=>m.bip===p.bip);
+  if (sit==='OBRA PARALIZADA') a.push('paralizada');
+  const t=terminoDe(p), d=daysFrom(t);
+  if (g==='ejec' && t && p.avance<100 && sit!=='OBRA PARALIZADA'){ if (d<0) a.push('vencido'); else if (d<=30) a.push('porVencer'); }
+  if ((g==='ejec'||g==='reev') && p.ultimaAct && daysFrom(p.ultimaAct) < -30) a.push('sinAct');
+  if (mv.some(devuelto)) a.push('devuelto');
+  if (mv.some(m=>m.etapa==='rechazado')) a.push('rechazado');
+  if (mv.some(m=>m.etapa==='tramite' && m.creado && daysFrom(m.creado) < -30)) a.push('tramite');
+  if (state.cuad.some(c=>c.bip===p.bip)) a.push('cuadratura');
+  if (g==='cierre' && p.ultimaAct && daysFrom(p.ultimaAct) < -90) a.push('cierreLento');
+  if (p.sub==='33' && g!=='cerrado' && porRendirDe(p) > 0) a.push('porRendir');
+  if (normaDe(p).some(h=>h.sev!=='info')) a.push('normativa');
+  return a;
+}
+
+/* ---------- ley de compras públicas (Ley 19.886 modificada por Ley 21.634; reglamento DS 661/2024) ---------- */
+const UTM={'2026-01':69751,'2026-02':69611,'2026-03':69889,'2026-04':69889,'2026-05':70588,'2026-06':71506,'2026-07':71649,'2026-08':71649,'2026-09':71721,'2026-10':72151,'2026-11':72440}; // SII
+const UTM_ANIO={2020:50500,2021:52500,2022:57500,2023:62500,2024:65500,2025:68500}; // promedio aproximado del año, solo para ubicar tramos
+const utmDe = f => { const ks=Object.keys(UTM).sort(), k=(f||'').slice(0,7)||ks[ks.length-1]; return UTM[k]||UTM_ANIO[k.slice(0,4)]||UTM[k<ks[0]?ks[0]:ks[ks.length-1]]; };
+const fmtUTM = n => Math.round(n).toLocaleString('es-CL')+' UTM';
+const REFORMA='2024-12-12';
+const TRAMOS_N={L1:0,LE:1,LP:2,LQ:3,LR:4};
+function tramoEsperado(utm, f){ if(utm<100) return 'L1'; if(utm<1000) return 'LE'; if((f||'')>=REFORMA) return utm<5000?'LP':'LR'; return utm<2000?'LP':utm<5000?'LQ':'LR'; }
+const tipoLic = c => { const m=/-([A-Z][A-Z0-9])\d{2}$/.exec(c||''); return m?m[1]:''; };
+const _norma={};
+function normaDe(p){
+  const key=p.bip+'|'+state.libro.length+'|'+Object.keys(state.lic).length; if(_norma[p.bip]?.key===key) return _norma[p.bip].h;
+  const otroBip = l => (String(l.nombre||'').match(/\b\d{8}\b/g)||[]).some(b=>b!==p.bip && PB()[b]);   // el nombre trae el BIP de otro proyecto: vínculo dudoso
+  const h=[], lic=(state.lic[p.bip]||[]).filter(l=>l.confirmada && !otroBip(l));
+  const rutN = r => String(r||'').replace(/[^0-9kK]/g,'').toUpperCase();
+  const PLAZO={L1:[5,5],LE:[10,5],LP:[20,10],LQ:[20,10],LR:[30,30]};   // [mínimo, mínimo reducido] en días corridos
+  for (const l of lic){
+    if (!/adjudicada/i.test(l.estado||'')) continue;
+    const t=l.tipo||tipoLic(l.codigo), monto=l.montoEstimado||l.montoAdjudicado, f=l.publicada;
+    if (PLAZO[t] && l.publicada && l.cierre){ const d=Math.round((new Date(l.cierre)-new Date(l.publicada))/864e5), [min,red]=PLAZO[t];
+      if (d<min) h.push({sev:d<red?'warn':'info', regla:d<red?'Plazo de publicación bajo el mínimo':'Plazo de publicación reducido', texto:`La licitación ${l.codigo} (${t}) estuvo publicada ${d} días corridos (${fmtD(l.publicada)} a ${fmtD(l.cierre)}). El mínimo para su tramo es ${min} días${red<min?`, reducible a ${red} solo para bienes o servicios de simple y objetiva especificación`:''}.`, cita:'DS 661 art. 46 (antes DS 250 art. 25): plazos mínimos entre la publicación y el cierre de ofertas.'}); }
+    if (monto && t in TRAMOS_N){ const u=monto/utmDe(f), e=tramoEsperado(u*0.95,f);   // 5% de holgura por IVA y redondeos
+      if (TRAMOS_N[t] < TRAMOS_N[e]) h.push({sev:'warn', regla:'Tramo de licitación menor que el monto', texto:`La licitación ${l.codigo} es ${t} pero su monto (${fmt$(monto)}, unos ${fmtUTM(u)}) corresponde a ${e}. Un tramo menor tiene plazos de publicación más cortos: revisa si hubo fragmentación o un error de tipo.`, cita:(f||'')>=REFORMA?'DS 661 arts. 16, 36 y 46: tramos L1 <100, LE 100-1.000, LP 1.000-5.000 y LR 5.000+ UTM; fragmentar es contrario a la ley (multa de 10 a 100 UTM).':'Nomenclatura ChileCompra previa a dic-2024 (DS 250): L1 <100, LE 100-1.000, LP 1.000-2.000, LQ 2.000-5.000 y LR 5.000+ UTM. El monto en UTM es aproximado para años anteriores a 2026.'}); }
+  }
+  const adjs=lic.filter(l=>/adjudicada/i.test(l.estado||'') && l.montoAdjudicado), adj=adjs.reduce((a,l)=>a+l.montoAdjudicado,0);
+  const esPresupuesto = adjs.some(l=>l.montoEstimado && Math.abs(p.contratado/l.montoEstimado-1)<0.01);   // la planilla trae el presupuesto, no el contrato
+  if (adj && p.contratado && !esPresupuesto && p.contratado > adj*1.19*1.03) h.push({sev:'warn', regla:'Contratado sobre lo adjudicado', texto:`El contrato de la planilla (${fmt$(p.contratado)}) supera en ${Math.round((p.contratado/(adj*1.19)-1)*100)}% lo adjudicado con IVA en ${adjs.map(l=>l.codigo).join(' + ')} (${fmt$(adj)} neto). Si la licitación vinculada es la correcta, debe existir una modificación de contrato aprobada y publicada en Mercado Público, con su orden de compra; si no, revisa el vínculo.`, cita:'DS 661 art. 108: las modificaciones del contrato se publican en el Sistema de Información; cada aumento de monto o prórroga requiere orden de compra. No encontramos un tope porcentual general de aumento en la normativa revisada.'});
+  const cu = p.contratado ? p.contratado/utmDe(p.inicio) : 0;
+  if (!lic.length && p.contratado && cu>=100 && p.empresa) h.push({sev:'info', regla:'Sin licitación vinculada', texto:`No encontramos en Mercado Público (desde 2022) una licitación de la municipalidad vinculada con este contrato de ${fmt$(p.contratado)} con ${p.empresa}. Si fue trato directo, debe estar fundado en una de las siete causales y publicado.`, cita:'Ley 19.886 art. 8 bis y DS 661 arts. 71-78: trato directo con resolución fundada, contrato y orden de compra publicados; si supera 1.000 UTM en las causales de proveedor único o experiencia, se publica antes la intención de contratar.'});
+  for (const m of state.libro.filter(m=>m.bip===p.bip && m.fam==='pagos' && clase(m.tipo)==='pago' && m.etapa!=='reemplazado' && m.etapa!=='rechazado' && m.monto>1)){
+    const ini=m.fechaMemo||m.creado; if(!ini) continue;
+    const fin=m.etapa==='cursado'?m.fechaCurso:null;
+    const dias = fin ? Math.round((new Date(fin)-new Date(ini))/864e5) : -daysFrom(ini);
+    if (dias>30) h.push({sev:fin?'info':'warn', regla:fin?'Pago sobre 30 días':'Pago pendiente sobre 30 días', texto:`${m.tipo}${m.memo?` memo ${m.memo}`:''} a ${m.proveedor||'el proveedor'} por ${fmt$(m.monto)}: ${fin?`se pagó ${dias} días después del memo (${fmtD(ini)} → ${fmtD(fin)})`:`lleva ${dias} días sin pagar desde el memo del ${fmtD(ini)}`}. El plazo legal corre desde la recepción de la factura, que es anterior al memo, así que el atraso real puede ser mayor.`, cita:'DS 661 art. 133: pago dentro de 30 días desde la recepción de la factura; hasta 60 días corridos solo si las bases o el contrato lo fundan.'});
+  }
+  _norma[p.bip]={key,h}; return h;
+}
+function obligacionesDe(p){
+  if(!p.contratado) return [];
+  const u=p.contratado/utmDe(p.inicio), o=[];
+  if (u>1000) o.push(`Garantía de fiel cumplimiento del 5% del precio (contrato sobre 1.000 UTM; en servicios, vigente hasta 60 días hábiles después de terminado). DS 661 arts. 52, 53 y 121-125.`);
+  if (u>1000) o.push(`Garantía de anticipo si hubo anticipo; se devuelve dentro de 10 días hábiles desde la recepción conforme.`);
+  if (u>5000) o.push(`Sobre 5.000 UTM: el contrato se firma al menos 10 días hábiles después de notificada la adjudicación, y la seriedad de la oferta no puede superar el 3%.`);
+  o.push(`Proveedor inscrito y hábil en el Registro de Proveedores, con declaración de no tener vínculos prohibidos con el personal del organismo (Ley 19.886 art. 35 quáter, vigente desde dic-2023).`);
+  if ((p.inicio||'') && p.inicio<REFORMA) o.unshift(`El contrato partió antes del 12-12-2024: se rige por el DS 250 y por las bases de su licitación. Lo que sigue es la regla actual, como referencia.`);
+  return [`Contrato de ${fmt$(p.contratado)}, unos ${fmtUTM(u)} (UTM de ${fmtD(((p.inicio||'').slice(0,7)||'2026-11')+'-01').slice(3)}).`, ...o];
+}
+function normaHtml(p){
+  const h=normaDe(p), o=obligacionesDe(p);
+  if(!h.length && !o.length) return '';
+  return `<section class="panel"><div class="panel-head"><h3 class="eyebrow">Ley de compras públicas</h3><span class="note">Ley 19.886 con Ley 21.634 y DS 661/2024</span></div>
+    ${h.length?h.map(x=>`<div class="lic"><div class="top"><span class="flag ${x.sev==='info'?'info':'warn'}">${esc(x.regla)}</span></div><div class="note" style="color:var(--fg)">${esc(x.texto)}</div><div class="note">${esc(x.cita)}</div></div>`).join(''):'<span class="note">Sin casos de borde detectados con los datos del panel.</span>'}
+    ${o.length?`<details style="margin-top:8px"><summary class="note" style="cursor:pointer">Exigencias según el monto del contrato</summary><ul class="hist">${o.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></details>`:''}</section>`;
+}
+function renderNorma(){
+  const rows=scoped().filter(textProj).flatMap(p=>normaDe(p).filter(x=>x.sev!=='info'||/Pago/.test(x.regla)).map(x=>({p,x})));
+  $('normaNote').textContent = rows.length ? `${rows.length} casos` : '';
+  $('norma').innerHTML = rows.length ? `<thead><tr><th>Proyecto</th><th>Regla</th><th>Detalle</th></tr></thead><tbody>`+rows.map(({p,x})=>`<tr><td class="open" data-open="${esc(p.bip)}"><span class="mono">${esc(p.bip)}</span> <span class="nm">${esc(p.nombre.slice(0,60))}</span><div class="muted">${esc(p.unidadTecnica||'')}</div></td><td>${esc(x.regla)}</td><td style="white-space:normal;min-width:300px">${esc(x.texto)}<div class="muted" style="font-size:.78rem">${esc(x.cita)}</div></td></tr>`).join('')+'</tbody>'
+    : '<tbody><tr><td class="empty">Sin casos de borde con los datos actuales.</td></tr></tbody>';
+}
+
+/* ---------- piezas comunes ---------- */
+function ultimaNota(x){ const L=(x.bitacora||[]).filter(e=>e.texto && !/^ok\.?$/i.test(e.texto)); const b=L.find(e=>!/^Jefe Inversi/i.test(e.quien))||L[0]; return b?`<div class="muted" style="font-size:.78rem">${fmtD(b.fecha)} · ${esc(b.quien)}: “${esc(b.texto.slice(0,140))}”</div>`:''; }
+const etapaHtml = x => x.origen==='Panel' ? '<span class="muted">Registrado por ti</span>'
+  : x.etapa==='rechazado' ? '<span class="flag crit">Rechazado</span>'
+  : x.etapa==='reemplazado' ? `<span class="pill">Reemplazado</span> <span class="muted">${x.reemplazo?`por memo ${esc(x.reemplazo)}`:`por trámite del ${fmtD(x.reemplazoFecha)}`}</span>`
+  : x.etapa==='cursado' ? `<span class="pill g-cerrado">${clase(x.tipo)==='pago'?'Pagado':clase(x.tipo)==='transferencia'?'Transferido':'Cursado'} ${fmtD(x.fechaCurso)}</span>`
+  : `<span class="pill ${devuelto(x)?'g-par':'g-cierre'}">${devuelto(x)?'Devuelto a tu bandeja':clase(x.tipo)==='pago'?'No pagado':clase(x.tipo)==='transferencia'?'No transferido':'Sin cursar'}</span><div class="muted" style="font-size:.78rem">${esc(x.ubicacion||'')}${(x.enviado||x.creado)?` · ${-daysFrom(x.enviado||x.creado)} días desde el envío`:''}</div>`;
+function comHtml(x){
+  const mine = x.origen==='Panel' ? [] : (state.gestion[x.bip]?.comentarios?.[x.id]||[]);
+  let h = ultimaNota(x);
+  if (x.origen==='Panel' && x.nota) h += `<div class="mine-c">${esc(x.nota)}</div>`;
+  h += [...mine].reverse().map(c=>`<div class="mine-c"><span class="d">${fmtD(c.fecha)} · tú</span> ${esc(c.texto)}</div>`).join('');
+  if (x.origen!=='Panel'){
+    h += state.comentando===x.id
+      ? `<div class="com-add"><input id="comIn" placeholder="Escribe el comentario" aria-label="Comentario"><button class="btn primary" data-comsave="${esc(x.id)}" data-cbip="${esc(x.bip)}">Guardar</button><button class="btn" data-comcancel>✕</button></div>`
+      : `<button class="linkbtn" data-com="${esc(x.id)}" ${canWrite?'':'disabled'}>＋ Comentar</button>`;
+  }
+  return `<div class="com">${h}</div>`;
+}
+function movTable(list, {fecha='Fecha', ut=false, empty='Sin movimientos.', proy=true}={}){
+  if (!list.length) return `<tbody><tr><td class="empty">${empty}</td></tr></tbody>`;
+  return `<thead><tr>${proy?'<th>Proyecto</th>':''}<th>${fecha}</th><th>Memo creado (SGD)</th><th>Memo enviado</th><th>Tipo</th><th class="r">Monto</th><th>Estado</th><th>Comentario</th></tr></thead><tbody>`+list.map(x=>{const p=PB()[x.bip];
+    return `<tr>${proy?`<td class="open proy" data-open="${esc(x.bip)}"><span class="mono">${esc(x.bip)}</span><div class="nm">${esc(p?.nombre||'')}</div>${ut?`<div class="muted">${esc(x.ut||p?.unidadTecnica||'')}</div>`:''}</td>`:''}<td class="num">${fmtD(fecha==='Creado'?x.creado:fechaMov(x))}${fecha!=='Creado'&&x.etapa!=='cursado'&&x.origen!=='Panel'?'<div class="muted" style="font-size:.72rem">creado</div>':''}</td><td>${memoHtml(x)}</td><td>${envHtml(x)}</td>
+      <td>${esc(x.tipo)}${x.memo?`<div class="muted">memo ${esc(x.memo)}</div>`:''}${x.factura?`<div class="muted">fact. ${esc(x.factura)}</div>`:''}${x.enArchivo===false?'<div class="gone">ya no viene en archivos</div>':''}</td>
+      <td class="r num">${fmt$(x.monto)}</td><td>${etapaHtml(x)}</td><td>${comHtml(x)}</td></tr>`}).join('')+'</tbody>';
+}
+
+/* ---------- encabezado ---------- */
+function renderLoad(){
+  const m=state.meta;
+  $('load').innerHTML = m ? `Última carga <b>${esc(fmtD(m.cargado.slice(0,10)))}</b><br>${state.libro.length} movimientos en el libro` : 'Sin datos cargados todavía';
+}
+function renderScope(){
+  document.querySelectorAll('#tabs [data-tab]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===state.tab)));
+  ['mov','rev','proy','cargas'].forEach(t=>$('tab-'+t).hidden = t!==state.tab);
+}
+function renderTotals(){
+  const P=scoped().filter(p=>grupoDe(sitDe(p))!=='cerrado' && textProj(p));
+  const T=P.filter(p=>p.sub==='33'), G=P.filter(p=>p.sub!=='33');
+  const sum=(L,k)=>L.reduce((s,p)=>s+(p[k]||0),0);
+  const nTot=scoped().filter(textProj).length;
+  const items=[['Proyectos vigentes', P.length.toLocaleString('es-CL'), `${nTot} en la selección`], ['Aprobado GORE','MM$ '+fmtMM(sum(P,'aprobado')),'proyectos vigentes'], ['Contratado','MM$ '+fmtMM(sum(P,'contratado')),'proyectos vigentes']];
+  if (T.length || state.scope==='33') items.push(['Transferido','MM$ '+fmtMM(sum(T,'transferido')),'Sub. 33 acumulado'], ['Por transferir','MM$ '+fmtMM(T.reduce((s,p)=>s+saldoDe(p),0)),'contratado (o aprobado) − transferido'], ['Rendido','MM$ '+fmtMM(sum(T,'rendido')),'Sub. 33 acumulado'], ['Por rendir','MM$ '+fmtMM(T.reduce((s,p)=>s+porRendirDe(p),0)),'transferido − rendido']);
+  if (G.length || state.scope==='pagos') items.push(['Pagado','MM$ '+fmtMM(sum(G,'transferido')),'Sub. 22, 29 y 31 acumulado'], ['Pendiente de pago','MM$ '+fmtMM(G.reduce((s,p)=>s+saldoDe(p),0)),'contratado (o aprobado) − pagado']);
+  $('totals').innerHTML = state.projects.length ? items.map(([h,v,s])=>`<div class="tot"><span class="eyebrow">${h}</span><span class="v">${v}</span><span class="h">${s}</span></div>`).join('') : '<div class="tot"><span class="h">Los totales aparecen cuando se cargan los proyectos.</span></div>';
+}
+
+function renderCxS(){}
+
+/* ---------- movimientos por unidad técnica ---------- */
+const PER = {mes:'Mes en curso', ant:'Mes anterior', anio:'Año en curso', todo:'Todo el período', rango:'Fechas a elección'};
+const TIPOS = {transferencia:'Transferencias', rendicion:'Rendiciones', pago:'Pagos'};
+const ESTMOV = {cursado:'Cursados / pagados', tramite:'En trámite', devuelto:'Devueltos a tu bandeja', otros:'Rechazados o reemplazados'};
+const utNom = u => String(u||'Sin unidad técnica').replace(/^MUNICIPALIDAD DE /,'Municipalidad de ').replace(/\b([A-ZÁÉÍÓÚÑ])([A-ZÁÉÍÓÚÑ]+)\b/g,(m,a,b)=>a+b.toLowerCase());
+function selMoves(){
+  const f=F(), d=state.desde||'0000', h=state.hasta||'9999';
+  return allMoves().filter(x=>{
+    if (!movOk(x) || !textMov(x)) return false;
+    if (state.desde||state.hasta){ const fm=fechaMov(x); if(!fm || fm<d || fm>h) return false; }
+    if (f.ti && clase(x.tipo)!==f.ti) return false;
+    if (f.e==='cursado' && x.etapa!=='cursado') return false;
+    if (f.e==='tramite' && x.etapa!=='tramite') return false;
+    if (f.e==='devuelto' && !devuelto(x)) return false;
+    if (f.e==='otros' && !['rechazado','reemplazado'].includes(x.etapa)) return false;
+    return true;
+  }).sort((a,b)=>(fechaMov(b)||'').localeCompare(fechaMov(a)||''));
+}
+function bloque(key, titulo, sub, l, empty){
+  const open=state._utOpen||(state._utOpen={});
+  const bip = key.startsWith('p-') ? key.slice(2) : '';   // bloque de un solo proyecto: el encabezado ya dice cuál es
+  const h = bip ? `<h3 class="open" data-open="${esc(bip)}" title="Ver la información completa del proyecto"><span class="nm">${titulo}</span></h3>` : `<h3>${titulo}</h3>`;
+  return `<details class="ut" data-ut="${esc(key)}" ${open[key]===false?'':'open'}><summary>${h}<span class="s">${sub}${bip?' · <span class="linkbtn open" data-open="'+esc(bip)+'">Ver ficha</span>':''}</span></summary><div class="inner scroll"><table>${movTable(l,{empty, proy:!bip})}</table></div></details>`;
+}
+function resumenL(l){
+  const vc=l.filter(x=>x.etapa==='cursado'&&x.origen!=='Panel').reduce((a,x)=>a+x.monto,0), vt=l.filter(x=>x.etapa==='tramite').reduce((a,x)=>a+x.monto,0);
+  return `<b>${l.length}</b> ${l.length===1?'movimiento':'movimientos'} · cursado o pagado <b>${fmt$(vc)}</b> · en trámite <b>${fmt$(vt)}</b>`;
+}
+function renderMov(){
+  $('rDesde').value=state.desde; $('rHasta').value=state.hasta; $('fP').value=state.per;
+  const f=F(), L=selMoves(), P=scoped().filter(textProj);
+  // lo que eligió el usuario
+  const sel=[];
+  if (f.t) sel.push(esBipQ()&&PB()[f.t] ? `BIP ${esc(f.t)}` : `«${esc(f.t)}»`);
+  if (f.s) sel.push('Subtítulo '+esc(f.s)); if (f.c) sel.push(esc(f.c)); if (f.u) sel.push(esc(utNom(f.u)));
+  if (f.ti) sel.push(TIPOS[f.ti]); if (f.e) sel.push(ESTMOV[f.e]);
+  const perTxt = state.per==='todo' ? 'todo el período' : `${PER[state.per].toLowerCase()} (${fmtD(state.desde)} al ${fmtD(state.hasta)})`;
+  const base = state.base==='memo'?'fecha de creación del memo':state.base==='envio'?'fecha de envío del memo':'fecha de curse, o de creación si sigue en trámite';
+  const nP = new Set(L.map(x=>x.bip)).size;
+  // proyecto identificado: ficha + lista
+  const unico = f.t && (esBipQ() ? P.length===1 : P.length===1) ? P[0] : null;
+  const nFil = [f.t,f.s,f.c,f.u,f.ti,f.e].filter(Boolean).length;
+  const modo = unico ? 'proyecto' : f.u ? 'porProyecto' : nFil>=2 ? 'seleccion' : 'porUT';
+  const verTxt = {proyecto:'Detalle del proyecto', porProyecto:'Detalle por proyecto', seleccion:'Detalle de tu selección en una sola lista', porUT:'Detalle por unidad técnica'}[modo];
+  $('rNote').innerHTML = `<div class="sel"><b>Selección:</b> ${sel.length?sel.join(' · '):'Todos los subtítulos'} · ${perTxt}</div>
+    <div>${P.length} ${P.length===1?'proyecto':'proyectos'} en la selección, ${nP} con movimientos · ${resumenL(L)}.</div><div><b>${verTxt}.</b></div>
+    <div class="muted">Lo cursado o pagado se ubica por su fecha de curse; lo que sigue en trámite, por su fecha de creación.</div>`;
+  const s=(fn)=>{const l=L.filter(fn); return [l.reduce((a,x)=>a+x.monto,0), l.length];};
+  const cur = c => x=>x.origen!=='Panel' && x.etapa==='cursado' && clase(x.tipo)===c;
+  const has33 = P.some(p=>p.sub==='33'), hasPago = P.some(p=>p.sub!=='33');
+  const puede = c => (!f.ti||f.ti===c) && (c==='pago' ? hasPago : has33);
+  const cells=[];
+  if (puede('transferencia')) cells.push(['Transferido',s(cur('transferencia'))]);
+  if (puede('rendicion')) cells.push(['Rendido',s(cur('rendicion'))]);
+  if (puede('pago')) cells.push(['Pagado',s(cur('pago'))]);
+  cells.push(['En trámite',s(x=>x.etapa==='tramite')], ['Devuelto a tu bandeja',s(devuelto)]);
+  $('rTotals').innerHTML = cells.map(([t,[v,n]])=>`<div class="tot"><span class="eyebrow">${t}</span><span class="v" style="font-size:1.05rem">${fmt$(v)}</span><span class="h">${n} ${n===1?'movimiento':'movimientos'}</span></div>`).join('');
+  $('lkCard').innerHTML = unico ? fichaBip(unico) : '';
+  const vacio = state.per!=='todo' ? 'Sin movimientos en este período. Prueba con «Todo el período».' : 'Sin movimientos para esta selección.';
+  let html='';
+  if (modo==='proyecto'){
+    html = bloque('p-'+unico.bip, `<span class="mono">${esc(unico.bip)}</span> ${esc(unico.nombre)}`, resumenL(L), L, vacio);
+  } else if (modo==='seleccion'){
+    html = bloque('sel', sel.join(' · '), `${nP} ${nP===1?'proyecto':'proyectos'} · ${resumenL(L)}`, L, vacio);
+  } else if (modo==='porProyecto'){
+    const bips=[...new Set(L.map(x=>x.bip))];
+    html = bips.map(b=>{ const p=PB()[b], l=L.filter(x=>x.bip===b); return bloque('p-'+b, `<span class="mono">${esc(b)}</span> ${esc(p?.nombre||'')}`, `Sub. ${esc(p?.sub||subMov(l[0]))} · ${resumenL(l)}`, l, vacio); }).join('');
+    if (!html) html = `<div class="panel"><span class="empty">${vacio}</span></div>`;
+  } else {
+    const uts=[...new Set(P.map(p=>p.unidadTecnica).concat(L.map(x=>x.ut)).filter(Boolean))].sort();
+    html = uts.map(u=>{ const l=L.filter(x=>(x.ut||PB()[x.bip]?.unidadTecnica)===u);
+      if ((f.t||f.ti||f.e) && !l.length) return '';
+      const n=P.filter(p=>p.unidadTecnica===u).length;
+      return bloque(u, esc(utNom(u)), `${n} ${n===1?'proyecto':'proyectos'} · ${resumenL(l)}`, l, vacio); }).join('');
+  }
+  $('uts').innerHTML = html || `<div class="panel"><span class="empty">${state.projects.length?vacio:'Sin datos cargados todavía.'}</span></div>`;
+}
+
+/* ---------- por revisar ---------- */
+function renderRev(){
+  const L=allMoves().filter(x=>x.origen!=='Panel' && x.enArchivo!==false && movOk(x) && textMov(x));
+  const dev=L.filter(devuelto);
+  $('devNote').textContent = dev.length ? `${dev.length} por ${fmt$(dev.reduce((a,x)=>a+x.monto,0))}` : '';
+  $('dev').innerHTML = movTable(dev,{fecha:'Creado',ut:true,empty:'No tienes nada devuelto en tu bandeja.'});
+  const pend=L.filter(x=>(x.etapa==='tramite' && !devuelto(x))||x.etapa==='rechazado').sort((a,b)=>(a.creado||'').localeCompare(b.creado||''));
+  $('pendNote').textContent = pend.length ? `${pend.length} por ${fmt$(pend.reduce((a,x)=>a+x.monto,0))}, los más antiguos primero` : '';
+  $('pend').innerHTML = movTable(pend,{fecha:'Creado',ut:true,empty:'No hay trámites pendientes.'});
+  const C=state.cuad.filter(c=>cuadOk(c) && (!PB()[c.bip] || textProj(PB()[c.bip])));
+  $('cuadNote').textContent = C.length ? `${C.length} diferencias · carga del ${fmtD(state.meta?.cargado?.slice(0,10))}` : '';
+  $('cuad').innerHTML = C.length ? `<thead><tr><th>Proyecto</th><th>Diferencia</th><th>Detalle</th><th class="r">Monto</th></tr></thead><tbody>`+C.map(c=>{const p=PB()[c.bip]; return `<tr><td class="open" data-open="${esc(c.bip)}"><span class="mono">${esc(c.bip)}</span> <span class="nm">${esc((p?.nombre||'').slice(0,60))}</span><div class="muted">${esc(p?.unidadTecnica||'')}</div></td><td>${esc(REGLAS[c.regla]||c.regla)}</td><td style="white-space:normal;min-width:260px">${esc(c.detalle)}</td><td class="r num">${fmt$(c.monto)}</td></tr>`}).join('')+'</tbody>'
+    : '<tbody><tr><td class="empty">La planilla de proyectos y el libro calzan.</td></tr></tbody>';
+  const gone=allMoves().filter(x=>x.enArchivo===false && x.etapa!=='cursado' && movOk(x) && textMov(x));
+  $('gone').innerHTML = movTable(gone,{fecha:'Creado',ut:true,empty:'Ninguno.'});
+  renderNorma();
+  const n=dev.length + C.length;
+  $('nRev').hidden=!n; $('nRev').textContent=n;
+}
+
+/* ---------- proyectos ---------- */
+function renderAlerts(){
+  const counts={}; for (const k in ALERTAS) counts[k]=0;
+  scoped().filter(textProj).forEach(p=>alertasDe(p).forEach(a=>counts[a]++));
+  $('alerts').innerHTML = Object.entries(ALERTAS).filter(([k])=>!(k==='porRendir'&&state.scope==='pagos')).map(([k,a])=>`<button class="chip ${a.sev} ${counts[k]?'':'zero'}" data-al="${k}" aria-pressed="${state.filter.alerta===k}"><span class="n">${counts[k]}</span>${a.label}</button>`).join('');
+}
+function filtered(){
+  const g=$('fGrupo').value, al=state.filter.alerta;
+  return scoped().filter(p=>{
+    if (!textProj(p)) return false;
+    if (g && grupoDe(sitDe(p))!==g) return false;
+    if (al && !alertasDe(p).includes(al)) return false;
+    return true;
+  });
+}
+const enTramiteHtml = p => { const pe=pendDe(p.bip); return pe.length?`<span class="pill g-cierre">${pe.length} · ${fmt$(pe.reduce((s,m)=>s+m.monto,0))}</span>`:'<span class="muted">—</span>'; };
+function montoCols(){
+  const m = (h, f) => ({h, f, r:true});
+  if (state.scope==='33') return [m('Aprobado GORE',p=>fmt$(p.aprobado)), m('Contratado',p=>fmt$(p.contratado)), m('Transferido',p=>fmt$(p.transferido)), m('Por transferir',p=>fmt$(saldoDe(p))), m('Rendido',p=>fmt$(p.rendido)), m('Por rendir',p=>fmt$(porRendirDe(p))), {h:'Transf. en trámite', f:enTramiteHtml}];
+  if (state.scope==='todos') return [m('Aprobado GORE',p=>fmt$(p.aprobado)), m('Contratado',p=>fmt$(p.contratado)), m('Transferido o pagado',p=>fmt$(p.transferido)), m('Saldo',p=>fmt$(saldoDe(p))), m('Rendido',p=>p.sub==='33'?fmt$(p.rendido):'<span class="muted">—</span>'), {h:'En trámite', f:enTramiteHtml}];
+  return [m('Aprobado GORE',p=>fmt$(p.aprobado)), m('Contratado',p=>fmt$(p.contratado)), m('Pagado',p=>fmt$(p.transferido)), m('Pendiente de pago',p=>fmt$(saldoDe(p))), {h:'Estados de pago no pagados', f:enTramiteHtml}];
+}
+function renderRegister(){
+  const L=filtered().sort((a,b)=>alertasDe(b).length-alertasDe(a).length || b.aprobado-a.aprobado);
+  $('count').textContent = `${L.length} de ${state.projects.length} proyectos`;
+  if (!state.projects.length){ $('reg').innerHTML='<tbody><tr><td class="empty">Los proyectos aparecerán aquí cuando Claude cargue la planilla de cada viernes.</td></tr></tbody>'; return; }
+  const C=montoCols();
+  $('reg').innerHTML = `<thead><tr><th>BIP</th><th>Proyecto</th><th>Situación</th><th class="r">Avance</th>${C.map(c=>`<th class="${c.r?'r':''}">${c.h}</th>`).join('')}<th>Término</th></tr></thead><tbody>`+
+    (L.length? L.map(p=>{const sit=sitDe(p), g=grupoDe(sit), al=alertasDe(p), t=terminoDe(p), mine=state.gestion[p.bip];
+      const cls = sit.toUpperCase()==='OBRA PARALIZADA'?'g-par':(GRUPOS[g]?.cls||'');
+      return `<tr data-open="${p.bip}" class="open"><td class="mono">${p.bip}<div class="muted">Sub. ${esc(p.sub)}</div></td><td class="name"><span class="nm">${esc(p.nombre)}</span><div class="muted">${esc(p.unidadTecnica)}</div>${licRef(p)}${mine?.proxima?`<div class="mine">→ ${esc(mine.proxima)}</div>`:''}${al.length?`<div class="flags">${al.map(a=>`<span class="flag ${ALERTAS[a].sev}">${ALERTAS[a].label.replace(/^(Obras|Contratos|Memos|Con) /,'')}</span>`).join('')}</div>`:''}</td><td><span class="pill ${cls}">${esc(sit)}</span>${mine?.estado?'<div class="mine">editado</div>':''}</td><td class="r num">${p.avance.toFixed(0)}%</td>${C.map(c=>`<td class="${c.r?'r num':''}">${c.f(p)}</td>`).join('')}<td class="num">${fmtD(t)}${t&&daysFrom(t)!==null?`<div class="muted">${daysFrom(t)<0?`hace ${-daysFrom(t)} días`:`en ${daysFrom(t)} días`}</div>`:''}</td></tr>`}).join('')
+    : `<tr><td colspan="${C.length+5}" class="empty">Ningún proyecto coincide con los filtros.</td></tr>`)+'</tbody>';
+}
+function fillFilters(){
+  const fill=(el,vals,lbl=v=>v)=>{ const cur=el.value, first=el.options[0].outerHTML; el.innerHTML=first+vals.map(v=>`<option value="${esc(v)}">${esc(lbl(v))}</option>`).join(''); el.value=vals.includes(cur)?cur:''; };
+  const s=$('fS').value, c=$('fC').value;
+  fill($('fC'), [...new Set(state.projects.filter(p=>!s||p.sub===s).map(p=>p.comuna).filter(Boolean))].sort((a,b)=>(a==='Regional')-(b==='Regional')||a.localeCompare(b,'es')));
+  fill($('fU'), [...new Set(state.projects.filter(p=>(!s||p.sub===s)&&(!c||p.comuna===c)).map(p=>p.unidadTecnica).filter(Boolean))].sort(), utNom);
+  if ($('fGrupo').options.length<2) $('fGrupo').innerHTML+=Object.entries(GRUPOS).map(([k,g])=>`<option value="${k}">${g.label}</option>`).join('');
+}
+
+/* ---------- historial de cargas ---------- */
+const val = (k,v) => v===null||v===undefined||v==='' ? '—' : k==='etapa' ? (ETAPAS[v]||v) : ['monto','aprobado','contratado','transferido','rendido'].includes(k) ? fmt$(v) : /fecha|inicio|termino|vb/i.test(k) && /^\d{4}-/.test(v) ? fmtD(v) : k==='enArchivo' ? (v?'sí':'no') : k==='avance' ? v+'%' : String(v);
+const cambioTxt = h => h.evento ? esc(h.evento) : Object.entries(h.cambios).map(([k,[a,b]])=>`${esc(CAMPOS[k]||k)}: ${esc(val(k,a))} → <b>${esc(val(k,b))}</b>`).join('<br>');
+function renderCargas(){
+  renderRuta();
+  const C=state.cargas, last=C[C.length-1];
+  $('cargas').innerHTML = C.length ? `<thead><tr><th>Carga</th><th class="r">Nuevos</th><th class="r">Con cambios</th><th class="r">Ya no vienen</th><th class="r">Proyectos con cambios</th><th class="r">Diferencias cuadratura</th><th>Archivos</th></tr></thead><tbody>`+
+    [...C].reverse().map(c=>`<tr><td class="num">${fmtD(c.fecha)}</td><td class="r num">${c.nuevos}</td><td class="r num">${c.cambiados}</td><td class="r num">${c.desaparecidos}</td><td class="r num">${c.proyectosCambiados}</td><td class="r num">${c.cuadratura}</td><td style="white-space:normal" class="muted">${c.archivos.map(esc).join('<br>')}</td></tr>`).join('')+'</tbody>'
+    : '<tbody><tr><td class="empty">Aún no hay cargas registradas.</td></tr></tbody>';
+  if (!last){ $('ult').innerHTML=''; return; }
+  const rows=[];
+  state.libro.filter(x=>movOk(x) && textMov(x)).forEach(x=>(x.historial||[]).forEach(h=>{ if(h.carga===last.fecha && h.evento!=='Carga inicial') rows.push({bip:x.bip, que:`${esc(x.tipo)} ${fmt$(x.monto)}${x.memo?` · memo ${esc(x.memo)}`:''}`, h}); }));
+  Object.entries(state.hist).forEach(([bip,L])=>{ const p=PB()[bip]; if(p && !(projOk(p) && textProj(p))) return; L.forEach(h=>{ if(h.carga===last.fecha) rows.push({bip, que:'Planilla de proyectos', h}); }); });
+  $('ultNote').textContent = `Carga del ${fmtD(last.fecha)}`;
+  $('ult').innerHTML = rows.length ? `<thead><tr><th>Proyecto</th><th>Qué</th><th>Cambio</th></tr></thead><tbody>`+rows.map(r=>`<tr><td class="open" data-open="${esc(r.bip)}"><span class="mono">${esc(r.bip)}</span> <span class="nm">${esc((PB()[r.bip]?.nombre||'').slice(0,50))}</span></td><td>${r.que}</td><td style="white-space:normal">${cambioTxt(r.h)}</td></tr>`).join('')+'</tbody>'
+    : `<tbody><tr><td class="empty">${C.length<2?'Esta fue la carga inicial del libro. Desde el próximo viernes aquí verás qué cambió de una semana a otra.':'Nada cambió en esta carga.'}</td></tr></tbody>`;
+}
+
+/* ---------- recorrido SGD → SAGIR ---------- */
+const dnum = d => d ? Date.UTC(+d.slice(0,4), +d.slice(5,7)-1, +d.slice(8,10))/864e5 : null;
+const MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function rutaDe(x){
+  const ini = x.fechaMemo || x.creado, env = x.enviado || x.creado, sag = x.creado || env;
+  const fin = x.etapa==='cursado' ? x.fechaCurso : x.etapa==='tramite' ? hoy : (x.vb || x.ultimoEnvio || x.creado);
+  const accion = devuelto(x) || x.etapa==='rechazado';
+  const hitos = [];
+  if (x.fechaMemo) hitos.push({f:x.fechaMemo, t:'Memo creado en SGD'});
+  if (x.enviado) hitos.push({f:x.enviado, t:'Memo enviado'});
+  if (x.creado) hitos.push({f:x.creado, t:'Ingresa a SAGIR'});
+  (x.bitacora||[]).forEach(b=>hitos.push({f:b.fecha, t:`${b.quien}${b.persona?' ('+b.persona+')':''}${b.texto?': “'+String(b.texto).slice(0,120)+'”':''}`, bit:true}));
+  if (x.vb) hitos.push({f:x.vb, t:'V°B°'});
+  if (x.etapa==='cursado') hitos.push({f:x.fechaCurso, t:clase(x.tipo)==='pago'?'Pagado':clase(x.tipo)==='transferencia'?'Transferido':'Cursado', fin:true});
+  return {ini, env, sag, fin, accion, hitos:hitos.filter(h=>h.f)};
+}
+function renderRuta(){
+  const el=$('ruta'); if(!el) return;
+  const f=F(), d=state.desde, h=state.hasta;
+  let L=allMoves().filter(x=>x.origen!=='Panel' && x.enArchivo!==false && movOk(x) && textMov(x)).filter(x=>{
+    if (f.ti && clase(x.tipo)!==f.ti) return false;
+    if (f.e==='cursado' && x.etapa!=='cursado') return false;
+    if (f.e==='tramite' && x.etapa!=='tramite') return false;
+    if (f.e==='devuelto' && !devuelto(x)) return false;
+    if (f.e==='otros' && !['rechazado','reemplazado'].includes(x.etapa)) return false;
+    const r=rutaDe(x); if (d && r.fin && r.fin<d) return false; if (h && r.ini && r.ini>h) return false;   // se cruza con el período
+    return true; });
+  const orden = x => devuelto(x) ? 0 : x.etapa==='tramite' ? 1 : x.etapa==='rechazado' ? 2 : 3;
+  L.sort((a,b)=>orden(a)-orden(b) || (orden(a)<2 ? (a.creado||'').localeCompare(b.creado||'') : (rutaDe(b).fin||'').localeCompare(rutaDe(a).fin||'')));
+  const total=L.length, MAX=60; L=L.slice(0,MAX);
+  $('rutaNote').textContent = total ? `${total} ${total===1?'trámite':'trámites'} de tu selección${total>MAX?`, se muestran los ${MAX} primeros`:''} · primero lo devuelto y lo que sigue en trámite` : '';
+  if (!L.length){ el.innerHTML='<div class="empty">No hay trámites para esta selección.</div>'; return; }
+  const dias=(a,b)=>a&&b?dnum(b)-dnum(a):null;
+  // eje: todo el recorrido de lo elegido, hasta hoy
+  const R=L.map(x=>({x, r:rutaDe(x)}));
+  let a=Math.min(...R.map(o=>dnum(o.r.ini)).filter(v=>v!=null)), b=Math.max(dnum(hoy), ...R.map(o=>dnum(o.r.fin)||0));
+  a=Math.floor(a)-3; b=Math.ceil(b)+Math.max(6,(b-a)*.04);
+  const P=v=>((v-a)/(b-a)*100).toFixed(2)+'%', PD=dt=>P(dnum(dt));
+  const meses=[]; { const t0=new Date(a*864e5); let mt=new Date(Date.UTC(t0.getUTCFullYear(), t0.getUTCMonth(), 1)); while(mt.getTime()/864e5<=b){ meses.push(mt); mt=new Date(Date.UTC(mt.getUTCFullYear(), mt.getUTCMonth()+1, 1)); } }
+  const ancho=(b-a)/meses.length;  // días por mes visible
+  const lines = meses.map(m=>m.getTime()/864e5>=a?`<span class="mo" style="left:${P(m.getTime()/864e5)}"></span>`:'').join('') + `<span class="hy" style="left:${PD(hoy)}"></span>`;
+  const hdr = `<div class="gr hdr gh"><div class="gl"><span>Proyecto / trámite</span><span class="c2">Monto</span><span class="c3">Estado</span></div><div class="gt">${lines}${meses.map((m,i)=>{ const t=Math.max(a,m.getTime()/864e5); const q=m.getUTCMonth()%3===0||i===0; return (q?`<span class="lab q" style="left:${P(t)}">T${Math.floor(m.getUTCMonth()/3)+1} ${m.getUTCFullYear()}</span>`:'')+(meses.length<=14||m.getUTCMonth()%2===0?`<span class="lab m" style="left:${P(t)}">${MES[m.getUTCMonth()]}</span>`:''); }).join('')}<span class="hyl" style="left:${PD(hoy)}">Hoy ${fmtD(hoy).slice(0,5)}</span></div></div>`;
+  // agrupar por proyecto, en el orden ya calculado
+  const grupos=[]; const gi={};
+  R.forEach(o=>{ if(!(o.x.bip in gi)){ gi[o.x.bip]=grupos.length; grupos.push({bip:o.x.bip, items:[]}); } grupos[gi[o.x.bip]].items.push(o); });
+  const abiertos=state._gOpen||(state._gOpen={});
+  const estadoTxt = x => x.etapa==='cursado' ? [clase(x.tipo)==='pago'?'Pagado':clase(x.tipo)==='transferencia'?'Transferido':'Cursado','g-cerrado'] : devuelto(x) ? ['En tu bandeja','g-par'] : x.etapa==='tramite' ? ['En trámite','g-cierre'] : [ETAPAS[x.etapa]||x.etapa,'g-par'];
+  const etiqueta=(txt,fin,ini)=>{ const pf=(dnum(fin)-a)/(b-a), pi=(dnum(ini)-a)/(b-a);
+    if (pf<=0.72) return `<span class="bl" style="left:${PD(fin)}">${txt}</span>`;
+    if (pi>=0.3) return `<span class="bl izq" style="left:${PD(ini)}">${txt}</span>`;
+    return `<span class="bl den" style="left:${PD(ini)}">${txt}</span>`; };   // barra larga: el texto va dentro
+  const filas = grupos.map(g=>{
+    const p=PB()[g.bip], ini=g.items.map(o=>o.r.ini).filter(Boolean).sort()[0], fin=g.items.map(o=>o.r.fin).filter(Boolean).sort().slice(-1)[0];
+    const open = abiertos[g.bip]!==false;
+    const gRow = `<div class="gr gp" data-gt="${esc(g.bip)}"><div class="gl"><span><span class="tg">${open?'⊟':'⊞'}</span><span class="mono">${esc(g.bip)}</span> ${esc(p?.nombre||'')}</span><span class="c2">${g.items.length} ${g.items.length===1?'trámite':'trámites'}</span><span class="c3 muted">${esc(p?.comuna||'')}</span></div><div class="gt">${lines}${ini&&fin?`<span class="sum" style="left:${PD(ini)};width:calc(${P(dnum(fin))} - ${PD(ini)})" data-tip="${esc((p?.nombre||g.bip)+': '+fmtD(ini)+' – '+fmtD(fin))}"></span>`+etiqueta(`<span class="sumtxt">${fmtD(ini)} – ${fmtD(fin)}</span>`,fin,ini):''}</div></div>`;
+    if (!open) return gRow;
+    return gRow + g.items.map(({x,r})=>{
+      const [et,cls]=estadoTxt(x); const col = r.accion ? '--c-dev' : x.etapa==='cursado' ? '--c-fin' : '--c-sagir';
+      let bars='';
+      if (x.fechaMemo && r.env && x.fechaMemo<r.env) bars+=`<span class="bar" style="left:${PD(x.fechaMemo)};width:calc(${PD(r.env)} - ${PD(x.fechaMemo)});background:var(--c-sgd)" data-tip="${esc(`Memo en SGD: creado ${fmtD(x.fechaMemo)}, enviado ${fmtD(r.env)} (${dias(x.fechaMemo,r.env)} días)`)}"></span>`;
+      const dS=dias(r.sag,r.fin);
+      if (r.sag && r.fin) bars+=`<span class="bar" style="left:${PD(r.sag)};width:max(4px, calc(${PD(r.fin)} - ${PD(r.sag)}));background:var(${col})" data-tip="${esc(x.etapa==='cursado'?`En SAGIR del ${fmtD(r.sag)} al ${fmtD(r.fin)}: ${dS} días`:x.etapa==='tramite'?`En SAGIR desde el ${fmtD(r.sag)}: ${dS} días · hoy en ${x.ubicacion||'—'}`:`En SAGIR desde el ${fmtD(r.sag)} · ${ETAPAS[x.etapa]||x.etapa}`)}"></span>`;
+      bars += r.hitos.filter(hh=>hh.bit||hh.t==='V°B°').map(hh=>`<span class="pt" style="left:${PD(hh.f)}" data-tip="${esc(fmtD(hh.f)+' · '+hh.t)}"></span>`).join('');
+      const fTxt = x.etapa==='cursado' ? `${et} ${fmtD(x.fechaCurso)}` : x.etapa==='tramite' ? `${devuelto(x)?'En tu bandeja':'Hoy en '+(x.ubicacion||'—')} · ${dS} días` : et;
+      return `<div class="gr gc"><div class="gl"><span title="${esc(x.tipo+(x.memo?' · memo '+x.memo:''))}">${esc(x.tipo)}${x.memo?` · memo ${esc(x.memo)}`:''}</span><span class="c2 num" style="text-align:right">${fmt$(x.monto)}</span><span class="c3"><span class="pill pillx ${cls}">${et}</span></span></div><div class="gt">${lines}${bars}${etiqueta(esc(fTxt), r.fin||r.sag, r.ini||r.sag)}</div></div>`;
+    }).join('');
+  }).join('');
+  el.innerHTML = `<div class="gantt">${hdr}${filas}</div>`;
+}
+document.addEventListener('mousemove', e=>{ const t=e.target.closest?.('[data-tip]'), tip=$('tip'); if(!tip) return;
+  if(!t){ tip.hidden=true; return; } tip.textContent=t.getAttribute('data-tip'); tip.hidden=false;
+  const w=tip.offsetWidth; tip.style.left=Math.min(e.clientX+12, innerWidth-w-8)+'px'; tip.style.top=(e.clientY+14)+'px'; });
+addEventListener('resize', ()=>{ clearTimeout(renderRuta._t); renderRuta._t=setTimeout(renderRuta,150); });
+
+/* ---------- consulta rápida ---------- */
+function fichaBip(p){
+  const pe=pendDe(p.bip), pt=pe.reduce((s,m)=>s+m.monto,0);
+  const cell=(h,v,sub)=>`<div class="tot"><span class="eyebrow">${h}</span><span class="v" style="font-size:1.1rem">${v}</span>${sub?`<span class="h">${sub}</span>`:''}</div>`;
+  const cells = famDe(p)==='33'
+    ? [cell('Aprobado GORE',fmt$(p.aprobado)), cell('Contratado',fmt$(p.contratado)), cell('Transferido',fmt$(p.transferido),`Por transferir ${fmt$(saldoDe(p))}`), cell('Rendido',fmt$(p.rendido),`Por rendir ${fmt$(porRendirDe(p))}`), cell('Transferencias en trámite',pe.length?fmt$(pt):'Ninguna',pe.length?`${pe.length} sin transferir`:'')]
+    : [cell('Aprobado GORE',fmt$(p.aprobado)), cell('Contratado',fmt$(p.contratado)), cell('Pagado',fmt$(p.transferido)), cell('Pendiente de pago',fmt$(saldoDe(p)),'contratado − pagado'), cell('Estados de pago no pagados',pe.length?fmt$(pt):'Ninguno',pe.length?`${pe.length} en trámite`:'')];
+  const cq=state.cuad.filter(c=>c.bip===p.bip);
+  return `<div class="open" data-open="${p.bip}" style="display:grid;gap:8px;border:1px solid var(--line);border-radius:var(--r);padding:12px;background:var(--bg)"><div><span class="eyebrow">BIP <span class="mono">${esc(p.bip)}</span> · Subtítulo ${esc(p.sub)} · ${esc(p.unidadTecnica)} · ${esc(sitDe(p))}</span><div style="font-weight:600" class="nm">${esc(p.nombre)}</div></div><div class="totals" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">${cells.join('')}</div>${cq.map(c=>`<div class="flag warn" style="justify-self:start">${esc(c.detalle)}</div>`).join('')}</div>`;
+}
+function renderLookup(){}
+/* ---------- licitaciones Mercado Público ---------- */
+const licPill = e => `<span class="pill ${/adjudicada/i.test(e)?'g-cerrado':/desierta|revocada|suspendida/i.test(e)?'g-par':'g-ejec'}">${esc(e||'—')}</span>`;
+function licRef(p){ const L=state.lic[p.bip]||[]; if(!L.length) return ''; const c=L.filter(l=>l.confirmada);
+  return `<div class="licref">Licitación ${c.length?`<span class="mono">${esc(c.map(l=>l.codigo).join(', '))}</span>`:`<span class="mono">${esc(L[0].codigo)}</span> · por confirmar`}</div>`; }
+function licHtml(p){
+  const L=state.lic[p.bip]||[], kv=(k,v)=>`<div><dt>${k}</dt><dd>${v}</dd></div>`;
+  const head=`<div class="panel-head"><h3 class="eyebrow">Licitaciones en Mercado Público</h3>${state.licAct?`<span class="note">Revisado ${fmtD(state.licAct)}</span>`:''}</div>`;
+  if (!L.length) return `<section class="panel">${head}<span class="note">${Object.keys(state.lic).length?`No hay una licitación de la Municipalidad de ${esc(p.comuna)} (desde 2022) que calce con este proyecto.`:'Aún no se cargan las licitaciones.'}</span></section>`;
+  return `<section class="panel">${head}${L.map(l=>{ const adj=l.adjudicados||[];
+    return `<div class="lic ${l.confirmada?'':'dudosa'}"><div class="top"><a href="${esc(l.url)}" target="_blank" rel="noopener" class="mono">${esc(l.codigo)}</a>${licPill(l.estado)}${l.confirmada?'<span class="pill g-cerrado">Vinculada</span>':'<span class="pill g-cierre">Por confirmar</span>'}</div>
+      <div class="nm">${esc(l.nombre)}</div>
+      <dl class="kv" style="margin:0">${kv('Publicada',fmtD(l.publicada))}${kv(/adjudicada/i.test(l.estado)?'Adjudicada':'Resuelta',fmtD(l.adjudicada))}${kv('Monto estimado',l.montoEstimado?fmt$(l.montoEstimado):'—')}${kv('Monto adjudicado',l.montoAdjudicado?fmt$(l.montoAdjudicado):'—')}${l.oferentes?kv('Oferentes',esc(l.oferentes)):''}</dl>
+      ${adj.length?`<div class="note">Adjudicada a ${adj.map(a=>`<b>${esc(a.nombre)}</b> (${esc(a.rut)})${adj.length>1?' '+fmt$(a.monto):''}`).join(', ')}</div>`:''}
+      <div class="note">${l.confirmada?'Vinculada porque ':'Posible calce: '}${esc(l.motivo||'el nombre se parece')}.${l.urlActa?` <a href="${esc(l.urlActa)}" target="_blank" rel="noopener">Acta de adjudicación</a>`:''}</div></div>`; }).join('')}</section>`;
+}
+
+function sgdMemo(x){ if(!x.memo) return null; return (state.sgd[x.bip]||[]).find(d=>d.tipoDoc==='Memo'&&d.nDoc===String(x.memo))||null; }
+function sgdRuta(d){ return `<ol class="hist">${(d.ruta||[]).map(r=>`<li>${esc(r[0]||'—')} → <b>${esc(r[1]||'—')}</b>${r[2]?` <span class="muted">(${esc(r[2])})</span>`:''}</li>`).join('')}</ol>`; }
+function sgdHtml(p){
+  const L=state.sgd[p.bip]||[], m=state.sgdMeta;
+  const head=`<div class="panel-head"><h3 class="eyebrow">Documentos SGD</h3>${m?`<span class="note">${esc(m.archivo||'')}${m.hasta?` · hasta ${fmtD(m.hasta.slice(0,10))}`:''}</span>`:''}</div>`;
+  if(!m) return '';
+  if(!L.length) return `<section class="panel">${head}<span class="note">No hay documentos del SGD que mencionen este BIP${m.hasta?` hasta el ${fmtD(m.hasta.slice(0,10))}`:''}.</span></section>`;
+  return `<section class="panel">${head}<div class="scroll"><table><thead><tr><th>Fecha</th><th>Documento</th><th>Materia</th><th>Estado</th><th>Ubicación actual</th></tr></thead><tbody>${L.map(d=>`<tr><td class="num">${fmtD(d.fecha)}</td><td>${d.tipoDoc?`<b>${esc(d.tipoDoc)} ${esc(d.nDoc)}</b>`:`<span class="mono">N° ${esc(d.numero)}</span>`}<div class="note" style="max-width:340px;overflow-wrap:anywhere">${esc(d.tipoDoc?d.claves:(d.claves||d.doc))}</div>${(d.otros||[]).length?`<div class="note">También BIP ${d.otros.map(esc).join(', ')}</div>`:''}</td><td>${esc(d.materia||'—')}</td><td>${esc(d.estado||'—')}</td><td>${esc(d.ubicacion||'—')}${(d.ruta||[]).length?`<details style="margin-top:4px"><summary class="note" style="cursor:pointer">Ruta (${d.ruta.length})</summary>${sgdRuta(d)}</details>`:''}</td></tr>`).join('')}</tbody></table></div></section>`;
+}
+
+function renderAll(){ state._pb=null; renderScope(); renderLookup(); renderLoad(); renderTotals(); renderCxS(); renderMov(); renderRev(); renderAlerts(); renderRegister(); renderCargas(); if(state.open && draft && $("gEstado")){ syncDraft(); renderSheet(); } }
+function renderLive(){ renderLookup(); renderMov(); renderRev(); renderAlerts(); renderRegister(); }
+
+/* ---------- ficha de proyecto ---------- */
+let db=null, canWrite=true, draft=null;
+function openSheet(bip){ state.open=bip; const g=state.gestion[bip]||{}; draft={estado:g.estado||'', vigencia:g.vigencia||'', proxima:g.proxima||'', notas:g.notas||'', entradas:[...(g.entradas||[])]}; renderSheet(); }
+function closeSheet(){ state.open=null; draft=null; $('sheetRoot').hidden=true; $('sheetRoot').innerHTML=''; }
+function renderSheet(){
+  const p=state.projects.find(x=>x.bip===state.open); if(!p){closeSheet();return;}
+  const mv=allMoves().filter(m=>m.bip===p.bip).sort((a,b)=>(b.creado||'').localeCompare(a.creado||''));
+  const kv=(k,v)=>`<div><dt>${k}</dt><dd>${v}</dd></div>`;
+  const root=$('sheetRoot'); root.hidden=false;
+  const focusId=document.activeElement?.id;
+  const hp=state.hist[p.bip]||[];
+  root.innerHTML=`<div class="sheet-bg" id="sheetBg"></div><aside class="sheet" role="dialog" aria-label="Proyecto ${esc(p.bip)}">
+    <header><div><div class="eyebrow">BIP <span class="mono">${esc(p.bip)}</span> · Subtítulo ${esc(p.sub)} · ${esc(p.unidadTecnica)}</div><h2 style="font-size:1.2rem;margin-top:4px">${esc(p.nombre)}</h2></div><button class="btn" id="sheetClose">Cerrar</button></header>
+    <div class="flags">${alertasDe(p).map(a=>`<span class="flag ${ALERTAS[a].sev}">${ALERTAS[a].label}</span>`).join('')}</div>
+    ${fichaBip(p).replace(/class="open" data-open="[^"]*"/,'')}
+    ${licHtml(p)}
+    ${normaHtml(p)}
+    ${sgdHtml(p)}
+    <section class="panel"><h3 class="eyebrow">Movimientos del libro</h3>
+      ${mv.length?`<div class="scroll"><table><thead><tr><th>Creado</th><th>Memo creado (SGD)</th><th>Memo enviado</th><th>Tipo</th><th class="r">Monto</th><th>Estado</th></tr></thead><tbody>${mv.map(x=>`<tr><td class="num">${fmtD(x.creado)}</td><td>${memoHtml(x)}</td><td>${envHtml(x)}</td><td>${esc(x.tipo)}${x.memo?` <span class="muted">memo ${esc(x.memo)}</span>`:''}${x.enArchivo===false?'<div class="gone">ya no viene en archivos</div>':''}</td><td class="r num">${fmt$(x.monto)}</td><td>${etapaHtml(x)}${comHtml(x)}
+        ${(x.historial||[]).length>1?`<details style="margin-top:4px"><summary class="note" style="cursor:pointer">Historial (${x.historial.length})</summary><ol class="hist">${x.historial.map(h=>`<li><b>${fmtD(h.carga)}</b> ${cambioTxt(h)}</li>`).join('')}</ol></details>`:''}
+        ${(()=>{const d=sgdMemo(x); return d?`<details style="margin-top:4px"><summary class="note" style="cursor:pointer">Ruta SGD del memo (${d.ruta.length}) · hoy en ${esc(d.ubicacion)}</summary>${sgdRuta(d)}</details>`:'';})()}
+        ${(x.bitacora||[]).length?`<details style="margin-top:4px"><summary class="note" style="cursor:pointer">Bitácora DAF (${x.bitacora.length})</summary><ol class="hist">${x.bitacora.map(e=>`<li><b>${fmtD(e.fecha)} ${esc(e.quien)}</b>${e.persona&&e.persona!==e.quien?` (${esc(e.persona)})`:''}: ${esc(e.texto||'—')}</li>`).join('')}</ol></details>`:''}</td></tr>`).join('')}</tbody></table></div>`:'<span class="note">Sin movimientos en el libro para este proyecto.</span>'}
+    </section>
+    <section class="panel"><h3 class="eyebrow">Gestión propia</h3>
+      <div class="form">
+        <label>Situación<select id="gEstado"><option value="">Según sistema (${esc(p.situacion)})</option>${ESTADOS.map(e=>`<option ${draft.estado===e?'selected':''}>${e}</option>`).join('')}</select></label>
+        <label>Fecha término vigente<input type="date" id="gVig" value="${esc(draft.vigencia)}"><span class="note">Calculada: ${fmtD(p.termino)}</span></label>
+        <label class="wide">Próxima acción<input id="gProx" value="${esc(draft.proxima)}" placeholder="Ej.: pedir estado de pago 4 a la municipalidad"></label>
+        <label class="wide">Notas<textarea id="gNotas" rows="3">${esc(draft.notas)}</textarea></label>
+      </div>
+      <h3 class="eyebrow" style="margin-top:6px">Movimientos que registras tú (remesas, rendiciones o pagos que aún no salen en los archivos)</h3>
+      <div class="entries">${draft.entradas.length?`<table><tbody>${draft.entradas.map((e,i)=>`<tr><td class="num">${fmtD(e.fecha)}</td><td>${esc(e.tipo)}</td><td class="r num">${fmt$(e.monto)}</td><td>${esc(e.nota||'')}</td><td><button class="x" data-del="${i}" aria-label="Quitar">✕</button></td></tr>`).join('')}</tbody></table>`:'<span class="note">Aún no registras movimientos para este proyecto.</span>'}
+        <div class="entry-add"><input type="date" id="eFecha" value="${hoy}" aria-label="Fecha"><select id="eTipo" aria-label="Tipo">${famDe(p)==='33'?'<option>Remesa solicitada</option><option>Rendición</option>':'<option>Pago</option><option>Estado de pago</option>'}</select><input id="eNota" placeholder="Comentario (N° memo, estado de pago…)" aria-label="Comentario"><input id="eMonto" inputmode="numeric" placeholder="Monto $" aria-label="Monto"><button class="btn" id="eAdd">Agregar</button></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary" id="gSave" ${canWrite?'':'disabled'}>Guardar cambios</button><span class="note" id="gMsg">${canWrite?'Tus cambios no se pierden con la carga de los viernes.':'No tienes permiso para editar este panel.'}</span></div>
+    </section>
+    <section class="panel"><h3 class="eyebrow">Datos de la planilla de proyectos</h3>
+      <dl class="kv" style="margin:0">
+        ${kv('Situación sistema',`<span class="pill ${GRUPOS[grupoDe(p.situacion)]?.cls||''}">${esc(p.situacion)}</span>`)}${kv('Avance físico',p.avance.toFixed(0)+'%')}
+        ${kv('Último monto',fmt$(p.ultimoMonto)+' · '+fmtD(p.ultimaFechaMonto))}${kv('Tipo solicitud',esc(p.tipoSolicitud||'—'))}
+        ${kv('Empresa',esc(p.empresa||'—'))}${kv('Comuna',esc(p.comuna))}
+        ${kv('Inicio contrato',fmtD(p.inicio))}${kv('Duración',p.duracion?p.duracion+' días':'—')}${kv('Término calculado',fmtD(p.termino))}
+        ${kv('Convenio',fmtD(p.convenio))}${kv('Resolución',esc(p.resolucion||'—')+' · '+fmtD(p.fechaResolucion))}
+        ${kv('Año aprobación',esc(p.anio||'—'))}${kv('Marco',esc(p.marco))}
+      </dl>
+      <div><div class="eyebrow" style="margin-bottom:4px">Última actualización · ${fmtD(p.ultimaAct)}</div><div class="desc">${esc(p.ultimaDesc||'Sin descripción')}</div></div>
+      ${hp.length?`<details><summary class="note" style="cursor:pointer">Cambios en la planilla (${hp.length})</summary><ol class="hist">${hp.map(h=>`<li><b>${fmtD(h.carga)}</b> ${cambioTxt(h)}</li>`).join('')}</ol></details>`:''}
+    </section>
+  </aside>`;
+  if (focusId && $(focusId)) $(focusId).focus();
+}
+function syncDraft(){ if(!draft || !$('gEstado')) return; draft.estado=$('gEstado').value; draft.vigencia=$('gVig').value; draft.proxima=$('gProx').value.trim(); draft.notas=$('gNotas').value; }
+async function saveGestion(bip, patch){
+  if(!db) throw {code:'not_granted'};
+  const body={...(state.gestion[bip]||{}), ...patch, actualizado:new Date().toISOString()};
+  await db.doc('gestion/'+bip).set(body);
+  state.gestion[bip]=body;
+}
+const errMsg = e => e && e.code==='not_granted' ? 'El panel no pudo conectarse a la base de datos. Recarga la página.' : 'No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.';
+async function save(){
+  syncDraft(); const bip=state.open;
+  $('gSave').disabled=true; $('gMsg').textContent='Guardando…';
+  try{ await saveGestion(bip, {...draft}); toast('Cambios guardados'); renderAll(); }
+  catch(e){ if (e && e.code==='invalid_argument') canWrite=false; $('gMsg').textContent=errMsg(e); $('gSave').disabled=!canWrite; }
+}
+async function saveCom(id, bip){
+  const t=($('comIn')?.value||'').trim(); if(!t){ $('comIn')?.focus(); return; }
+  const cur=state.gestion[bip]?.comentarios||{};
+  try{ await saveGestion(bip, {comentarios:{...cur, [id]:[...(cur[id]||[]), {fecha:hoy, texto:t}]}}); state.comentando=null; toast('Comentario guardado'); renderLive(); if(state.open) renderSheet(); }
+  catch(e){ toast(errMsg(e)); }
+}
+function toast(t){ const el=$('toast'); el.textContent=t; el.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>el.hidden=true,2400); }
+
+function setPer(k){
+  const y=today.getFullYear(), m=today.getMonth(); state.per=k;
+  if (k==='mes'){ state.desde=iso(new Date(y,m,1)); state.hasta=hoy; }
+  if (k==='ant'){ state.desde=iso(new Date(y,m-1,1)); state.hasta=iso(new Date(y,m,0)); }
+  if (k==='anio'){ state.desde=y+'-01-01'; state.hasta=hoy; }
+  if (k==='todo'){ state.desde=''; state.hasta=''; }
+}
+function onFiltro(){ syncScope(); fillFilters(); state.filter.alerta=''; state.comentando=null;
+  try{ localStorage.setItem('cm-sub',$('fS').value); }catch(_){}
+  renderTotals(); renderLive(); renderCargas(); }
+
+document.addEventListener('click', e=>{
+  if (e.target.id==='fClear'){ ['lk','fS','fC','fU','fT','fE'].forEach(id=>$(id).value=''); $('fGrupo').value=''; state._bip=false; setPer('mes'); onFiltro(); return; }
+  const tb=e.target.closest('[data-tab]');
+  if (tb){ state.tab=tb.dataset.tab; try{localStorage.setItem('cm-tab',state.tab);}catch(_){} renderScope(); if(state.tab==='cargas') renderRuta(); return; }
+  const gt=e.target.closest('[data-gt]'); if (gt && !e.target.closest('[data-open]')){ const k=gt.dataset.gt, o=state._gOpen||(state._gOpen={}); o[k]=o[k]===false; renderRuta(); return; }
+  const t=e.target.closest('[data-al],[data-open],[data-com],[data-comsave],[data-comcancel],#sheetClose,#sheetBg,#gSave,#eAdd,[data-del]');
+  if(!t) return;
+  if (t.dataset.com!==undefined){ state.comentando=t.dataset.com; renderLive(); if(state.open) renderSheet(); $('comIn')?.focus(); return; }
+  if (t.dataset.comcancel!==undefined){ state.comentando=null; renderLive(); if(state.open) renderSheet(); return; }
+  if (t.dataset.comsave!==undefined){ saveCom(t.dataset.comsave, t.dataset.cbip); return; }
+  if (t.dataset.al!==undefined){ state.filter.alerta = state.filter.alerta===t.dataset.al?'':t.dataset.al; renderAlerts(); renderRegister(); return; }
+  if (t.id==='sheetClose'||t.id==='sheetBg') return closeSheet();
+  if (t.id==='gSave') return save();
+  if (t.id==='eAdd'){ syncDraft(); const monto=parseInt(($('eMonto').value||'').replace(/\D/g,''),10); if(!monto){ $('eMonto').focus(); return; } draft.entradas.push({fecha:$('eFecha').value, tipo:$('eTipo').value, monto, nota:$('eNota').value.trim()}); renderSheet(); $('gMsg').textContent='Movimiento agregado. Guarda para conservarlo.'; return; }
+  if (t.dataset.del!==undefined){ syncDraft(); draft.entradas.splice(+t.dataset.del,1); renderSheet(); return; }
+  if (t.dataset.open){ if (t.closest('summary')) e.preventDefault(); return openSheet(t.dataset.open); }
+});
+document.addEventListener('keydown', e=>{
+  if (e.key==='Escape'){ if(state.comentando){ state.comentando=null; renderLive(); if(state.open) renderSheet(); } else if(state.open) closeSheet(); }
+  if (e.key==='Enter' && e.target.id==='comIn'){ const b=document.querySelector('[data-comsave]'); if(b) saveCom(b.dataset.comsave, b.dataset.cbip); }
+});
+document.addEventListener('toggle', e=>{ const d=e.target; if(d.matches?.('details.ut')){ (state._utOpen||(state._utOpen={}))[d.dataset.ut]=d.open; } }, true);
+$('lk').addEventListener('input', ()=>{ const b=esBipQ();
+  if (b && !state._bip){ state._perAntes=state.per; setPer('todo'); }   // al escribir un BIP se ve toda su historia; el período se puede cambiar después
+  if (!b && state._bip && state.per==='todo'){ setPer(state._perAntes||'mes'); }
+  state._bip=b; onFiltro(); });
+['fS','fC','fU','fT','fE'].forEach(id=>$(id).addEventListener('input', onFiltro));
+$('fGrupo').addEventListener('input', renderRegister);
+$('fP').addEventListener('input', e=>{ if(e.target.value!=='rango') setPer(e.target.value); else state.per='rango'; renderMov(); });
+$('rDesde').addEventListener('change', e=>{ state.desde=e.target.value; state.per='rango'; renderMov(); });
+$('rHasta').addEventListener('change', e=>{ state.hasta=e.target.value; state.per='rango'; renderMov(); });
+
+
+if (state._sub0){ $('fS').value=state._sub0; } syncScope();
+/* los cuadros de montos llenan el ancho en filas parejas */
+function fitTotals(){ document.querySelectorAll('.totals').forEach(el=>{ const n=el.children.length, w=el.clientWidth; if(!n||!w) return;
+  let c=Math.max(1,Math.min(n,Math.floor(w/165))); const r=Math.ceil(n/c); c=Math.ceil(n/r); el.style.setProperty('--tb',`calc(${100/c}% - 1px)`); }); }
+new MutationObserver(()=>requestAnimationFrame(fitTotals)).observe(document.body,{childList:true,subtree:true});
+addEventListener('resize', fitTotals);
+renderAll();
+
+/* ---------- datos ---------- */
+(async()=>{
+  try{ db = await window.claude?.use?.('db'); }catch(_){ db=null; }
+  if(!db){ $('load').textContent='No se pudo conectar a la base de datos del panel.'; canWrite=false; return; }
+  const parts={};
+  const rebuild=()=>{ state.projects=Object.keys(parts).sort().flatMap(k=>parts[k]); state._pb=null; fillFilters(); renderAll(); };
+  /* carga publicada junto al panel: si es más nueva que la base, se muestra y quien puede editar la guarda en la base */
+  let paquete=null, sincronizando=false;
+  try{ const r=await fetch('data/sistema.json',{cache:'no-store'}); if(r.ok) paquete=await r.json(); }catch(_){}
+  const aplicar=(id,v)=>{
+    if (id.startsWith('proyectos_')) parts[id]=v.items||[];
+    else if (id==='libro') state.libro=v.items||[];
+    else if (id==='historial') state.hist=v.items||{};
+    else if (id==='cargas') state.cargas=v.items||[];
+    else if (id==='cuadratura') state.cuad=v.items||[];
+    else if (id==='meta') state.meta=v;
+    else if (id==='sgd'){ state.sgd=v.items||{}; state.sgdMeta={archivo:v.archivo,hasta:v.hasta}; }
+  };
+  const sincronizar=async()=>{
+    if (sincronizando || !canWrite) return; sincronizando=true;
+    try{ for (const id of Object.keys(paquete.docs).filter(k=>k!=='meta')) await db.doc('sistema/'+id).set(paquete.docs[id]);
+         await db.doc('sistema/meta').set(paquete.docs.meta); }
+    catch(_){ sincronizando=false; }
+  };
+  db.collection('sistema').onSnapshot(snap=>{
+    const cargadoBase=(snap.docs.find(d=>d.id==='meta')?.data()||{}).cargado||'';
+    if (paquete && paquete.cargado>cargadoBase){
+      snap.docs.forEach(d=>{ if(d.id==='licitaciones'){ const v=d.data()||{}; state.lic=v.items||{}; state.licAct=v.actualizado||''; } });
+      Object.entries(paquete.docs).forEach(([id,v])=>aplicar(id,v));
+      rebuild(); sincronizar(); return;
+    }
+    snap.docs.forEach(d=>{ const v=d.data()||{};
+      if (d.id.startsWith('proyectos_')) parts[d.id]=v.items||[];
+      else if (d.id==='libro') state.libro=v.items||[];
+      else if (d.id==='historial') state.hist=v.items||{};
+      else if (d.id==='cargas') state.cargas=v.items||[];
+      else if (d.id==='cuadratura') state.cuad=v.items||[];
+      else if (d.id==='meta') state.meta=v;
+      else if (d.id==='licitaciones'){ state.lic=v.items||{}; state.licAct=v.actualizado||''; }
+      else if (d.id==='sgd'){ state.sgd=v.items||{}; state.sgdMeta={archivo:v.archivo,hasta:v.hasta}; }
+    });
+    snap.docChanges().forEach(ch=>{ if(ch.type==='removed' && ch.doc.id.startsWith('proyectos_')) delete parts[ch.doc.id]; });
+    rebuild();
+  }, ()=>{ $('load').textContent='Se perdió la conexión con la base de datos. Recarga la página.'; });
+  db.collection('gestion').onSnapshot(snap=>{
+    const g={}; snap.docs.forEach(d=>{ g[d.id]=d.data(); }); state.gestion=g;
+    if (state.comentando) return;
+    renderTotals(); renderCxS(); renderLive(); renderCargas();
+  }, ()=>{});
+  try{ const user=await window.claude.use('user'); const w=user && user.can ? await user.can('data.write') : null; if(w===false){ canWrite=false; renderLive(); } }catch(_){}
+})();
+})();
+</script>
+
+</body></html>

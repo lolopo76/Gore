@@ -1,0 +1,12 @@
+# Datos de la cartera (RUT, nombres, montos, notas): no se versionan
+*.xls
+*.xlsx
+movimientos/
+panel/estado/
+panel/data/
+*.json
+*.jsonl
+# Versiones antiguas del panel (el historial queda en git)
+panel/cartera-maipo.v*.html
+__pycache__/
+.env

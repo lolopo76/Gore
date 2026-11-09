@@ -793,6 +793,47 @@ document.addEventListener('mousemove', e=>{ const t=e.target.closest?.('[data-ti
   const w=tip.offsetWidth; tip.style.left=Math.min(e.clientX+12, innerWidth-w-8)+'px'; tip.style.top=(e.clientY+14)+'px'; });
 addEventListener('resize', ()=>{ clearTimeout(renderRuta._t); renderRuta._t=setTimeout(renderRuta,150); });
 
+/* ---------- vigencia del contrato y aumentos de plazo ---------- */
+const ORDINAL={primer:1,primero:1,segundo:2,tercer:3,tercero:3,cuarto:4,quinto:5,sexto:6,'séptimo':7,septimo:7,octavo:8};
+const dmy2iso = t => { const m=String(t).match(/(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})/); return m?`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`:null; };
+function plazoDe(p){
+  const ev=[]; let nAum=0, fechaTxt=null;
+  // 1) cambios de la planilla entre cargas
+  (state.hist[p.bip]||[]).forEach(h=>{ const c=h.cambios||{};
+    if (c.duracion||c.termino){ const [a,b]=c.duracion||[null,null], [ta,tb]=c.termino||[null,null];
+      const dd = a!=null&&b!=null ? b-a : null;
+      ev.push({f:h.carga, fuente:'Planilla', t: dd!=null ? `Duración ${a} → ${b} días (${dd>0?'+':''}${dd})${tb?`, término ${fmtD(ta)} → ${fmtD(tb)}`:''}` : `Término ${fmtD(ta)} → ${fmtD(tb)}`, aum: (dd!=null?dd>0:(tb||'')>(ta||''))}); } });
+  // 2) descripción de la última actualización
+  const d=p.ultimaDesc||'';
+  if (/pr[oó]rroga[^.]*(garant|p[oó]liza|boleta)/i.test(d) && !/aumento de plazo/i.test(d)) ev.push({f:p.ultimaAct, fuente:'Descripción de la planilla', t:'Prórroga de garantía: '+d.slice(0,140), aum:false});
+  else if (/aumento de plazo|ampliaci[oó]n de plazo|modificaci[oó]n de contrato|pr[oó]rroga de plazo|v[aá]lido hasta|nueva fecha de t[eé]rmino/i.test(d)){
+    const o=d.match(/(primer|primero|segundo|tercer|tercero|cuarto|quinto|sexto|s[eé]ptimo|octavo)\s+aumento de plazo/i); if(o) nAum=ORDINAL[o[1].toLowerCase()]||0;
+    const dias=d.match(/aumento de plazo[^.\/]*?(\d+)\s*d[ií]as/i), dec=d.match(/decreto\s*N?°?\s*([\d\/]+)/i);
+    const ft=d.match(/(?:nueva fecha de t[eé]rmino|v[aá]lido hasta|hasta el)\s*:?\s*(\d{1,2}[-\/.]\d{1,2}[-\/.]\d{4})/i); if(ft) fechaTxt=dmy2iso(ft[1]);
+    const enTram=/en tr[aá]mite[^.]*aumento de plazo/i.test(d);
+    ev.push({f:p.ultimaAct, fuente:'Descripción de la planilla', t:[o?`${o[1][0].toUpperCase()+o[1].slice(1).toLowerCase()} aumento de plazo`:'Menciona modificación de plazo', dias?`${dias[1]} días`:'', dec?`decreto ${dec[1]}`:'', fechaTxt?`nuevo término ${fmtD(fechaTxt)}`:'', enTram?'decreto en trámite':''].filter(Boolean).join(' · '), aum:true}); }
+  // 3) documentos del SGD
+  (state.sgd[p.bip]||[]).filter(x=>/plazo|pr[oó]rroga/i.test((x.doc||'')+' '+(x.materia||''))).forEach(x=>{
+    const gar=/garant|p[oó]liza|boleta/i.test(x.doc||''); ev.push({f:x.fecha, fuente:'SGD', t:(gar?'Prórroga de garantía: ':'')+String(x.doc||x.materia).replace(/\.pdf$/i,'').slice(0,140), aum:!gar}); });
+  ev.sort((a,b)=>(b.f||'').localeCompare(a.f||''));
+  return {ev, nAum, fechaTxt, conAumento: nAum>0 || ev.some(e=>e.aum)};
+}
+function vigenciaHtml(p){
+  const kv=(k,v)=>`<div><dt>${k}</dt><dd>${v}</dd></div>`;
+  const g=state.gestion[p.bip]||{}, pz=plazoDe(p);
+  const vig = g.vigencia || p.termino, fuenteVig = g.vigencia ? 'editada por ti' : 'inicio + duración de la planilla';
+  const dr=daysFrom(vig), terminado=['cierre','cerrado'].includes(grupoDe(sitDe(p)));
+  const est = !vig ? '<span class="note">Sin fecha</span>' : dr<0 ? `<span class="pill g-par">Vencido hace ${-dr} días</span>` : dr<=30 ? `<span class="pill g-cierre">Vence en ${dr} días</span>` : `<span class="pill g-cerrado">Vigente · ${dr} días</span>`;
+  const trans = p.inicio && vig ? Math.max(0,Math.min(100, Math.round((dnum(hoy)-dnum(p.inicio))/Math.max(1,dnum(vig)-dnum(p.inicio))*100))) : null;
+  const avisos=[];
+  if (pz.fechaTxt && p.termino && pz.fechaTxt!==p.termino && pz.fechaTxt!==g.vigencia) avisos.push(`La descripción indica término el ${fmtD(pz.fechaTxt)}, pero el cálculo de la planilla da ${fmtD(p.termino)}. Si el vigente es el de la descripción, anótalo en "Fecha término vigente".`);
+  if (trans!=null && p.avance!=null && trans-p.avance>=25 && !terminado) avisos.push(`Lleva ${trans}% del plazo y ${p.avance.toFixed(0)}% de avance físico.`);
+  return `<section class="panel"><div class="panel-head"><h3 class="eyebrow">Vigencia del contrato</h3>${pz.conAumento?`<span class="pill g-cierre">${pz.nAum?pz.nAum+(pz.nAum===1?' aumento':' aumentos')+' de plazo':'Con aumento de plazo'}</span>`:'<span class="note">Sin aumentos de plazo registrados</span>'}</div>
+    <dl class="kv" style="margin:0">${kv('Inicio',fmtD(p.inicio))}${kv('Duración (planilla)',p.duracion?p.duracion+' días':'—')}${kv('Término vigente',`${fmtD(vig)}<div class="note">${fuenteVig}</div>`)}${kv('Estado',est)}${trans!=null?kv('Plazo transcurrido',`${trans}% · avance físico ${p.avance!=null?p.avance.toFixed(0)+'%':'—'}`):''}</dl>
+    ${avisos.map(a=>`<div class="flag warn" style="justify-self:start">${esc(a)}</div>`).join('')}
+    ${pz.ev.length?`<div><div class="eyebrow" style="margin:6px 0 4px">Aumentos de plazo y prórrogas</div><ol class="hist">${pz.ev.map(e=>`<li><b>${fmtD(e.f)}</b> <span class="muted">${esc(e.fuente)}</span> · ${esc(e.t)}</li>`).join('')}</ol></div>`:''}
+  </section>`;
+}
 /* ---------- consulta rápida ---------- */
 function fichaBip(p){
   const pe=pendDe(p.bip), pt=pe.reduce((s,m)=>s+m.monto,0);
@@ -848,6 +889,7 @@ function renderSheet(){
     <header><div><div class="eyebrow">BIP <span class="mono">${esc(p.bip)}</span> · Subtítulo ${esc(p.sub)} · ${esc(p.unidadTecnica)}</div><h2 style="font-size:1.2rem;margin-top:4px">${esc(p.nombre)}</h2></div><button class="btn" id="sheetClose">Cerrar</button></header>
     <div class="flags">${alertasDe(p).map(a=>`<span class="flag ${ALERTAS[a].sev}">${ALERTAS[a].label}</span>`).join('')}</div>
     ${fichaBip(p).replace(/class="open" data-open="[^"]*"/,'')}
+    ${vigenciaHtml(p)}
     ${licHtml(p)}
     ${normaHtml(p)}
     ${sgdHtml(p)}

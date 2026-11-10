@@ -1000,13 +1000,12 @@
    "fecha_ut": "2026-09-16",
    "ut": "MUNICIPALIDAD DE SAN BERNARDO",
    "bip": 40047883,
-   "tipo": "Otro",
    "materia": "Remite respuesta DEJUR",
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
    "obs": "N° memo U.T. leído 1.231",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 61,

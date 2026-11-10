@@ -1069,13 +1069,12 @@
    "fecha_ut": "2026-09-21",
    "ut": "MUNICIPALIDAD DE PAINE",
    "bip": 40061664,
-   "tipo": "Garantía",
    "materia": "Garantía",
    "monto": 1218744,
    "asociado": "",
    "sagir": "Sí",
    "obs": "N° memo U.T. leído 1.237",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 65,

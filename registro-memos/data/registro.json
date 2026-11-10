@@ -279,13 +279,12 @@
    "fecha_ut": "2026-08-04",
    "ut": "MUNICIPALIDAD DE RECOLETA",
    "bip": 40018858,
-   "tipo": "Cierre total",
    "materia": "Cierre total",
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
    "obs": "BIP poco legible (40018858 figura como Huechuraba en catálogo)",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 18,

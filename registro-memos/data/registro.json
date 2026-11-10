@@ -1248,13 +1248,12 @@
    "fecha_ut": "2026-10-05",
    "ut": "MUNICIPALIDAD DE BUIN",
    "bip": 40062343,
-   "tipo": "Remesa",
    "materia": "Remesa",
    "monto": 17061179,
    "asociado": "",
    "sagir": "Sí",
    "obs": "",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 75,

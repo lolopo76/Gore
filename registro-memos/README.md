@@ -12,6 +12,6 @@ Página para registrar los memos de las unidades técnicas (Paine, San Bernardo,
 4. **Informe mensual**: elegir mes, año y U.T. y pulsar *Imprimir / Guardar PDF*.
 5. **Resumen anual**: gestiones, cargas SAGIR, tipos y montos por mes.
 
-El mes de cada gestión se toma de la Fecha SAGIR; si falta, de la fecha del memo U.T. Colores de fila: verde = cargado en SAGIR, celeste = pendiente SAGIR, amarillo = garantía, rojo = monto sobre $200.000.000 (el rojo prima sobre los demás colores). Las filas con ⚠ están "por revisar" (datos del historial en papel que no se leían con claridad).
+El mes de cada gestión se toma de la Fecha SAGIR; si falta, de la fecha del memo U.T. Colores de fila: verde = cargado en SAGIR, celeste = pendiente SAGIR, amarillo = garantía, rojo = monto sobre $200.000.000, fucsia = rectificación (cuando Materia, Asociado u Obs. dicen "rectifica" o "rectificación"). Prioridad: fucsia, luego rojo, luego amarillo, luego verde/celeste. Las filas con ⚠ están "por revisar" (datos del historial en papel que no se leían con claridad).
 
 > El repositorio es público: lo que se guarde en `data/registro.json` (números de memo, BIP, montos, observaciones) es visible para cualquiera.

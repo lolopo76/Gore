@@ -220,8 +220,8 @@
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
-   "obs": "U.T. anotada como \"REC\"; se asumió Recoleta",
-   "revisar": true
+   "obs": "",
+   "revisar": false
   },
   {
    "id": 14,
@@ -237,8 +237,8 @@
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
-   "obs": "U.T. anotada como \"REC\"; se asumió Recoleta",
-   "revisar": true
+   "obs": "",
+   "revisar": false
   },
   {
    "id": 15,
@@ -254,8 +254,8 @@
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
-   "obs": "U.T. anotada como \"REC\"; se asumió Recoleta",
-   "revisar": true
+   "obs": "",
+   "revisar": false
   },
   {
    "id": 16,
@@ -271,8 +271,8 @@
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
-   "obs": "U.T. anotada como \"REC\"; se asumió Recoleta. Memo U.T. corregido de 978 a 977",
-   "revisar": true
+   "obs": "Memo U.T. corregido de 978 a 977",
+   "revisar": false
   },
   {
    "id": 17,
@@ -288,7 +288,7 @@
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
-   "obs": "U.T. anotada como \"REC\"; se asumió Recoleta. BIP poco legible (40018858 figura como Huechuraba en catálogo)",
+   "obs": "BIP poco legible (40018858 figura como Huechuraba en catálogo)",
    "revisar": true
   },
   {
@@ -305,8 +305,8 @@
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
-   "obs": "U.T. anotada como \"REC\"; se asumió Recoleta",
-   "revisar": true
+   "obs": "",
+   "revisar": false
   },
   {
    "id": 19,
@@ -322,8 +322,8 @@
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
-   "obs": "U.T. anotada como \"REC\"; se asumió Recoleta",
-   "revisar": true
+   "obs": "",
+   "revisar": false
   },
   {
    "id": 20,
@@ -339,7 +339,7 @@
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
-   "obs": "U.T. anotada como \"REC\"; se asumió Recoleta. DEIN/DIPIR marcados con X y \"Rectifica\" al margen",
+   "obs": "DEIN/DIPIR marcados con X y \"Rectifica\" al margen",
    "revisar": true
   },
   {
@@ -356,7 +356,7 @@
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
-   "obs": "U.T. anotada como \"REC\"; se asumió Recoleta. Fecha memo poco clara",
+   "obs": "Fecha memo poco clara",
    "revisar": true
   },
   {

@@ -334,13 +334,12 @@
    "fecha_ut": "2026-08-04",
    "ut": "MUNICIPALIDAD DE RECOLETA",
    "bip": 40019585,
-   "tipo": "Cierre total",
    "materia": "Cierre total",
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
    "obs": "DEIN/DIPIR marcados con X y \"Rectifica\" al margen",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 21,

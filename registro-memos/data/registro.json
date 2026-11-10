@@ -1197,13 +1197,12 @@
    "fecha_ut": "2026-09-29",
    "ut": "MUNICIPALIDAD DE PAINE",
    "bip": 40045389,
-   "tipo": "EEPP",
    "materia": "EEPP N°25",
    "monto": 38748660,
    "asociado": "",
    "sagir": "Sí",
    "obs": "",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 72,

@@ -11,13 +11,12 @@
    "fecha_ut": "2026-07-09",
    "ut": "MUNICIPALIDAD DE PAINE",
    "bip": 40064908,
-   "tipo": "Rendición",
    "materia": "1ra Rendición",
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
    "obs": "OK. En papel el BIP dice 40064907; se usó 40064908 (mismo proyecto que la fila siguiente)",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 2,

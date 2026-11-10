@@ -34,7 +34,7 @@ th{background:var(--brand);color:#fff;text-align:left;padding:7px 6px;font-weigh
 td{padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
 tr.rev td{background:var(--warn-soft)}
 tbody tr:hover td{background:var(--brand-soft);cursor:pointer}
-td:nth-child(3),td:nth-child(6){white-space:nowrap}
+td:nth-child(4),td:nth-child(7){white-space:nowrap}
 td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .tag{display:inline-block;padding:1px 7px;border-radius:99px;font-size:11px;font-weight:600}
 .si{background:var(--ok-soft);color:var(--ok)}.no{background:var(--crit-soft);color:var(--crit)}
@@ -43,8 +43,6 @@ td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
 .kpi b{display:block;font-size:22px;color:var(--brand)}
 .kpi span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
-.tipos{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.tipos div{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:4px 10px;font-size:12px}
 .wrapt{overflow:auto;max-height:calc(100vh - 250px);border:1px solid var(--line);border-radius:var(--r)}
 dialog{border:0;border-radius:10px;padding:0;width:min(760px,96vw);box-shadow:0 10px 40px rgba(0,0,0,.3)}
 dialog form{padding:18px 20px}
@@ -99,7 +97,6 @@ h3{color:var(--brand);margin:20px 0 8px;font-size:15px}
       <label>Año<select id="fAnio"></select></label>
       <label>Mes<select id="fMes"></select></label>
       <label>U.T.<select id="fUT"></select></label>
-      <label>Tipo<select id="fTipo"></select></label>
       <label>SAGIR<select id="fSagir"><option value="">Todas</option><option>Sí</option><option value="pend">Pendiente</option></select></label>
       <label>&nbsp;<span><input type="checkbox" id="fRev"> Solo por revisar</span></label>
       <span class="sp" style="flex:1"></span>
@@ -107,7 +104,7 @@ h3{color:var(--brand);margin:20px 0 8px;font-size:15px}
     </div>
     <div class="small" id="cuenta"></div>
     <div class="wrapt"><table id="tReg"><thead><tr>
-      <th>N°</th><th>Memo N°</th><th>Fecha</th><th>Deriv.</th><th>Memo U.T.</th><th>Fecha U.T.</th><th>U.T.</th><th>BIP</th><th>Tipo</th><th>Materia</th><th>Monto $</th><th>Asociado / rectifica</th><th>SAGIR</th><th>Obs.</th>
+      <th>N°</th><th>BIP</th><th>IDDOC</th><th>Fecha SAGIR</th><th>Deriv.</th><th>Memo U.T.</th><th>Fecha U.T.</th><th>U.T.</th><th>Materia</th><th>Monto $</th><th>Asociado / rectifica</th><th>SAGIR</th><th>Obs.</th>
     </tr></thead><tbody></tbody></table></div>
   </section>
 
@@ -125,9 +122,8 @@ h3{color:var(--brand);margin:20px 0 8px;font-size:15px}
     </div>
     <div id="iCab" style="font-weight:600;margin:4px 0"></div>
     <div class="kpis" id="iKpis"></div>
-    <div class="tipos" id="iTipos"></div>
     <div class="wrapt"><table id="tInf"><thead><tr>
-      <th>N°</th><th>Memo N°</th><th>Fecha</th><th>Deriv.</th><th>Memo U.T.</th><th>Fecha U.T.</th><th>U.T.</th><th>BIP</th><th>Tipo</th><th>Materia</th><th>Monto $</th><th>SAGIR</th>
+      <th>N°</th><th>BIP</th><th>IDDOC</th><th>Fecha SAGIR</th><th>Deriv.</th><th>Memo U.T.</th><th>Fecha U.T.</th><th>U.T.</th><th>Materia</th><th>Monto $</th><th>SAGIR</th>
     </tr></thead><tbody></tbody></table></div>
   </section>
 
@@ -142,15 +138,14 @@ h3{color:var(--brand);margin:20px 0 8px;font-size:15px}
 <dialog id="dlg"><form method="dialog" id="frm">
   <h2 id="dlgTit">Nueva gestión</h2>
   <div class="grid">
-    <label>Memo N°<input name="memo" inputmode="numeric"></label>
-    <label>Fecha memo<input name="fecha" type="date"></label>
+    <label>BIP<input name="bip" inputmode="numeric" list="lBIP"></label>
+    <label>IDDOC<input name="memo" inputmode="numeric"></label>
+    <label>Fecha SAGIR<input name="fecha" type="date"></label>
     <label>Derivado a<select name="deriv"><option value=""></option><option>DEIN</option><option>DAF</option></select></label>
-    <label>Carga SAGIR<select name="sagir"><option value=""></option><option>Sí</option><option>No</option></select></label>
     <label>Memo U.T. N°<input name="memo_ut" inputmode="numeric"></label>
     <label>Fecha memo U.T.<input name="fecha_ut" type="date"></label>
     <label class="c2">U.T.<input name="ut" list="lUT"></label>
-    <label>BIP<input name="bip" inputmode="numeric" list="lBIP"></label>
-    <label>Tipo<select name="tipo"></select></label>
+    <label>Carga SAGIR<select name="sagir"><option value=""></option><option>Sí</option><option>No</option></select></label>
     <label class="c2">Monto $<input name="monto" inputmode="numeric" placeholder="solo números"></label>
     <div class="c4 proy" id="proy"></div>
     <label class="c2">Materia<input name="materia" placeholder="ej. EEPP N°20, 2da Remesa"></label>
@@ -187,7 +182,6 @@ h3{color:var(--brand);margin:20px 0 8px;font-size:15px}
 <script>
 'use strict';
 const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const TIPOS=['Remesa','Rendición','EEPP','Garantía','Caución','Reintegro','Rectificación','Cierre total','Otro'];
 const UTS=['MUNICIPALIDAD DE SAN BERNARDO','MUNICIPALIDAD DE BUIN','MUNICIPALIDAD DE PAINE','MUNICIPALIDAD DE CALERA DE TANGO'];
 const RUTA='registro-memos/data/registro.json';
 const LS_CFG='rm-cfg', LS_DATA='rm-data';
@@ -263,18 +257,17 @@ function llenarFiltros(){
   const anios=[...new Set(db.gestiones.map(anioDe).filter(Boolean).concat(new Date().getFullYear()))].sort();
   const mesesA=MESES.map((m,i)=>[i+1,m]);
   const uts=[...new Set(UTS.concat(db.gestiones.map(g=>g.ut).filter(Boolean)))];
-  opts($('fAnio'),anios,'Todos');opts($('fMes'),mesesA,'Todos');opts($('fUT'),uts.map(u=>[u,corto(u)]),'Todas');opts($('fTipo'),TIPOS,'Todos');
+  opts($('fAnio'),anios,'Todos');opts($('fMes'),mesesA,'Todos');opts($('fUT'),uts.map(u=>[u,corto(u)]),'Todas');
   opts($('iAnio'),anios);opts($('iMes'),mesesA);opts($('iUT'),uts.map(u=>[u,corto(u)]),'Todas');opts($('rAnio'),anios);
   const hoy=new Date();$('iAnio').value=hoy.getFullYear();$('iMes').value=hoy.getMonth()+1;$('rAnio').value=hoy.getFullYear();
   $('lUT').innerHTML=uts.map(u=>`<option value="${esc(u)}">`).join('');
   $('lBIP').innerHTML=Object.entries(db.catalogo).map(([b,p])=>`<option value="${b}">${esc(corto(p.ut)+' · '+p.nombre)}</option>`).join('');
-  opts(document.querySelector('[name=tipo]'),TIPOS,' ');
 }
 function filtrar(){
-  const t=$('fTxt').value.toLowerCase().trim(),a=+$('fAnio').value,m=+$('fMes').value,u=$('fUT').value,ti=$('fTipo').value,s=$('fSagir').value,rv=$('fRev').checked;
-  return db.gestiones.filter(g=>(!a||anioDe(g)===a)&&(!m||mesDe(g)===m)&&(!u||g.ut===u)&&(!ti||g.tipo===ti)
+  const t=$('fTxt').value.toLowerCase().trim(),a=+$('fAnio').value,m=+$('fMes').value,u=$('fUT').value,s=$('fSagir').value,rv=$('fRev').checked;
+  return db.gestiones.filter(g=>(!a||anioDe(g)===a)&&(!m||mesDe(g)===m)&&(!u||g.ut===u)
     &&(!s||(s==='pend'?g.sagir!=='Sí':g.sagir===s))&&(!rv||g.revisar)
-    &&(!t||[g.memo,g.memo_ut,g.bip,g.materia,g.obs,g.asociado,g.ut,g.tipo].join(' ').toLowerCase().includes(t)));
+    &&(!t||[g.memo,g.memo_ut,g.bip,g.materia,g.obs,g.asociado,g.ut].join(' ').toLowerCase().includes(t)));
 }
 const orden=a=>a.slice().sort((x,y)=>fechaRef(x).localeCompare(fechaRef(y))||(+x.memo||0)-(+y.memo||0)||x.id-y.id);
 const sagirTag=g=>g.sagir==='Sí'?'<span class="tag si">Sí</span>':'<span class="tag no">'+(g.sagir==='No'?'No':'Pend.')+'</span>';
@@ -285,8 +278,8 @@ function renderRegistro(){
   const l=orden(filtrar()).reverse(); // más nuevo primero
   $('cuenta').textContent=`${l.length} de ${db.gestiones.length} gestiones · ${l.filter(g=>g.revisar).length} por revisar`;
   $('tReg').tBodies[0].innerHTML=l.map((g,i)=>`<tr data-id="${g.id}" class="${g.revisar?'rev':''}">
-   <td>${l.length-i}</td><td>${fmtN(g.memo)}</td><td>${fmtD(g.fecha)}</td><td>${esc(g.deriv)}</td><td>${fmtN(g.memo_ut)}</td><td>${fmtD(g.fecha_ut)}</td>
-   <td>${esc(corto(g.ut))}</td><td title="${esc(db.catalogo[g.bip]?.nombre||'BIP no está en catálogo')}">${esc(g.bip)}</td><td>${esc(g.tipo)}</td><td>${esc(g.materia)}</td>
+   <td>${l.length-i}</td><td title="${esc(db.catalogo[g.bip]?.nombre||'BIP no está en catálogo')}">${esc(g.bip)}</td><td>${fmtN(g.memo)}</td><td>${fmtD(g.fecha)}</td><td>${esc(g.deriv)}</td><td>${fmtN(g.memo_ut)}</td><td>${fmtD(g.fecha_ut)}</td>
+   <td>${esc(corto(g.ut))}</td><td>${esc(g.materia)}</td>
    <td class="num">${fmt$(g.monto)}</td><td>${esc(g.asociado)}</td><td>${sagirTag(g)}</td><td class="small">${esc(g.obs)}</td></tr>`).join('');
 }
 function renderInforme(){
@@ -296,8 +289,7 @@ function renderInforme(){
   $('iCab').textContent=`Período: ${MESES[m-1]} de ${a}${u?' · '+corto(u):''} · Funcionario: ${$('iFunc').value}`;
   $('iKpis').innerHTML=[['Total gestiones',l.length],['Cargadas en SAGIR',sag],['Pendientes SAGIR',l.length-sag],['Monto tramitado',fmt$(monto)],['% carga SAGIR',l.length?Math.round(sag/l.length*100)+'%':'–']]
     .map(([t,v])=>`<div class="kpi"><span>${t}</span><b>${v}</b></div>`).join('');
-  $('iTipos').innerHTML=TIPOS.map(t=>[t,l.filter(g=>g.tipo===t).length]).filter(x=>x[1]).map(([t,n])=>`<div>${t}: <b>${n}</b></div>`).join('');
-  $('tInf').tBodies[0].innerHTML=l.map((g,i)=>`<tr><td>${i+1}</td><td>${fmtN(g.memo)}</td><td>${fmtD(g.fecha)}</td><td>${esc(g.deriv)}</td><td>${fmtN(g.memo_ut)}</td><td>${fmtD(g.fecha_ut)}</td><td>${esc(corto(g.ut))}</td><td>${esc(g.bip)}</td><td>${esc(g.tipo)}</td><td>${esc(g.materia)}</td><td class="num">${fmt$(g.monto)}</td><td>${sagirTag(g)}</td></tr>`).join('')
+  $('tInf').tBodies[0].innerHTML=l.map((g,i)=>`<tr><td>${i+1}</td><td>${esc(g.bip)}</td><td>${fmtN(g.memo)}</td><td>${fmtD(g.fecha)}</td><td>${esc(g.deriv)}</td><td>${fmtN(g.memo_ut)}</td><td>${fmtD(g.fecha_ut)}</td><td>${esc(corto(g.ut))}</td><td>${esc(g.materia)}</td><td class="num">${fmt$(g.monto)}</td><td>${sagirTag(g)}</td></tr>`).join('')
     ||'<tr><td colspan="12" class="small">Sin gestiones en el período.</td></tr>';
 }
 function tablaRes(titulo,filas,a,val,fmtv=fmtN){
@@ -316,7 +308,6 @@ function renderResumen(){
   const n=l=>l.length;
   $('rCont').innerHTML=tablaRes('Gestiones por mes y U.T.',ut,a,n)
    +tablaRes('Cargadas en SAGIR',ut.map(([k,f])=>[k,g=>f(g)&&g.sagir==='Sí']),a,n)
-   +tablaRes('Gestiones por tipo',TIPOS.map(t=>[t,g=>g.tipo===t]),a,n)
    +tablaRes('Monto tramitado ($) por U.T.',ut,a,l=>l.reduce((s,g)=>s+(+g.monto||0),0),fmt$);
 }
 
@@ -324,7 +315,7 @@ function renderResumen(){
 const F=()=>$('frm').elements;
 function abrir(g){
   editId=g?g.id:null; $('dlgTit').textContent=g?'Editar gestión':'Nueva gestión'; $('btnBorrar').hidden=!g;
-  const e=F(); for(const k of ['memo','fecha','deriv','memo_ut','fecha_ut','ut','bip','tipo','monto','materia','asociado','obs','sagir']) e[k].value=g?(g[k]??''):'';
+  const e=F(); for(const k of ['memo','fecha','deriv','memo_ut','fecha_ut','ut','bip','monto','materia','asociado','obs','sagir']) e[k].value=g?(g[k]??''):'';
   e.revisar.checked=!!(g&&g.revisar); if(!g){e.fecha.value=new Date().toISOString().slice(0,10);e.sagir.value='No'}
   mostrarProy(); $('dlg').showModal();
 }
@@ -338,12 +329,12 @@ $('frm').addEventListener('submit',async ev=>{
   ev.preventDefault(); const e=F();
   const num=v=>{v=String(v).replace(/[^\d]/g,'');return v?+v:''};
   const g={memo:num(e.memo.value),fecha:e.fecha.value,deriv:e.deriv.value,memo_ut:num(e.memo_ut.value),fecha_ut:e.fecha_ut.value,
-    ut:e.ut.value.trim().toUpperCase(),bip:num(e.bip.value),tipo:e.tipo.value.trim(),materia:e.materia.value.trim(),monto:num(e.monto.value),
+    ut:e.ut.value.trim().toUpperCase(),bip:num(e.bip.value),materia:e.materia.value.trim(),monto:num(e.monto.value),
     asociado:e.asociado.value.trim(),sagir:e.sagir.value,obs:e.obs.value.trim(),revisar:e.revisar.checked};
   if(!g.fecha&&!g.fecha_ut){alert('Ingresa al menos una fecha (memo o memo U.T.).');return}
   let msg;
   if(editId){const i=db.gestiones.findIndex(x=>x.id===editId);db.gestiones[i]={id:editId,...g};msg=`Registro: edita memo ${g.memo||g.memo_ut}`}
-  else{const id=db.gestiones.reduce((m,x)=>Math.max(m,x.id),0)+1;db.gestiones.push({id,...g});msg=`Registro: agrega memo ${g.memo||g.memo_ut} (${g.tipo||'gestión'}, ${corto(g.ut)})`}
+  else{const id=db.gestiones.reduce((m,x)=>Math.max(m,x.id),0)+1;db.gestiones.push({id,...g});msg=`Registro: agrega memo ${g.memo||g.memo_ut} (${g.materia||'gestión'}, ${corto(g.ut)})`}
   $('dlg').close(); llenarFiltrosSuave(); render(); await guardar(msg);
 });
 $('btnBorrar').onclick=async()=>{
@@ -351,7 +342,7 @@ $('btnBorrar').onclick=async()=>{
   db.gestiones=db.gestiones.filter(x=>x.id!==editId); $('dlg').close(); render(); await guardar(`Registro: elimina memo ${g.memo||g.memo_ut}`);
 };
 $('btnCancelar').onclick=()=>$('dlg').close();
-function llenarFiltrosSuave(){const k=['fAnio','fMes','fUT','fTipo','iAnio','iMes','iUT','rAnio'].map(i=>[i,$(i).value]);llenarFiltros();k.forEach(([i,v])=>{if([...$(i).options].some(o=>o.value==v))$(i).value=v})}
+function llenarFiltrosSuave(){const k=['fAnio','fMes','fUT','iAnio','iMes','iUT','rAnio'].map(i=>[i,$(i).value]);llenarFiltros();k.forEach(([i,v])=>{if([...$(i).options].some(o=>o.value==v))$(i).value=v})}
 
 /* ---------- Config ---------- */
 $('btnConfig').onclick=()=>{const c=cfg(),e=$('frmCfg').elements;e.repo.value=c.repo||'lolopo76/Gore';e.rama.value=c.rama||'main';e.token.value=c.token||'';$('dlgCfg').showModal()};
@@ -363,13 +354,13 @@ $('frmCfg').addEventListener('submit',ev=>{ev.preventDefault();const e=$('frmCfg
 /* ---------- Eventos ---------- */
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
   ['registro','informe','resumen'].forEach(v=>$('v-'+v).hidden=v!==b.dataset.v)});
-['fTxt','fAnio','fMes','fUT','fTipo','fSagir','fRev'].forEach(i=>$(i).addEventListener('input',renderRegistro));
+['fTxt','fAnio','fMes','fUT','fSagir','fRev'].forEach(i=>$(i).addEventListener('input',renderRegistro));
 ['iAnio','iMes','iUT','iFunc'].forEach(i=>$(i).addEventListener('input',renderInforme));
 $('rAnio').addEventListener('input',renderResumen);
 $('btnNueva').onclick=()=>abrir(null);
 $('tReg').tBodies[0].addEventListener('click',ev=>{const tr=ev.target.closest('tr');if(tr)abrir(db.gestiones.find(g=>g.id===+tr.dataset.id))});
 $('btnCSV').onclick=()=>{
-  const cols=[['memo','Memo N°'],['fecha','Fecha'],['deriv','Derivado a'],['memo_ut','Memo U.T. N°'],['fecha_ut','Fecha U.T.'],['ut','U.T.'],['bip','BIP'],['tipo','Tipo'],['materia','Materia'],['monto','Monto $'],['asociado','Memo asociado'],['sagir','Carga SAGIR'],['obs','Observaciones'],['revisar','Revisar']];
+  const cols=[['bip','BIP'],['memo','IDDOC'],['fecha','Fecha SAGIR'],['deriv','Derivado a'],['memo_ut','Memo U.T. N°'],['fecha_ut','Fecha U.T.'],['ut','U.T.'],['materia','Materia'],['monto','Monto $'],['asociado','Memo asociado'],['sagir','Carga SAGIR'],['obs','Observaciones'],['revisar','Revisar']];
   const q=v=>{v=v===true?'Sí':v===false?'':String(v??'');return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
   const csv='﻿'+[cols.map(c=>c[1]).join(';')].concat(orden(filtrar()).map(g=>cols.map(([k])=>q(k.startsWith('fecha')?fmtD(g[k]):g[k])).join(';'))).join('\r\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='registro_memos.csv';a.click();

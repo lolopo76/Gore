@@ -900,13 +900,12 @@
    "fecha_ut": "2026-09-03",
    "ut": "MUNICIPALIDAD DE BUIN",
    "bip": 30369572,
-   "tipo": "Rectificación",
    "materia": "Rectifica memo 1.182",
    "monto": "",
    "asociado": "Memo 1182",
    "sagir": "Sí",
    "obs": "Sin N° ni fecha de memo; U.T. tomada del BIP",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 55,

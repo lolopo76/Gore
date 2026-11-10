@@ -843,11 +843,10 @@
    "fecha_ut": "2026-08-31",
    "ut": "MUNICIPALIDAD DE PAINE",
    "bip": 40064908,
-   "tipo": "Otro",
    "materia": "(sin materia en papel)",
    "monto": "",
    "asociado": "",
-   "sagir": "No",
+   "sagir": "Sí",
    "obs": "Fecha U.T. escrita \"3/08\"; se asumió 31/08. Sin materia ni carga SAGIR",
    "revisar": true
   },

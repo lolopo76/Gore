@@ -1,6 +1,6 @@
 # Registro de memos y gestiones
 
-Página para registrar los memos de las unidades técnicas (Paine, San Bernardo, Buin, Calera de Tango) y sacar el informe mensual de gestión para remuneraciones. Reemplaza la planilla en papel (Memo N°, Fecha, DEIN/DAF, Memo U.T. N°, Fecha, U.T., BIP, Materia, Carga SAGIR).
+Página para registrar los memos de las unidades técnicas (Paine, San Bernardo, Buin, Calera de Tango) y sacar el informe mensual de gestión para remuneraciones. Reemplaza la planilla en papel (BIP, IDDOC, Fecha SAGIR, DEIN/DAF, Memo U.T. N°, Fecha, U.T., Materia, Carga SAGIR).
 
 - `index.html`: la página (sin dependencias; funciona en GitHub Pages o abriéndola desde el repositorio publicado).
 - `data/registro.json`: el registro. Cada vez que se guarda una gestión desde la página queda un commit en este archivo, así el historial queda en git.
@@ -12,6 +12,6 @@ Página para registrar los memos de las unidades técnicas (Paine, San Bernardo,
 4. **Informe mensual**: elegir mes, año y U.T. y pulsar *Imprimir / Guardar PDF*.
 5. **Resumen anual**: gestiones, cargas SAGIR, tipos y montos por mes.
 
-El mes de cada gestión se toma de la fecha del memo; si falta, de la fecha del memo U.T. Las filas en amarillo están marcadas "por revisar" (datos del historial en papel que no se leían con claridad).
+El mes de cada gestión se toma de la Fecha SAGIR; si falta, de la fecha del memo U.T. Las filas en amarillo están marcadas "por revisar" (datos del historial en papel que no se leían con claridad).
 
 > El repositorio es público: lo que se guarde en `data/registro.json` (números de memo, BIP, montos, observaciones) es visible para cualquiera.

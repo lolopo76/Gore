@@ -513,13 +513,12 @@
    "fecha_ut": "2026-08-11",
    "ut": "MUNICIPALIDAD DE PAINE",
    "bip": 40061664,
-   "tipo": "Garantía",
    "materia": "Garantía JP",
    "monto": 7550000,
    "asociado": "",
    "sagir": "Sí",
    "obs": "En papel el BIP dice 40061644; se usó 40061664. Fecha memo y N° memo U.T. poco claros",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 32,

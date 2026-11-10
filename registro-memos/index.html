@@ -32,8 +32,18 @@ button.b:disabled{opacity:.5;cursor:default}
 table{width:100%;border-collapse:collapse;background:var(--surface);font-size:12.5px}
 th{background:var(--brand);color:#fff;text-align:left;padding:7px 6px;font-weight:600;position:sticky;top:0;z-index:1;white-space:nowrap}
 td{padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
-tr.rev td{background:var(--warn-soft)}
-tbody tr:hover td{background:var(--brand-soft);cursor:pointer}
+/* Colores por estado (pedido por Rodrigo): SAGIR Sí = verde/negro, No o pendiente = celeste/blanco, Garantía = amarillo/negro */
+tr.c-ok td{background:#7cc87f;color:#000}
+tr.c-no td{background:#2b9fd6;color:#fff}
+tr.c-gar td{background:#ffe14d;color:#000}
+tr.c-ok td.small,tr.c-no td.small,tr.c-gar td.small{color:inherit}
+td:first-child{white-space:nowrap}
+tr.rev td:first-child{box-shadow:inset 5px 0 0 #eb4606;font-weight:700}
+#tReg tbody tr{cursor:pointer}
+tbody tr:hover td{filter:brightness(.92)}
+.leyenda{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;margin:4px 0 8px;align-items:center}
+.leyenda span{display:inline-flex;align-items:center;gap:5px}
+.leyenda i{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.2)}
 td:nth-child(4),td:nth-child(7){white-space:nowrap}
 td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .tag{display:inline-block;padding:1px 7px;border-radius:99px;font-size:11px;font-weight:600}
@@ -65,8 +75,8 @@ h3{color:var(--brand);margin:20px 0 8px;font-size:15px}
   .wrapt{max-height:none;overflow:visible;border:0}
   th{position:static;background:#0f3a5d!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   table{font-size:10px}
-  tr.rev td{background:none}
-  tbody tr:hover td{background:none}
+  td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:hover td{filter:none}
   @page{size:landscape;margin:12mm}
 }
 </style>
@@ -103,6 +113,7 @@ h3{color:var(--brand);margin:20px 0 8px;font-size:15px}
       <button class="b b2" id="btnCSV">Descargar Excel (CSV)</button>
     </div>
     <div class="small" id="cuenta"></div>
+    <div class="leyenda"><span><i style="background:#7cc87f"></i>Cargado en SAGIR</span><span><i style="background:#2b9fd6"></i>Pendiente SAGIR</span><span><i style="background:#ffe14d"></i>Garantía</span><span><i style="background:#fff;box-shadow:inset 4px 0 0 #eb4606"></i>⚠ Por revisar</span></div>
     <div class="wrapt"><table id="tReg"><thead><tr>
       <th>N°</th><th>BIP</th><th>IDDOC</th><th>Fecha SAGIR</th><th>Deriv.</th><th>Memo U.T.</th><th>Fecha U.T.</th><th>U.T.</th><th>Materia</th><th>Monto $</th><th>Asociado / rectifica</th><th>SAGIR</th><th>Obs.</th>
     </tr></thead><tbody></tbody></table></div>
@@ -122,6 +133,7 @@ h3{color:var(--brand);margin:20px 0 8px;font-size:15px}
     </div>
     <div id="iCab" style="font-weight:600;margin:4px 0"></div>
     <div class="kpis" id="iKpis"></div>
+    <div class="leyenda"><span><i style="background:#7cc87f"></i>Cargado en SAGIR</span><span><i style="background:#2b9fd6"></i>Pendiente SAGIR</span><span><i style="background:#ffe14d"></i>Garantía</span></div>
     <div class="wrapt"><table id="tInf"><thead><tr>
       <th>N°</th><th>BIP</th><th>IDDOC</th><th>Fecha SAGIR</th><th>Deriv.</th><th>Memo U.T.</th><th>Fecha U.T.</th><th>U.T.</th><th>Materia</th><th>Monto $</th><th>SAGIR</th>
     </tr></thead><tbody></tbody></table></div>
@@ -270,15 +282,16 @@ function filtrar(){
     &&(!t||[g.memo,g.memo_ut,g.bip,g.materia,g.obs,g.asociado,g.ut].join(' ').toLowerCase().includes(t)));
 }
 const orden=a=>a.slice().sort((x,y)=>fechaRef(x).localeCompare(fechaRef(y))||(+x.memo||0)-(+y.memo||0)||x.id-y.id);
-const sagirTag=g=>g.sagir==='Sí'?'<span class="tag si">Sí</span>':'<span class="tag no">'+(g.sagir==='No'?'No':'Pend.')+'</span>';
+const sagirTag=g=>g.sagir==='Sí'?'<b>Sí</b>':(g.sagir==='No'?'No':'Pend.');
+const colorFila=g=>/garant/i.test(g.materia||'')?'c-gar':(g.sagir==='Sí'?'c-ok':'c-no');
 
 /* ---------- Vistas ---------- */
 function render(){renderRegistro();renderInforme();renderResumen()}
 function renderRegistro(){
   const l=orden(filtrar()).reverse(); // más nuevo primero
   $('cuenta').textContent=`${l.length} de ${db.gestiones.length} gestiones · ${l.filter(g=>g.revisar).length} por revisar`;
-  $('tReg').tBodies[0].innerHTML=l.map((g,i)=>`<tr data-id="${g.id}" class="${g.revisar?'rev':''}">
-   <td>${l.length-i}</td><td title="${esc(db.catalogo[g.bip]?.nombre||'BIP no está en catálogo')}">${esc(g.bip)}</td><td>${fmtN(g.memo)}</td><td>${fmtD(g.fecha)}</td><td>${esc(g.deriv)}</td><td>${fmtN(g.memo_ut)}</td><td>${fmtD(g.fecha_ut)}</td>
+  $('tReg').tBodies[0].innerHTML=l.map((g,i)=>`<tr data-id="${g.id}" class="${colorFila(g)}${g.revisar?' rev':''}" title="${g.revisar?'Por revisar':''}">
+   <td>${g.revisar?'⚠ ':''}${l.length-i}</td><td title="${esc(db.catalogo[g.bip]?.nombre||'BIP no está en catálogo')}">${esc(g.bip)}</td><td>${fmtN(g.memo)}</td><td>${fmtD(g.fecha)}</td><td>${esc(g.deriv)}</td><td>${fmtN(g.memo_ut)}</td><td>${fmtD(g.fecha_ut)}</td>
    <td>${esc(corto(g.ut))}</td><td>${esc(g.materia)}</td>
    <td class="num">${fmt$(g.monto)}</td><td>${esc(g.asociado)}</td><td>${sagirTag(g)}</td><td class="small">${esc(g.obs)}</td></tr>`).join('');
 }
@@ -289,7 +302,7 @@ function renderInforme(){
   $('iCab').textContent=`Período: ${MESES[m-1]} de ${a}${u?' · '+corto(u):''} · Funcionario: ${$('iFunc').value}`;
   $('iKpis').innerHTML=[['Total gestiones',l.length],['Cargadas en SAGIR',sag],['Pendientes SAGIR',l.length-sag],['Monto tramitado',fmt$(monto)],['% carga SAGIR',l.length?Math.round(sag/l.length*100)+'%':'–']]
     .map(([t,v])=>`<div class="kpi"><span>${t}</span><b>${v}</b></div>`).join('');
-  $('tInf').tBodies[0].innerHTML=l.map((g,i)=>`<tr><td>${i+1}</td><td>${esc(g.bip)}</td><td>${fmtN(g.memo)}</td><td>${fmtD(g.fecha)}</td><td>${esc(g.deriv)}</td><td>${fmtN(g.memo_ut)}</td><td>${fmtD(g.fecha_ut)}</td><td>${esc(corto(g.ut))}</td><td>${esc(g.materia)}</td><td class="num">${fmt$(g.monto)}</td><td>${sagirTag(g)}</td></tr>`).join('')
+  $('tInf').tBodies[0].innerHTML=l.map((g,i)=>`<tr class="${colorFila(g)}"><td>${i+1}</td><td>${esc(g.bip)}</td><td>${fmtN(g.memo)}</td><td>${fmtD(g.fecha)}</td><td>${esc(g.deriv)}</td><td>${fmtN(g.memo_ut)}</td><td>${fmtD(g.fecha_ut)}</td><td>${esc(corto(g.ut))}</td><td>${esc(g.materia)}</td><td class="num">${fmt$(g.monto)}</td><td>${sagirTag(g)}</td></tr>`).join('')
     ||'<tr><td colspan="12" class="small">Sin gestiones en el período.</td></tr>';
 }
 function tablaRes(titulo,filas,a,val,fmtv=fmtN){

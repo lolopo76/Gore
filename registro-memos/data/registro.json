@@ -776,11 +776,10 @@
    "fecha_ut": "2026-08-24",
    "ut": "MUNICIPALIDAD DE SAN BERNARDO",
    "bip": 30106239,
-   "tipo": "EEPP",
    "materia": "EEPP línea b)",
    "monto": 16082850,
    "asociado": "",
-   "sagir": "No",
+   "sagir": "Sí",
    "obs": "Sin fecha de memo y sin carga SAGIR en papel",
    "revisar": false
   },

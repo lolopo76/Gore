@@ -96,13 +96,12 @@
    "fecha_ut": "2026-07-20",
    "ut": "MUNICIPALIDAD DE SAN BERNARDO",
    "bip": 30106239,
-   "tipo": "EEPP",
    "materia": "EEPP 01 → Equipos",
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
    "obs": "Fecha memo con corrección a mano (27/07 sobre 20/07)",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 7,

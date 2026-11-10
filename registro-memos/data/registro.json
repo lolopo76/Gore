@@ -826,22 +826,6 @@
    "revisar": false
   },
   {
-   "id": 50,
-   "memo": 305515,
-   "fecha": "",
-   "deriv": "",
-   "memo_ut": 1665,
-   "fecha_ut": "2026-08-31",
-   "ut": "MUNICIPALIDAD DE PAINE",
-   "bip": 40064908,
-   "materia": "(sin materia en papel)",
-   "monto": "",
-   "asociado": "",
-   "sagir": "Sí",
-   "obs": "Fecha U.T. escrita \"3/08\"; se asumió 31/08. Sin materia ni carga SAGIR",
-   "revisar": true
-  },
-  {
    "id": 51,
    "memo": 305608,
    "fecha": "2026-09-03",

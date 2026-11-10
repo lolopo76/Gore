@@ -850,13 +850,12 @@
    "fecha_ut": "2026-08-31",
    "ut": "MUNICIPALIDAD DE BUIN",
    "bip": 40062830,
-   "tipo": "Rectificación",
    "materia": "Rect. remesa",
    "monto": 62772500,
    "asociado": "Ref. 1667",
    "sagir": "Sí",
    "obs": "Fecha memo escrita 03/08; se asumió 03/09",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 52,

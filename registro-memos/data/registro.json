@@ -79,13 +79,12 @@
    "fecha_ut": "2026-07-14",
    "ut": "MUNICIPALIDAD DE CALERA DE TANGO",
    "bip": 40056796,
-   "tipo": "EEPP",
    "materia": "EEPP 01 Fact. 231",
    "monto": "",
    "asociado": "Rectifica (ref. 1303)",
    "sagir": "Sí",
    "obs": "Al margen: \"Rectifica → 1303\". N° de memo leído 296.279",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 6,

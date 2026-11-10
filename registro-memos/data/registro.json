@@ -378,13 +378,12 @@
    "fecha_ut": "2026-08-05",
    "ut": "MUNICIPALIDAD DE PAINE",
    "bip": 40045389,
-   "tipo": "Caución",
    "materia": "Caución UF 3.666",
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
    "obs": "Monto en UF (3.666). Memo U.T. leído 1.043",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 24,

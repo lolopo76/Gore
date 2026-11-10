@@ -345,13 +345,12 @@
    "fecha_ut": "2026-08-05",
    "ut": "MUNICIPALIDAD DE RECOLETA",
    "bip": 40019278,
-   "tipo": "Cierre total",
    "materia": "Cierre total",
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
    "obs": "Fecha memo poco clara",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 22,

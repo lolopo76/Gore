@@ -1469,13 +1469,12 @@
    "fecha_ut": "2026-11-02",
    "ut": "MUNICIPALIDAD DE SAN BERNARDO",
    "bip": 40037723,
-   "tipo": "Garantía",
    "materia": "Garantía",
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
    "obs": "",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 88,

@@ -664,13 +664,12 @@
    "fecha_ut": "2026-08-17",
    "ut": "MUNICIPALIDAD DE CALERA DE TANGO",
    "bip": 40050217,
-   "tipo": "Remesa",
    "materia": "Remesa",
    "monto": 18995934,
    "asociado": "",
    "sagir": "Sí",
    "obs": "Fecha U.T. escrita 17/06; se asumió 17/08",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 41,

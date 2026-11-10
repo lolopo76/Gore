@@ -1153,13 +1153,12 @@
    "fecha_ut": "2026-09-22",
    "ut": "MUNICIPALIDAD DE PAINE",
    "bip": 40036544,
-   "tipo": "Garantía",
    "materia": "Garantía / P.",
    "monto": 15800000,
    "asociado": "",
    "sagir": "Sí",
-   "obs": "Al margen: \"4to. aumento\". N° memo poco claro (307.160 / 309.160). BIP 40036544 figura como Buin en catálogo",
-   "revisar": true
+   "obs": "",
+   "revisar": false
   },
   {
    "id": 70,

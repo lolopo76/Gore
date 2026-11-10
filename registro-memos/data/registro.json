@@ -800,13 +800,12 @@
    "fecha_ut": "2026-08-26",
    "ut": "MUNICIPALIDAD DE PAINE",
    "bip": 40061664,
-   "tipo": "Garantía",
    "materia": "Garantía",
    "monto": 7550000,
    "asociado": "",
    "sagir": "Sí",
-   "obs": "Monto con corrección a mano (7.550.000?)",
-   "revisar": true
+   "obs": "",
+   "revisar": false
   },
   {
    "id": 49,

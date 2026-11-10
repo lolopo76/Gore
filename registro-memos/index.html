@@ -282,10 +282,10 @@ const sagirTag=g=>g.sagir==='Sí'?'<span class="tag si">Sí</span>':'<span class
 /* ---------- Vistas ---------- */
 function render(){renderRegistro();renderInforme();renderResumen()}
 function renderRegistro(){
-  const l=orden(filtrar());
+  const l=orden(filtrar()).reverse(); // más nuevo primero
   $('cuenta').textContent=`${l.length} de ${db.gestiones.length} gestiones · ${l.filter(g=>g.revisar).length} por revisar`;
   $('tReg').tBodies[0].innerHTML=l.map((g,i)=>`<tr data-id="${g.id}" class="${g.revisar?'rev':''}">
-   <td>${i+1}</td><td>${fmtN(g.memo)}</td><td>${fmtD(g.fecha)}</td><td>${esc(g.deriv)}</td><td>${fmtN(g.memo_ut)}</td><td>${fmtD(g.fecha_ut)}</td>
+   <td>${l.length-i}</td><td>${fmtN(g.memo)}</td><td>${fmtD(g.fecha)}</td><td>${esc(g.deriv)}</td><td>${fmtN(g.memo_ut)}</td><td>${fmtD(g.fecha_ut)}</td>
    <td>${esc(corto(g.ut))}</td><td title="${esc(db.catalogo[g.bip]?.nombre||'BIP no está en catálogo')}">${esc(g.bip)}</td><td>${esc(g.tipo)}</td><td>${esc(g.materia)}</td>
    <td class="num">${fmt$(g.monto)}</td><td>${esc(g.asociado)}</td><td>${sagirTag(g)}</td><td class="small">${esc(g.obs)}</td></tr>`).join('');
 }

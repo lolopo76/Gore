@@ -1178,18 +1178,17 @@
   {
    "id": 70,
    "memo": 309954,
-   "fecha": "",
+   "fecha": "2026-09-25",
    "deriv": "DEIN",
    "memo_ut": 1817,
    "fecha_ut": "2026-09-25",
    "ut": "MUNICIPALIDAD DE SAN BERNARDO",
    "bip": 40037723,
-   "tipo": "EEPP",
    "materia": "EEPP 07",
    "monto": 1424822808,
    "asociado": "",
    "sagir": "Sí",
-   "obs": "Sin fecha de memo. N° memo poco claro (307.954 / 309.954)",
+   "obs": "",
    "revisar": true
   },
   {

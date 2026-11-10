@@ -164,13 +164,12 @@
    "fecha_ut": "2026-07-27",
    "ut": "MUNICIPALIDAD DE SAN BERNARDO",
    "bip": 30106239,
-   "tipo": "EEPP",
    "materia": "EEPP línea a) Bomberos",
    "monto": "",
    "asociado": "",
    "sagir": "Sí",
    "obs": "OK. En papel el BIP parece 30106237; se usó 30106239",
-   "revisar": true
+   "revisar": false
   },
   {
    "id": 11,

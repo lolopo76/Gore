@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Registro de memos y gestiones – U.T. Provincia de Maipo</title>
+<style>
+:root{
+  --bg:#f5f7f9;--surface:#fff;--sunk:#ebeef2;--line:#d9dfe6;--fg:#2b2f33;--muted:#5f6670;
+  --brand:#0f3a5d;--brand-soft:#e1e9f1;--hot:#eb4606;--ok:#1e7a5f;--ok-soft:#dcf1ea;
+  --crit:#a32e00;--crit-soft:#fbe4da;--warn:#8a5a00;--warn-soft:#fbefd6;--r:6px;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;color:var(--fg);background:var(--bg)
+}
+*{box-sizing:border-box}
+body{margin:0}
+header{background:var(--brand);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header h1{font-size:18px;margin:0;font-weight:700}
+header .sub{opacity:.8;font-size:12px}
+header .sp{flex:1}
+#estado{font-size:12px;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.15)}
+#estado.ok{background:#2e9a78}#estado.err{background:var(--hot)}#estado.local{background:#8a5a00}
+nav{display:flex;gap:4px;padding:0 20px;background:var(--surface);border-bottom:1px solid var(--line)}
+nav button{border:0;background:none;padding:12px 14px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent}
+nav button.on{color:var(--brand);border-bottom-color:var(--brand)}
+main{max-width:1400px;margin:0 auto;padding:16px 20px 60px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px}
+.bar label{display:flex;flex-direction:column;font-size:11px;color:var(--muted);gap:2px}
+input,select,textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:var(--r);background:#fff;color:var(--fg)}
+button.b{font:inherit;font-weight:600;padding:7px 14px;border-radius:var(--r);border:1px solid var(--brand);background:var(--brand);color:#fff;cursor:pointer}
+button.b2{background:#fff;color:var(--brand)}
+button.b:disabled{opacity:.5;cursor:default}
+table{width:100%;border-collapse:collapse;background:var(--surface);font-size:12.5px}
+th{background:var(--brand);color:#fff;text-align:left;padding:7px 6px;font-weight:600;position:sticky;top:0;z-index:1;white-space:nowrap}
+td{padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.rev td{background:var(--warn-soft)}
+tbody tr:hover td{background:var(--brand-soft);cursor:pointer}
+td:nth-child(3),td:nth-child(6){white-space:nowrap}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tag{display:inline-block;padding:1px 7px;border-radius:99px;font-size:11px;font-weight:600}
+.si{background:var(--ok-soft);color:var(--ok)}.no{background:var(--crit-soft);color:var(--crit)}
+.small{font-size:11px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:12px 0}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
+.kpi b{display:block;font-size:22px;color:var(--brand)}
+.kpi span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.tipos{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tipos div{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:4px 10px;font-size:12px}
+.wrapt{overflow:auto;max-height:calc(100vh - 250px);border:1px solid var(--line);border-radius:var(--r)}
+dialog{border:0;border-radius:10px;padding:0;width:min(760px,96vw);box-shadow:0 10px 40px rgba(0,0,0,.3)}
+dialog form{padding:18px 20px}
+dialog h2{margin:0 0 12px;font-size:17px;color:var(--brand)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.grid label{display:flex;flex-direction:column;font-size:11px;color:var(--muted);gap:3px}
+.grid .c2{grid-column:span 2}.grid .c4{grid-column:span 4}
+.proy{font-size:12px;color:var(--brand);min-height:16px}
+.acc{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.acc .izq{margin-right:auto}
+.resumen td,.resumen th{text-align:center}.resumen td:first-child,.resumen th:first-child{text-align:left}
+.resumen tr.tot td{font-weight:700;background:var(--brand-soft)}
+h3{color:var(--brand);margin:20px 0 8px;font-size:15px}
+.print-only{display:none}
+.aviso{background:var(--warn-soft);border:1px solid #e8c77a;padding:10px 12px;border-radius:var(--r);margin-bottom:12px;font-size:13px}
+@media print{
+  header,nav,.bar,.noprint,.aviso{display:none!important}
+  .print-only{display:block}
+  body,main{background:#fff;padding:0}
+  .wrapt{max-height:none;overflow:visible;border:0}
+  th{position:static;background:#0f3a5d!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  table{font-size:10px}
+  tr.rev td{background:none}
+  tbody tr:hover td{background:none}
+  @page{size:landscape;margin:12mm}
+}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Registro de memos y gestiones</h1><div class="sub">Unidades Técnicas · Provincia de Maipo</div></div>
+  <div class="sp"></div>
+  <span id="estado">Cargando…</span>
+  <button class="b b2" id="btnConfig" title="Conexión con GitHub">⚙ GitHub</button>
+</header>
+<nav>
+  <button data-v="registro" class="on">Registro</button>
+  <button data-v="informe">Informe mensual</button>
+  <button data-v="resumen">Resumen anual</button>
+</nav>
+<main>
+  <div id="avisoToken" class="aviso" hidden>
+    Estás en <b>modo solo lectura</b>: los cambios se guardan en este navegador pero no en GitHub.
+    Pulsa <b>⚙ GitHub</b> y pega tu token para que cada cambio quede guardado en el repositorio.
+  </div>
+
+  <!-- REGISTRO -->
+  <section id="v-registro">
+    <div class="bar">
+      <button class="b" id="btnNueva">+ Nueva gestión</button>
+      <label>Buscar<input id="fTxt" placeholder="memo, BIP, materia…" size="22"></label>
+      <label>Año<select id="fAnio"></select></label>
+      <label>Mes<select id="fMes"></select></label>
+      <label>U.T.<select id="fUT"></select></label>
+      <label>Tipo<select id="fTipo"></select></label>
+      <label>SAGIR<select id="fSagir"><option value="">Todas</option><option>Sí</option><option value="pend">Pendiente</option></select></label>
+      <label>&nbsp;<span><input type="checkbox" id="fRev"> Solo por revisar</span></label>
+      <span class="sp" style="flex:1"></span>
+      <button class="b b2" id="btnCSV">Descargar Excel (CSV)</button>
+    </div>
+    <div class="small" id="cuenta"></div>
+    <div class="wrapt"><table id="tReg"><thead><tr>
+      <th>N°</th><th>Memo N°</th><th>Fecha</th><th>Deriv.</th><th>Memo U.T.</th><th>Fecha U.T.</th><th>U.T.</th><th>BIP</th><th>Tipo</th><th>Materia</th><th>Monto $</th><th>Asociado / rectifica</th><th>SAGIR</th><th>Obs.</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <!-- INFORME -->
+  <section id="v-informe" hidden>
+    <div class="bar">
+      <label>Mes<select id="iMes"></select></label>
+      <label>Año<select id="iAnio"></select></label>
+      <label>U.T.<select id="iUT"></select></label>
+      <label>Funcionario<input id="iFunc" value="Rodrigo López" size="22"></label>
+      <button class="b" onclick="window.print()">Imprimir / Guardar PDF</button>
+    </div>
+    <div class="print-only">
+      <h2 style="margin:0;color:#0f3a5d">Informe mensual de gestión – Memos Unidades Técnicas</h2>
+    </div>
+    <div id="iCab" style="font-weight:600;margin:4px 0"></div>
+    <div class="kpis" id="iKpis"></div>
+    <div class="tipos" id="iTipos"></div>
+    <div class="wrapt"><table id="tInf"><thead><tr>
+      <th>N°</th><th>Memo N°</th><th>Fecha</th><th>Deriv.</th><th>Memo U.T.</th><th>Fecha U.T.</th><th>U.T.</th><th>BIP</th><th>Tipo</th><th>Materia</th><th>Monto $</th><th>SAGIR</th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section id="v-resumen" hidden>
+    <div class="bar"><label>Año<select id="rAnio"></select></label></div>
+    <div id="rCont"></div>
+  </section>
+</main>
+
+<!-- FORMULARIO -->
+<dialog id="dlg"><form method="dialog" id="frm">
+  <h2 id="dlgTit">Nueva gestión</h2>
+  <div class="grid">
+    <label>Memo N°<input name="memo" inputmode="numeric"></label>
+    <label>Fecha memo<input name="fecha" type="date"></label>
+    <label>Derivado a<select name="deriv"><option value=""></option><option>DEIN</option><option>DAF</option></select></label>
+    <label>Carga SAGIR<select name="sagir"><option value=""></option><option>Sí</option><option>No</option></select></label>
+    <label>Memo U.T. N°<input name="memo_ut" inputmode="numeric"></label>
+    <label>Fecha memo U.T.<input name="fecha_ut" type="date"></label>
+    <label class="c2">U.T.<input name="ut" list="lUT"></label>
+    <label>BIP<input name="bip" inputmode="numeric" list="lBIP"></label>
+    <label>Tipo<select name="tipo"></select></label>
+    <label class="c2">Monto $<input name="monto" inputmode="numeric" placeholder="solo números"></label>
+    <div class="c4 proy" id="proy"></div>
+    <label class="c2">Materia<input name="materia" placeholder="ej. EEPP N°20, 2da Remesa"></label>
+    <label class="c2">Memo asociado / rectifica<input name="asociado"></label>
+    <label class="c4">Observaciones<textarea name="obs" rows="2"></textarea></label>
+    <label class="c4" style="flex-direction:row;gap:6px;align-items:center"><input type="checkbox" name="revisar"> Marcar como "por revisar"</label>
+  </div>
+  <div class="acc">
+    <button type="button" class="b b2 izq" id="btnBorrar" style="border-color:var(--crit);color:var(--crit)">Eliminar</button>
+    <button type="button" class="b b2" id="btnCancelar">Cancelar</button>
+    <button type="submit" class="b" id="btnGuardar">Guardar</button>
+  </div>
+</form></dialog>
+
+<!-- CONFIG -->
+<dialog id="dlgCfg"><form method="dialog" id="frmCfg">
+  <h2>Conexión con GitHub</h2>
+  <p class="small">El registro se guarda en el archivo <code>registro-memos/data/registro.json</code> del repositorio. Para escribir en él necesitas un <b>token</b> de GitHub (fine-grained, con permiso <i>Contents: Read and write</i> solo sobre este repositorio). El token queda guardado únicamente en este navegador.</p>
+  <div class="grid">
+    <label class="c2">Repositorio (dueño/nombre)<input name="repo" placeholder="lolopo76/Gore"></label>
+    <label>Rama<input name="rama" placeholder="main"></label>
+    <label>&nbsp;</label>
+    <label class="c4">Token<input name="token" type="password" placeholder="github_pat_…" autocomplete="off"></label>
+  </div>
+  <div class="acc">
+    <button type="button" class="b b2 izq" id="btnOlvidar">Olvidar token</button>
+    <button type="button" class="b b2" id="btnCfgCancel">Cancelar</button>
+    <button type="submit" class="b">Conectar</button>
+  </div>
+</form></dialog>
+
+<datalist id="lUT"></datalist><datalist id="lBIP"></datalist>
+
+<script>
+'use strict';
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const TIPOS=['Remesa','Rendición','EEPP','Garantía','Caución','Reintegro','Rectificación','Cierre total','Otro'];
+const UTS=['MUNICIPALIDAD DE SAN BERNARDO','MUNICIPALIDAD DE BUIN','MUNICIPALIDAD DE PAINE','MUNICIPALIDAD DE CALERA DE TANGO'];
+const RUTA='registro-memos/data/registro.json';
+const LS_CFG='rm-cfg', LS_DATA='rm-data';
+let db={version:1,gestiones:[],catalogo:{}}, sha=null, editId=null;
+const $=id=>document.getElementById(id);
+const fmt$=n=>(n===''||n==null)?'':'$'+Number(n).toLocaleString('es-CL');
+const fmtN=n=>(n===''||n==null)?'':Number(n).toLocaleString('es-CL');
+const fmtD=s=>s?s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4):'';
+const corto=u=>(u||'').replace('MUNICIPALIDAD DE ','');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fechaRef=g=>g.fecha||g.fecha_ut||'';
+const mesDe=g=>{const f=fechaRef(g);return f?+f.slice(5,7):0};
+const anioDe=g=>{const f=fechaRef(g);return f?+f.slice(0,4):0};
+const cfg=()=>{try{return JSON.parse(localStorage.getItem(LS_CFG))||{}}catch(_){return{}}};
+
+/* ---------- GitHub ---------- */
+const b64e=s=>{const b=new TextEncoder().encode(s);let x='';for(let i=0;i<b.length;i+=0x8000)x+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(x)};
+const b64d=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,'')),c=>c.charCodeAt(0)));
+function api(path,opt={}){
+  const c=cfg();
+  return fetch('https://api.github.com/repos/'+c.repo+'/contents/'+path+(opt.method?'':'?ref='+encodeURIComponent(c.rama||'main')),{
+    ...opt,headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+c.token,'X-GitHub-Api-Version':'2022-11-28',...(opt.headers||{})}});
+}
+async function cargarGitHub(){
+  const r=await api(RUTA);
+  if(r.status===404){sha=null;return false}
+  if(!r.ok) throw new Error('GitHub respondió '+r.status+(r.status===401?' (token inválido)':''));
+  const j=await r.json(); sha=j.sha;
+  // archivos >1 MB llegan sin contenido: usar el blob
+  let txt=j.content?b64d(j.content):null;
+  if(!txt){const c=cfg();const b=await fetch(j.git_url,{headers:{'Authorization':'Bearer '+c.token}});txt=b64d((await b.json()).content)}
+  db=JSON.parse(txt); return true;
+}
+async function guardar(mensaje){
+  db.actualizado=new Date().toISOString().slice(0,10);
+  localStorage.setItem(LS_DATA,JSON.stringify(db));
+  const c=cfg();
+  if(!c.token){estado('Guardado solo en este navegador','local');return}
+  estado('Guardando en GitHub…');
+  const body={message:mensaje,content:b64e(JSON.stringify(db,null,1)+'\n'),branch:c.rama||'main'};
+  if(sha) body.sha=sha;
+  const r=await api(RUTA,{method:'PUT',body:JSON.stringify(body)});
+  if(r.ok){sha=(await r.json()).content.sha;estado('Guardado en GitHub ✓','ok');return}
+  if(r.status===409||r.status===422){
+    estado('Otro cambio llegó antes: recarga la página','err');
+    alert('El archivo cambió en GitHub desde que abriste la página (quizás desde otro equipo). Tu cambio quedó guardado en este navegador; recarga la página y vuelve a ingresarlo.');
+  } else estado('Error al guardar ('+r.status+')','err');
+}
+function estado(t,cls=''){const e=$('estado');e.textContent=t;e.className=cls}
+
+async function iniciar(){
+  const c=cfg();
+  try{
+    if(c.token&&c.repo){await cargarGitHub();estado('Conectado a GitHub','ok');$('avisoToken').hidden=true}
+    else{
+      const r=await fetch('data/registro.json',{cache:'no-store'});
+      if(r.ok) db=await r.json();
+      const loc=localStorage.getItem(LS_DATA);
+      if(loc){const l=JSON.parse(loc);if((l.gestiones||[]).length>=db.gestiones.length&&(l.actualizado||'')>=(db.actualizado||''))db=l}
+      estado('Solo lectura (sin token)','local');$('avisoToken').hidden=false;
+    }
+  }catch(e){
+    estado(e.message,'err');
+    const loc=localStorage.getItem(LS_DATA); if(loc) db=JSON.parse(loc);
+  }
+  db.gestiones=db.gestiones||[];db.catalogo=db.catalogo||{};
+  llenarFiltros();render();
+}
+
+/* ---------- Filtros ---------- */
+function opts(sel,arr,todos){sel.innerHTML=(todos?`<option value="">${todos}</option>`:'')+arr.map(a=>Array.isArray(a)?`<option value="${esc(a[0])}">${esc(a[1])}</option>`:`<option>${esc(a)}</option>`).join('')}
+function llenarFiltros(){
+  const anios=[...new Set(db.gestiones.map(anioDe).filter(Boolean).concat(new Date().getFullYear()))].sort();
+  const mesesA=MESES.map((m,i)=>[i+1,m]);
+  const uts=[...new Set(UTS.concat(db.gestiones.map(g=>g.ut).filter(Boolean)))];
+  opts($('fAnio'),anios,'Todos');opts($('fMes'),mesesA,'Todos');opts($('fUT'),uts.map(u=>[u,corto(u)]),'Todas');opts($('fTipo'),TIPOS,'Todos');
+  opts($('iAnio'),anios);opts($('iMes'),mesesA);opts($('iUT'),uts.map(u=>[u,corto(u)]),'Todas');opts($('rAnio'),anios);
+  const hoy=new Date();$('iAnio').value=hoy.getFullYear();$('iMes').value=hoy.getMonth()+1;$('rAnio').value=hoy.getFullYear();
+  $('lUT').innerHTML=uts.map(u=>`<option value="${esc(u)}">`).join('');
+  $('lBIP').innerHTML=Object.entries(db.catalogo).map(([b,p])=>`<option value="${b}">${esc(corto(p.ut)+' · '+p.nombre)}</option>`).join('');
+  opts(document.querySelector('[name=tipo]'),TIPOS,' ');
+}
+function filtrar(){
+  const t=$('fTxt').value.toLowerCase().trim(),a=+$('fAnio').value,m=+$('fMes').value,u=$('fUT').value,ti=$('fTipo').value,s=$('fSagir').value,rv=$('fRev').checked;
+  return db.gestiones.filter(g=>(!a||anioDe(g)===a)&&(!m||mesDe(g)===m)&&(!u||g.ut===u)&&(!ti||g.tipo===ti)
+    &&(!s||(s==='pend'?g.sagir!=='Sí':g.sagir===s))&&(!rv||g.revisar)
+    &&(!t||[g.memo,g.memo_ut,g.bip,g.materia,g.obs,g.asociado,g.ut,g.tipo].join(' ').toLowerCase().includes(t)));
+}
+const orden=a=>a.slice().sort((x,y)=>fechaRef(x).localeCompare(fechaRef(y))||(+x.memo||0)-(+y.memo||0)||x.id-y.id);
+const sagirTag=g=>g.sagir==='Sí'?'<span class="tag si">Sí</span>':'<span class="tag no">'+(g.sagir==='No'?'No':'Pend.')+'</span>';
+
+/* ---------- Vistas ---------- */
+function render(){renderRegistro();renderInforme();renderResumen()}
+function renderRegistro(){
+  const l=orden(filtrar());
+  $('cuenta').textContent=`${l.length} de ${db.gestiones.length} gestiones · ${l.filter(g=>g.revisar).length} por revisar`;
+  $('tReg').tBodies[0].innerHTML=l.map((g,i)=>`<tr data-id="${g.id}" class="${g.revisar?'rev':''}">
+   <td>${i+1}</td><td>${fmtN(g.memo)}</td><td>${fmtD(g.fecha)}</td><td>${esc(g.deriv)}</td><td>${fmtN(g.memo_ut)}</td><td>${fmtD(g.fecha_ut)}</td>
+   <td>${esc(corto(g.ut))}</td><td title="${esc(db.catalogo[g.bip]?.nombre||'BIP no está en catálogo')}">${esc(g.bip)}</td><td>${esc(g.tipo)}</td><td>${esc(g.materia)}</td>
+   <td class="num">${fmt$(g.monto)}</td><td>${esc(g.asociado)}</td><td>${sagirTag(g)}</td><td class="small">${esc(g.obs)}</td></tr>`).join('');
+}
+function renderInforme(){
+  const a=+$('iAnio').value,m=+$('iMes').value,u=$('iUT').value;
+  const l=orden(db.gestiones.filter(g=>anioDe(g)===a&&mesDe(g)===m&&(!u||g.ut===u)));
+  const sag=l.filter(g=>g.sagir==='Sí').length, monto=l.reduce((s,g)=>s+(+g.monto||0),0);
+  $('iCab').textContent=`Período: ${MESES[m-1]} de ${a}${u?' · '+corto(u):''} · Funcionario: ${$('iFunc').value}`;
+  $('iKpis').innerHTML=[['Total gestiones',l.length],['Cargadas en SAGIR',sag],['Pendientes SAGIR',l.length-sag],['Monto tramitado',fmt$(monto)],['% carga SAGIR',l.length?Math.round(sag/l.length*100)+'%':'–']]
+    .map(([t,v])=>`<div class="kpi"><span>${t}</span><b>${v}</b></div>`).join('');
+  $('iTipos').innerHTML=TIPOS.map(t=>[t,l.filter(g=>g.tipo===t).length]).filter(x=>x[1]).map(([t,n])=>`<div>${t}: <b>${n}</b></div>`).join('');
+  $('tInf').tBodies[0].innerHTML=l.map((g,i)=>`<tr><td>${i+1}</td><td>${fmtN(g.memo)}</td><td>${fmtD(g.fecha)}</td><td>${esc(g.deriv)}</td><td>${fmtN(g.memo_ut)}</td><td>${fmtD(g.fecha_ut)}</td><td>${esc(corto(g.ut))}</td><td>${esc(g.bip)}</td><td>${esc(g.tipo)}</td><td>${esc(g.materia)}</td><td class="num">${fmt$(g.monto)}</td><td>${sagirTag(g)}</td></tr>`).join('')
+    ||'<tr><td colspan="12" class="small">Sin gestiones en el período.</td></tr>';
+}
+function tablaRes(titulo,filas,a,val,fmtv=fmtN){
+  let h=`<h3>${titulo}</h3><div class="wrapt" style="max-height:none"><table class="resumen"><thead><tr><th></th>${MESES.map(m=>`<th>${m.slice(0,3)}</th>`).join('')}<th>Total</th></tr></thead><tbody>`;
+  const tot=Array(13).fill(0);
+  for(const [nom,fil] of filas){
+    const v=MESES.map((_,i)=>val(db.gestiones.filter(g=>anioDe(g)===a&&mesDe(g)===i+1&&fil(g))));
+    v.push(v.reduce((x,y)=>x+y,0)); v.forEach((x,i)=>tot[i]+=x);
+    h+=`<tr><td>${nom}</td>${v.map(x=>`<td>${x?fmtv(x):'·'}</td>`).join('')}</tr>`;
+  }
+  return h+`<tr class="tot"><td>Total</td>${tot.map(x=>`<td>${fmtv(x)}</td>`).join('')}</tr></tbody></table></div>`;
+}
+function renderResumen(){
+  const a=+$('rAnio').value;
+  const ut=UTS.map(u=>[corto(u),g=>g.ut===u]).concat([['Otras U.T.',g=>!UTS.includes(g.ut)]]);
+  const n=l=>l.length;
+  $('rCont').innerHTML=tablaRes('Gestiones por mes y U.T.',ut,a,n)
+   +tablaRes('Cargadas en SAGIR',ut.map(([k,f])=>[k,g=>f(g)&&g.sagir==='Sí']),a,n)
+   +tablaRes('Gestiones por tipo',TIPOS.map(t=>[t,g=>g.tipo===t]),a,n)
+   +tablaRes('Monto tramitado ($) por U.T.',ut,a,l=>l.reduce((s,g)=>s+(+g.monto||0),0),fmt$);
+}
+
+/* ---------- Formulario ---------- */
+const F=()=>$('frm').elements;
+function abrir(g){
+  editId=g?g.id:null; $('dlgTit').textContent=g?'Editar gestión':'Nueva gestión'; $('btnBorrar').hidden=!g;
+  const e=F(); for(const k of ['memo','fecha','deriv','memo_ut','fecha_ut','ut','bip','tipo','monto','materia','asociado','obs','sagir']) e[k].value=g?(g[k]??''):'';
+  e.revisar.checked=!!(g&&g.revisar); if(!g){e.fecha.value=new Date().toISOString().slice(0,10);e.sagir.value='No'}
+  mostrarProy(); $('dlg').showModal();
+}
+function mostrarProy(){
+  const e=F(),p=db.catalogo[e.bip.value.trim()];
+  $('proy').textContent=e.bip.value?(p?p.nombre:'BIP no está en el catálogo'):'';
+  if(p&&!e.ut.value) e.ut.value=p.ut;
+}
+F().bip.addEventListener('input',mostrarProy);
+$('frm').addEventListener('submit',async ev=>{
+  ev.preventDefault(); const e=F();
+  const num=v=>{v=String(v).replace(/[^\d]/g,'');return v?+v:''};
+  const g={memo:num(e.memo.value),fecha:e.fecha.value,deriv:e.deriv.value,memo_ut:num(e.memo_ut.value),fecha_ut:e.fecha_ut.value,
+    ut:e.ut.value.trim().toUpperCase(),bip:num(e.bip.value),tipo:e.tipo.value.trim(),materia:e.materia.value.trim(),monto:num(e.monto.value),
+    asociado:e.asociado.value.trim(),sagir:e.sagir.value,obs:e.obs.value.trim(),revisar:e.revisar.checked};
+  if(!g.fecha&&!g.fecha_ut){alert('Ingresa al menos una fecha (memo o memo U.T.).');return}
+  let msg;
+  if(editId){const i=db.gestiones.findIndex(x=>x.id===editId);db.gestiones[i]={id:editId,...g};msg=`Registro: edita memo ${g.memo||g.memo_ut}`}
+  else{const id=db.gestiones.reduce((m,x)=>Math.max(m,x.id),0)+1;db.gestiones.push({id,...g});msg=`Registro: agrega memo ${g.memo||g.memo_ut} (${g.tipo||'gestión'}, ${corto(g.ut)})`}
+  $('dlg').close(); llenarFiltrosSuave(); render(); await guardar(msg);
+});
+$('btnBorrar').onclick=async()=>{
+  const g=db.gestiones.find(x=>x.id===editId); if(!g||!confirm(`¿Eliminar la gestión del memo ${g.memo||g.memo_ut}?`))return;
+  db.gestiones=db.gestiones.filter(x=>x.id!==editId); $('dlg').close(); render(); await guardar(`Registro: elimina memo ${g.memo||g.memo_ut}`);
+};
+$('btnCancelar').onclick=()=>$('dlg').close();
+function llenarFiltrosSuave(){const k=['fAnio','fMes','fUT','fTipo','iAnio','iMes','iUT','rAnio'].map(i=>[i,$(i).value]);llenarFiltros();k.forEach(([i,v])=>{if([...$(i).options].some(o=>o.value==v))$(i).value=v})}
+
+/* ---------- Config ---------- */
+$('btnConfig').onclick=()=>{const c=cfg(),e=$('frmCfg').elements;e.repo.value=c.repo||'lolopo76/Gore';e.rama.value=c.rama||'main';e.token.value=c.token||'';$('dlgCfg').showModal()};
+$('btnCfgCancel').onclick=()=>$('dlgCfg').close();
+$('btnOlvidar').onclick=()=>{const c=cfg();delete c.token;localStorage.setItem(LS_CFG,JSON.stringify(c));$('dlgCfg').close();location.reload()};
+$('frmCfg').addEventListener('submit',ev=>{ev.preventDefault();const e=$('frmCfg').elements;
+  localStorage.setItem(LS_CFG,JSON.stringify({repo:e.repo.value.trim(),rama:e.rama.value.trim()||'main',token:e.token.value.trim()}));$('dlgCfg').close();location.reload()});
+
+/* ---------- Eventos ---------- */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
+  ['registro','informe','resumen'].forEach(v=>$('v-'+v).hidden=v!==b.dataset.v)});
+['fTxt','fAnio','fMes','fUT','fTipo','fSagir','fRev'].forEach(i=>$(i).addEventListener('input',renderRegistro));
+['iAnio','iMes','iUT','iFunc'].forEach(i=>$(i).addEventListener('input',renderInforme));
+$('rAnio').addEventListener('input',renderResumen);
+$('btnNueva').onclick=()=>abrir(null);
+$('tReg').tBodies[0].addEventListener('click',ev=>{const tr=ev.target.closest('tr');if(tr)abrir(db.gestiones.find(g=>g.id===+tr.dataset.id))});
+$('btnCSV').onclick=()=>{
+  const cols=[['memo','Memo N°'],['fecha','Fecha'],['deriv','Derivado a'],['memo_ut','Memo U.T. N°'],['fecha_ut','Fecha U.T.'],['ut','U.T.'],['bip','BIP'],['tipo','Tipo'],['materia','Materia'],['monto','Monto $'],['asociado','Memo asociado'],['sagir','Carga SAGIR'],['obs','Observaciones'],['revisar','Revisar']];
+  const q=v=>{v=v===true?'Sí':v===false?'':String(v??'');return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  const csv='﻿'+[cols.map(c=>c[1]).join(';')].concat(orden(filtrar()).map(g=>cols.map(([k])=>q(k.startsWith('fecha')?fmtD(g[k]):g[k])).join(';'))).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='registro_memos.csv';a.click();
+};
+iniciar();
+</script>
+</body>
+</html>

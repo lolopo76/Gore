@@ -14,6 +14,7 @@ Este repositorio guarda solo código y documentación. Las planillas y los datos
 | `panel/diff_data.py` | Compara dos cargas |
 | `panel/daily_summary.py` | Resumen diario |
 | `panel/mercadopublico/` | Consulta de licitaciones por BIP (requiere la variable `MERCADOPUBLICO_TICKET`) |
+| `registro-memos/` | Página del registro de memos y gestiones (informe mensual para remuneraciones). Sus datos (`data/registro.json`) sí se versionan |
 | `normativa-compras-publicas.md` | Referencia de la Ley 19.886 / Ley 21.634 y DS 661 usada para validar casos de borde |
 
 ## Proceso semanal (manual, viernes)

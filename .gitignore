@@ -10,3 +10,5 @@ panel/data/
 panel/cartera-maipo.v*.html
 __pycache__/
 .env
+# Excepción: el registro de memos se versiona a propósito (decisión de Rodrigo, 2026-11-10)
+!registro-memos/data/registro.json

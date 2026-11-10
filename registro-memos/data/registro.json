@@ -984,12 +984,11 @@
    "fecha_ut": "2026-09-17",
    "ut": "MUNICIPALIDAD DE PAINE",
    "bip": 40045389,
-   "tipo": "EEPP",
    "materia": "EEPP N°24",
    "monto": 40610819,
    "asociado": "",
    "sagir": "Sí",
-   "obs": "Al margen: $17.553.712",
+   "obs": "",
    "revisar": false
   },
   {

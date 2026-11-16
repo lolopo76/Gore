@@ -249,8 +249,9 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
       <label>Subtítulo<select id="fS"><option value="">Todos</option><option value="22">22 · Pagos</option><option value="29">29 · Pagos</option><option value="31">31 · Pagos</option><option value="33">33 · Transferencias</option></select></label>
       <label>Comuna<select id="fC"><option value="">Todas</option></select></label>
       <label>Unidad técnica<select id="fU"><option value="">Todas</option></select></label>
+      <label>Estado iniciativa<select id="fI"><option value="">Todos</option></select></label>
       <label>Tipo<select id="fT"><option value="">Todos</option><option value="transferencia">Transferencia</option><option value="rendicion">Rendición</option><option value="pago">Pago</option></select></label>
-      <label>Estado<select id="fE"><option value="">Todos</option><option value="cursado">Cursado / pagado</option><option value="tramite">En trámite</option><option value="devuelto">Devuelto a tu bandeja</option><option value="otros">Rechazado o reemplazado</option></select></label>
+      <label>Estado del trámite<select id="fE"><option value="">Todos</option><option value="cursado">Cursado / pagado</option><option value="tramite">En trámite</option><option value="devuelto">Devuelto a tu bandeja</option><option value="otros">Rechazado o reemplazado</option></select></label>
       <label>Período<select id="fP"><option value="mes">Mes en curso</option><option value="ant">Mes anterior</option><option value="anio">Año en curso</option><option value="todo">Todo el período</option><option value="rango">Fechas a elección</option></select></label>
       <label>Desde<input type="date" id="rDesde"></label>
       <label>Hasta<input type="date" id="rHasta"></label>
@@ -363,11 +364,11 @@ const famDe = p => p.sub==='33' ? '33' : 'pagos';
 const PB = () => state._pb || (state._pb = Object.fromEntries(state.projects.map(p=>[p.bip,p])));
 const famMov = x => x.fam || (PB()[x.bip] ? famDe(PB()[x.bip]) : (/pago/i.test(x.tipo)?'pagos':'33'));
 /* filtros únicos (barra "Buscar y filtrar") */
-const F = () => ({t:$('lk').value.trim(), s:$('fS').value, c:$('fC').value, u:$('fU').value, ti:$('fT').value, e:$('fE').value});
+const F = () => ({t:$('lk').value.trim(), s:$('fS').value, c:$('fC').value, u:$('fU').value, i:$('fI').value, ti:$('fT').value, e:$('fE').value});
 const subMov = x => (String(x.tipo||'').match(/(\d+)\s*$/)||[])[1] || PB()[x.bip]?.sub || '';
 const syncScope = () => { const s=$('fS').value; state.scope = s==='33' ? '33' : s ? 'pagos' : 'todos'; };
-const projOk = p => { const f=F(); return (!f.s||p.sub===f.s) && (!f.c||p.comuna===f.c) && (!f.u||p.unidadTecnica===f.u); };
-const movOk = x => { const f=F(), p=PB()[x.bip]; return (!f.s||subMov(x)===f.s) && (!f.c||(x.comuna||p?.comuna)===f.c) && (!f.u||(x.ut||p?.unidadTecnica)===f.u); };
+const projOk = p => { const f=F(); return (!f.s||p.sub===f.s) && (!f.c||p.comuna===f.c) && (!f.u||p.unidadTecnica===f.u) && (!f.i||String(sitDe(p)||"").toUpperCase()===f.i); };
+const movOk = x => { const f=F(), p=PB()[x.bip]; return (!f.s||subMov(x)===f.s) && (!f.c||(x.comuna||p?.comuna)===f.c) && (!f.u||(x.ut||p?.unidadTecnica)===f.u) && (!f.i||(p&&String(sitDe(p)||"").toUpperCase()===f.i)); };
 const esBipQ = () => /^\d{5,}$/.test($('lk').value.trim());
 const bipMatch = (b,q) => q.length>=8 ? String(b)===q : String(b).startsWith(q);
 const textProj = p => { const q=norm($('lk').value.trim()); if(!q) return true; return esBipQ() ? bipMatch(p.bip,q) : (p.bip.includes(q) || norm(p.nombre).includes(q) || norm(p.empresa||'').includes(q) || (state.lic[p.bip]||[]).some(l=>norm(l.codigo).includes(q)) || (state.sgd[p.bip]||[]).some(d=>d.numero===q||d.nDoc===q)); };
@@ -661,6 +662,10 @@ function fillFilters(){
   const s=$('fS').value, c=$('fC').value;
   fill($('fC'), [...new Set(state.projects.filter(p=>!s||p.sub===s).map(p=>p.comuna).filter(Boolean))].sort((a,b)=>(a==='Regional')-(b==='Regional')||a.localeCompare(b,'es')));
   fill($('fU'), [...new Set(state.projects.filter(p=>(!s||p.sub===s)&&(!c||p.comuna===c)).map(p=>p.unidadTecnica).filter(Boolean))].sort(), utNom);
+  { const P=state.projects.filter(p=>(!s||p.sub===s)&&(!c||p.comuna===c)&&(!$('fU').value||p.unidadTecnica===$('fU').value)), n={};
+    P.forEach(p=>{ const k=String(sitDe(p)||'').toUpperCase(); if(k) n[k]=(n[k]||0)+1; });
+    const sitLbl = k => k.charAt(0)+k.slice(1).toLowerCase().replace(/ejecucion/,'ejecución').replace(/reevaluacion/,'reevaluación').replace(/ejecutara/,'ejecutará');
+    fill($('fI'), Object.keys(n).sort((a,b)=>n[b]-n[a]), k=>`${sitLbl(k)} (${n[k]})`); }
   if ($('fGrupo').options.length<2) $('fGrupo').innerHTML+=Object.entries(GRUPOS).map(([k,g])=>`<option value="${k}">${g.label}</option>`).join('');
 }
 
@@ -961,7 +966,7 @@ function onFiltro(){ syncScope(); fillFilters(); state.filter.alerta=''; state.c
   renderTotals(); renderLive(); renderCargas(); }
 
 document.addEventListener('click', e=>{
-  if (e.target.id==='fClear'){ ['lk','fS','fC','fU','fT','fE'].forEach(id=>$(id).value=''); $('fGrupo').value=''; state._bip=false; setPer('mes'); onFiltro(); return; }
+  if (e.target.id==='fClear'){ ['lk','fS','fC','fU','fI','fT','fE'].forEach(id=>$(id).value=''); $('fGrupo').value=''; state._bip=false; setPer('mes'); onFiltro(); return; }
   const tb=e.target.closest('[data-tab]');
   if (tb){ state.tab=tb.dataset.tab; try{localStorage.setItem('cm-tab',state.tab);}catch(_){} renderScope(); if(state.tab==='cargas') renderRuta(); return; }
   const utf=e.target.closest('[data-utf]'); if (utf){ const u=utf.dataset.utf, sel=$('fU'); if([...sel.options].some(o=>o.value===u)){ sel.value= sel.value===u ? '' : u; onFiltro(); } return; }
@@ -987,7 +992,7 @@ $('lk').addEventListener('input', ()=>{ const b=esBipQ();
   if (b && !state._bip){ state._perAntes=state.per; setPer('todo'); }   // al escribir un BIP se ve toda su historia; el período se puede cambiar después
   if (!b && state._bip && state.per==='todo'){ setPer(state._perAntes||'mes'); }
   state._bip=b; onFiltro(); });
-['fS','fC','fU','fT','fE'].forEach(id=>$(id).addEventListener('input', onFiltro));
+['fS','fC','fU','fI','fT','fE'].forEach(id=>$(id).addEventListener('input', onFiltro));
 $('fGrupo').addEventListener('input', renderRegister);
 $('fP').addEventListener('input', e=>{ if(e.target.value!=='rango') setPer(e.target.value); else state.per='rango'; renderMov(); });
 $('rDesde').addEventListener('change', e=>{ state.desde=e.target.value; state.per='rango'; renderMov(); });

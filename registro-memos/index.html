@@ -29,6 +29,7 @@ input,select,textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);
 button.b{font:inherit;font-weight:600;padding:7px 14px;border-radius:var(--r);border:1px solid var(--brand);background:var(--brand);color:#fff;cursor:pointer}
 button.b2{background:#fff;color:var(--brand)}
 button.b:disabled{opacity:.5;cursor:default}
+input:disabled{background:#eef0f3;color:#999;cursor:not-allowed}
 table{width:100%;border-collapse:collapse;background:var(--surface);font-size:12.5px}
 th{background:var(--brand);color:#fff;text-align:left;padding:7px 6px;font-weight:600;position:sticky;top:0;z-index:1;white-space:nowrap}
 td{padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
@@ -333,8 +334,8 @@ const F=()=>$('frm').elements;
 function abrir(g){
   editId=g?g.id:null; $('dlgTit').textContent=g?'Editar gestión':'Nueva gestión'; $('btnBorrar').hidden=!g;
   const e=F(); for(const k of ['memo','fecha','deriv','memo_ut','fecha_ut','ut','bip','monto','materia','asociado','obs','sagir']) e[k].value=g?(g[k]??''):'';
-  e.revisar.checked=!!(g&&g.revisar); if(!g){e.fecha.value=new Date().toISOString().slice(0,10);e.sagir.value='No'}
-  mostrarProy(); $('dlg').showModal();
+  e.revisar.checked=!!(g&&g.revisar); if(!g){e.fecha.value='';e.sagir.value='No'}
+  sagirPrev=e.sagir.value; ajustarFechaSagir(); mostrarProy(); $('dlg').showModal();
 }
 function mostrarProy(){
   const e=F(),p=db.catalogo[e.bip.value.trim()];
@@ -342,13 +343,18 @@ function mostrarProy(){
   if(p&&!e.ut.value) e.ut.value=p.ut;
 }
 F().bip.addEventListener('input',mostrarProy);
+// Fecha SAGIR: en blanco mientras no esté cargado; al pasar a "Sí" toma la fecha del día del cambio.
+let sagirPrev='';
+const hoyLocal=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+function ajustarFechaSagir(){const e=F(),si=e.sagir.value==='Sí';if(!si)e.fecha.value='';e.fecha.disabled=!si}
+F().sagir.addEventListener('change',()=>{const e=F();if(e.sagir.value==='Sí'&&sagirPrev!=='Sí')e.fecha.value=hoyLocal();sagirPrev=e.sagir.value;ajustarFechaSagir()});
 $('frm').addEventListener('submit',async ev=>{
   ev.preventDefault(); const e=F();
   const num=v=>{v=String(v).replace(/[^\d]/g,'');return v?+v:''};
-  const g={memo:num(e.memo.value),fecha:e.fecha.value,deriv:e.deriv.value,memo_ut:num(e.memo_ut.value),fecha_ut:e.fecha_ut.value,
+  const g={memo:num(e.memo.value),fecha:e.sagir.value==='Sí'?e.fecha.value:'',deriv:e.deriv.value,memo_ut:num(e.memo_ut.value),fecha_ut:e.fecha_ut.value,
     ut:e.ut.value.trim().toUpperCase(),bip:num(e.bip.value),materia:e.materia.value.trim(),monto:num(e.monto.value),
     asociado:e.asociado.value.trim(),sagir:e.sagir.value,obs:e.obs.value.trim(),revisar:e.revisar.checked};
-  if(!g.fecha&&!g.fecha_ut){alert('Ingresa al menos una fecha (memo o memo U.T.).');return}
+  if(!g.fecha&&!g.fecha_ut){alert(g.sagir==='Sí'?'Ingresa la Fecha SAGIR.':'Ingresa la fecha del memo U.T. (la Fecha SAGIR queda en blanco hasta que se cargue).');return}
   let msg;
   if(editId){const i=db.gestiones.findIndex(x=>x.id===editId);db.gestiones[i]={id:editId,...g};msg=`Registro: edita memo ${g.memo||g.memo_ut}`}
   else{const id=db.gestiones.reduce((m,x)=>Math.max(m,x.id),0)+1;db.gestiones.push({id,...g});msg=`Registro: agrega memo ${g.memo||g.memo_ut} (${g.materia||'gestión'}, ${corto(g.ut)})`}

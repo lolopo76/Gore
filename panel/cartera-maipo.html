@@ -892,11 +892,10 @@ function renderSheet(){
   const hp=state.hist[p.bip]||[];
   root.innerHTML=`<div class="sheet-bg" id="sheetBg"></div><aside class="sheet" role="dialog" aria-label="Proyecto ${esc(p.bip)}">
     <header><div><div class="eyebrow">BIP <span class="mono">${esc(p.bip)}</span> · Subtítulo ${esc(p.sub)} · ${esc(p.unidadTecnica)}</div><h2 style="font-size:1.2rem;margin-top:4px">${esc(p.nombre)}</h2></div><button class="btn" id="sheetClose">Cerrar</button></header>
-    <div class="flags">${alertasDe(p).map(a=>`<span class="flag ${ALERTAS[a].sev}">${ALERTAS[a].label}</span>`).join('')}</div>
+    <div class="flags">${alertasDe(p).filter(a=>a!=='normativa').map(a=>`<span class="flag ${ALERTAS[a].sev}">${ALERTAS[a].label}</span>`).join('')}</div>
     ${fichaBip(p).replace(/class="open" data-open="[^"]*"/,'')}
     ${vigenciaHtml(p)}
     ${licHtml(p)}
-    ${normaHtml(p)}
     ${sgdHtml(p)}
     <section class="panel"><h3 class="eyebrow">Movimientos del libro</h3>
       ${mv.length?`<div class="scroll"><table><thead><tr><th>Creado</th><th>Memo creado (SGD)</th><th>Memo enviado</th><th>Tipo</th><th class="r">Monto</th><th>Estado</th></tr></thead><tbody>${mv.map(x=>`<tr><td class="num">${fmtD(x.creado)}</td><td>${memoHtml(x)}</td><td>${envHtml(x)}</td><td>${esc(x.tipo)}${x.memo?` <span class="muted">memo ${esc(x.memo)}</span>`:''}${x.enArchivo===false?'<div class="gone">ya no viene en archivos</div>':''}</td><td class="r num">${fmt$(x.monto)}</td><td>${etapaHtml(x)}${comHtml(x)}

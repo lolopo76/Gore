@@ -9,6 +9,7 @@ Este repositorio guarda solo código y documentación. Las planillas y los datos
 |---|---|
 | `panel/cartera-maipo.html` | El panel (se publica como `index.html` del artefacto "Cartera Provincia de Maipo") |
 | `panel/build_data.py` | Arma los datos del panel desde la planilla de proyectos y los archivos de transferencias y pagos |
+| `panel/overlay_cartera.py` | Aplica situación, avance y última actualización desde los reportes de cartera (sub 33 y 31); las diferencias de montos solo se informan |
 | `panel/ledger.py` | Libro de movimientos, historial y cuadratura entre cargas |
 | `panel/build_sgd.py` | Procesa la exportación SGD (`sgd_todos_fechas-DD-MM-AAAA.xls`) |
 | `panel/diff_data.py` | Compara dos cargas |
@@ -19,7 +20,7 @@ Este repositorio guarda solo código y documentación. Las planillas y los datos
 
 ## Proceso semanal (manual, viernes)
 1. Exportar la planilla de proyectos (Sub 33 y Sub 22/29/31), transferencias-rendiciones, pagos 31 SAGIR, pagos enviados y efectuados DAF 31/33 y SGD.
-2. Ejecutar `build_data.py`, luego `ledger.py` y `build_sgd.py`.
+2. Ejecutar `build_data.py`, luego `overlay_cartera.py` (si hay reportes de cartera), `ledger.py` y `build_sgd.py`.
 3. Publicar `index.html` y `data/sistema.json` en el artefacto. El panel copia el paquete a su base la primera vez que lo abre alguien con permiso de edición.
 
 El ticket de Mercado Público nunca se guarda en el repositorio.

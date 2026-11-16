@@ -1488,6 +1488,22 @@
    "sagir": "No",
    "obs": "3ra. Remesa CDT",
    "revisar": false
+  },
+  {
+   "id": 91,
+   "memo": 320050,
+   "fecha": "",
+   "deriv": "",
+   "memo_ut": 2157,
+   "fecha_ut": "2026-11-16",
+   "ut": "MUNICIPALIDAD DE BUIN",
+   "bip": 30369572,
+   "materia": "EEPP N° 22 - Buin",
+   "monto": 28200232,
+   "asociado": "",
+   "sagir": "No",
+   "obs": "",
+   "revisar": false
   }
  ],
  "catalogo": {

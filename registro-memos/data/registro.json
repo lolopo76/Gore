@@ -1,6 +1,6 @@
 {
  "version": 1,
- "actualizado": "2026-11-10",
+ "actualizado": "2026-11-16",
  "gestiones": [
   {
    "id": 1,
@@ -1455,6 +1455,22 @@
    "asociado": "",
    "sagir": "Sí",
    "obs": "",
+   "revisar": false
+  },
+  {
+   "id": 89,
+   "memo": 320029,
+   "fecha": "2026-11-16",
+   "deriv": "",
+   "memo_ut": 2155,
+   "fecha_ut": "2026-11-16",
+   "ut": "MUNICIPALIDAD DE CALERA DE TANGO",
+   "bip": 40050176,
+   "materia": "2da. Rendicion",
+   "monto": 69495699,
+   "asociado": "",
+   "sagir": "No",
+   "obs": "2da. Rendicion",
    "revisar": false
   }
  ],

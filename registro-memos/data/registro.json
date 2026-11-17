@@ -1460,7 +1460,7 @@
   {
    "id": 89,
    "memo": 320029,
-   "fecha": "",
+   "fecha": "2026-11-17",
    "deriv": "",
    "memo_ut": 2155,
    "fecha_ut": "2026-11-16",
@@ -1469,7 +1469,7 @@
    "materia": "2da. Rendicion",
    "monto": 69495699,
    "asociado": "",
-   "sagir": "No",
+   "sagir": "Sí",
    "obs": "2da. Rendicion",
    "revisar": false
   },

@@ -1,6 +1,6 @@
 {
  "version": 1,
- "actualizado": "2026-11-10",
+ "actualizado": "2026-11-17",
  "gestiones": [
   {
    "id": 1,
@@ -1455,6 +1455,54 @@
    "asociado": "",
    "sagir": "Sí",
    "obs": "",
+   "revisar": false
+  },
+  {
+   "id": 89,
+   "memo": 320029,
+   "fecha": "2026-11-17",
+   "deriv": "",
+   "memo_ut": 2155,
+   "fecha_ut": "2026-11-16",
+   "ut": "MUNICIPALIDAD DE CALERA DE TANGO",
+   "bip": 40050176,
+   "materia": "2da. Rendicion",
+   "monto": 69495699,
+   "asociado": "",
+   "sagir": "Sí",
+   "obs": "2da. Rendicion",
+   "revisar": false
+  },
+  {
+   "id": 90,
+   "memo": 320032,
+   "fecha": "2026-11-17",
+   "deriv": "",
+   "memo_ut": 2156,
+   "fecha_ut": "2026-11-16",
+   "ut": "MUNICIPALIDAD DE CALERA DE TANGO",
+   "bip": 40050176,
+   "materia": "3era. Remesa",
+   "monto": 17373925,
+   "asociado": "",
+   "sagir": "Sí",
+   "obs": "3ra. Remesa CDT",
+   "revisar": false
+  },
+  {
+   "id": 91,
+   "memo": 320050,
+   "fecha": "2026-11-17",
+   "deriv": "",
+   "memo_ut": 2157,
+   "fecha_ut": "2026-11-16",
+   "ut": "MUNICIPALIDAD DE BUIN",
+   "bip": 30369572,
+   "materia": "EEPP N° 22 - Buin",
+   "monto": 28200232,
+   "asociado": "",
+   "sagir": "Sí",
+   "obs": "EEPP N° 22 - Buin",
    "revisar": false
   }
  ],

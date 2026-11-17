@@ -29,6 +29,7 @@ input,select,textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);
 button.b{font:inherit;font-weight:600;padding:7px 14px;border-radius:var(--r);border:1px solid var(--brand);background:var(--brand);color:#fff;cursor:pointer}
 button.b2{background:#fff;color:var(--brand)}
 button.b:disabled{opacity:.5;cursor:default}
+input:disabled{background:#eef0f3;color:#999;cursor:not-allowed}
 table{width:100%;border-collapse:collapse;background:var(--surface);font-size:12.5px}
 th{background:var(--brand);color:#fff;text-align:left;padding:7px 6px;font-weight:600;position:sticky;top:0;z-index:1;white-space:nowrap}
 td{padding:6px;border-bottom:1px solid var(--line);vertical-align:top}
@@ -38,7 +39,8 @@ tr.c-no td{background:#1565c0;color:#fff}
 tr.c-gar td{background:#27ddf5;color:#000}
 tr.c-alto td{background:#e6007e;color:#fff}
 tr.c-rect td{background:#d32f2f;color:#fff}
-tr.c-ok td.small,tr.c-no td.small,tr.c-gar td.small,tr.c-alto td.small,tr.c-rect td.small{color:inherit}
+tr.c-ok td.small,tr.c-gar td.small{color:#000}
+tr.c-no td.small,tr.c-alto td.small,tr.c-rect td.small{color:#fff}
 td:first-child{white-space:nowrap}
 tr.rev td:first-child{box-shadow:inset 5px 0 0 #eb4606;font-weight:700}
 #tReg tbody tr{cursor:pointer}
@@ -217,7 +219,7 @@ const b64d=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,''))
 function api(path,opt={}){
   const c=cfg();
   return fetch('https://api.github.com/repos/'+c.repo+'/contents/'+path+(opt.method?'':'?ref='+encodeURIComponent(c.rama||'main')),{
-    ...opt,headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+c.token,'X-GitHub-Api-Version':'2022-11-28',...(opt.headers||{})}});
+    cache:'no-store',...opt,headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+c.token,'X-GitHub-Api-Version':'2022-11-28',...(opt.headers||{})}});
 }
 async function cargarGitHub(){
   const r=await api(RUTA);
@@ -226,19 +228,20 @@ async function cargarGitHub(){
   const j=await r.json(); sha=j.sha;
   // archivos >1 MB llegan sin contenido: usar el blob
   let txt=j.content?b64d(j.content):null;
-  if(!txt){const c=cfg();const b=await fetch(j.git_url,{headers:{'Authorization':'Bearer '+c.token}});txt=b64d((await b.json()).content)}
+  if(!txt){const c=cfg();const b=await fetch(j.git_url,{cache:'no-store',headers:{'Authorization':'Bearer '+c.token}});txt=b64d((await b.json()).content)}
   db=JSON.parse(txt); return true;
 }
 async function guardar(mensaje){
-  db.actualizado=new Date().toISOString().slice(0,10);
-  localStorage.setItem(LS_DATA,JSON.stringify(db));
+  db.actualizado=new Date().toISOString().slice(0,10); delete db._pendiente;
+  const local=ok=>localStorage.setItem(LS_DATA,JSON.stringify(ok?db:{...db,_pendiente:true}));
+  local(false);
   const c=cfg();
   if(!c.token){estado('Guardado solo en este navegador','local');return}
   estado('Guardando en GitHub…');
   const body={message:mensaje,content:b64e(JSON.stringify(db,null,1)+'\n'),branch:c.rama||'main'};
   if(sha) body.sha=sha;
   const r=await api(RUTA,{method:'PUT',body:JSON.stringify(body)});
-  if(r.ok){sha=(await r.json()).content.sha;estado('Guardado en GitHub ✓','ok');return}
+  if(r.ok){sha=(await r.json()).content.sha;local(true);estado('Guardado en GitHub ✓','ok');return}
   if(r.status===409||r.status===422){
     estado('Otro cambio llegó antes: recarga la página','err');
     alert('El archivo cambió en GitHub desde que abriste la página (quizás desde otro equipo). Tu cambio quedó guardado en este navegador; recarga la página y vuelve a ingresarlo.');
@@ -251,10 +254,10 @@ async function iniciar(){
   try{
     if(c.token&&c.repo){await cargarGitHub();estado('Conectado a GitHub','ok');$('avisoToken').hidden=true}
     else{
-      const r=await fetch('data/registro.json',{cache:'no-store'});
+      const r=await fetch('data/registro.json?t='+Date.now(),{cache:'no-store'});
       if(r.ok) db=await r.json();
       const loc=localStorage.getItem(LS_DATA);
-      if(loc){const l=JSON.parse(loc);if((l.gestiones||[]).length>=db.gestiones.length&&(l.actualizado||'')>=(db.actualizado||''))db=l}
+      if(loc){const l=JSON.parse(loc);if(l._pendiente)db=l} // solo si hay cambios que no llegaron a GitHub
       estado('Solo lectura (sin token)','local');$('avisoToken').hidden=false;
     }
   }catch(e){
@@ -333,8 +336,8 @@ const F=()=>$('frm').elements;
 function abrir(g){
   editId=g?g.id:null; $('dlgTit').textContent=g?'Editar gestión':'Nueva gestión'; $('btnBorrar').hidden=!g;
   const e=F(); for(const k of ['memo','fecha','deriv','memo_ut','fecha_ut','ut','bip','monto','materia','asociado','obs','sagir']) e[k].value=g?(g[k]??''):'';
-  e.revisar.checked=!!(g&&g.revisar); if(!g){e.fecha.value=new Date().toISOString().slice(0,10);e.sagir.value='No'}
-  mostrarProy(); $('dlg').showModal();
+  e.revisar.checked=!!(g&&g.revisar); if(!g){e.fecha.value='';e.sagir.value='No'}
+  sagirPrev=e.sagir.value; ajustarFechaSagir(); mostrarProy(); $('dlg').showModal();
 }
 function mostrarProy(){
   const e=F(),p=db.catalogo[e.bip.value.trim()];
@@ -342,13 +345,18 @@ function mostrarProy(){
   if(p&&!e.ut.value) e.ut.value=p.ut;
 }
 F().bip.addEventListener('input',mostrarProy);
+// Fecha SAGIR: en blanco mientras no esté cargado; al pasar a "Sí" toma la fecha del día del cambio.
+let sagirPrev='';
+const hoyLocal=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+function ajustarFechaSagir(){const e=F(),si=e.sagir.value==='Sí';if(!si)e.fecha.value='';e.fecha.disabled=!si}
+F().sagir.addEventListener('change',()=>{const e=F();if(e.sagir.value==='Sí'&&sagirPrev!=='Sí')e.fecha.value=hoyLocal();sagirPrev=e.sagir.value;ajustarFechaSagir()});
 $('frm').addEventListener('submit',async ev=>{
   ev.preventDefault(); const e=F();
   const num=v=>{v=String(v).replace(/[^\d]/g,'');return v?+v:''};
-  const g={memo:num(e.memo.value),fecha:e.fecha.value,deriv:e.deriv.value,memo_ut:num(e.memo_ut.value),fecha_ut:e.fecha_ut.value,
+  const g={memo:num(e.memo.value),fecha:e.sagir.value==='Sí'?e.fecha.value:'',deriv:e.deriv.value,memo_ut:num(e.memo_ut.value),fecha_ut:e.fecha_ut.value,
     ut:e.ut.value.trim().toUpperCase(),bip:num(e.bip.value),materia:e.materia.value.trim(),monto:num(e.monto.value),
     asociado:e.asociado.value.trim(),sagir:e.sagir.value,obs:e.obs.value.trim(),revisar:e.revisar.checked};
-  if(!g.fecha&&!g.fecha_ut){alert('Ingresa al menos una fecha (memo o memo U.T.).');return}
+  if(!g.fecha&&!g.fecha_ut){alert(g.sagir==='Sí'?'Ingresa la Fecha SAGIR.':'Ingresa la fecha del memo U.T. (la Fecha SAGIR queda en blanco hasta que se cargue).');return}
   let msg;
   if(editId){const i=db.gestiones.findIndex(x=>x.id===editId);db.gestiones[i]={id:editId,...g};msg=`Registro: edita memo ${g.memo||g.memo_ut}`}
   else{const id=db.gestiones.reduce((m,x)=>Math.max(m,x.id),0)+1;db.gestiones.push({id,...g});msg=`Registro: agrega memo ${g.memo||g.memo_ut} (${g.materia||'gestión'}, ${corto(g.ut)})`}

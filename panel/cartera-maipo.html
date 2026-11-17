@@ -89,10 +89,12 @@ td.r,th.r{text-align:right}
 #piv{table-layout:fixed;width:100%;font-size:.8rem}
 #piv th,#piv td{padding:6px 6px;overflow-wrap:anywhere}
 #piv th{white-space:normal;font-size:.66rem;letter-spacing:.03em}
-#piv col.cb{width:74px} #piv col.cn{width:21%}
-#piv td.num{font-size:.74rem;letter-spacing:-.01em;overflow-wrap:normal;white-space:nowrap}
-#piv td .d .nw{white-space:nowrap}
-#piv td.pn{font-size:.76rem}
+#piv col.cb{width:21%} #piv col.ct{width:13%} #piv col.cm{width:11%} #piv col.ce{width:10%} #piv col.cd{width:44px} #piv col.cf{width:84px} #piv col.cg{width:70px}
+#piv td.ok{color:var(--ok,#1a7f37);font-weight:600}
+#piv tr.rem td{opacity:.6}
+#piv td.num{font-size:.76rem;white-space:nowrap;overflow-wrap:normal}
+#piv tr.vac td{padding-top:4px;padding-bottom:4px}
+#piv td .d{display:block;font-size:.7rem;color:var(--muted)}
 #piv td .d{display:block;font-size:.7rem;color:var(--muted);white-space:normal}
 #pivSec .scroll{overflow-x:visible}
 @media (max-width:1100px){
@@ -309,7 +311,7 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
     <section class="panel" id="pivSec"><div class="panel-head"><h2>Estado de los trámites por BIP</h2><span class="note" id="pivNote"></span></div>
       <div class="range" style="margin-bottom:8px"><label>Agrupar por<select id="pivG"><option value="ut">Unidad técnica</option><option value="comuna">Comuna</option><option value="sub">Subtítulo</option><option value="sit">Estado iniciativa</option></select></label></div>
       <div class="scroll"><table id="piv"></table></div>
-      <div class="note" style="margin-top:8px">Solicitado por la UT: suma de las solicitudes de transferencia o pago del período (sin los memos reemplazados). Transferido: transferencia hecha con acción de transferencia o anticipo, o egreso. Pagado: memo con egreso o acción de pago. La fecha es la de la transferencia o pago en la DAF; si hay varias, la última y entre paréntesis cuántas. Estado: el del último trámite del subtítulo.</div>
+      <div class="note" style="margin-top:8px">Una fila por solicitud de la UT. Transferido o Pagado: la DAF registró la transferencia o el pago (acción de pago, transferencia o anticipo, o egreso); en ese caso DAF dice SI y la fecha es la de la DAF. Rendido: rendición aprobada por Contabilidad. Cursado sin egreso: curso sin acción de pago, como las regularizaciones de anticipo. El egreso sale del reporte DAF 33 o de la bitácora («COMP E …»); el reporte DAF 31 no trae el N° de egreso. Los totales no suman los memos reemplazados.</div>
     </section>
   </div>
 
@@ -651,39 +653,46 @@ const PIVL = {tr:'Transferido',re:'Rendido',pa:'Pagado',tra:'En trámite',dev:'D
 function renderPivot(L){
   const f=F(), g=$('pivG').value;
   const sitLbl = k => { k=String(k||'').toUpperCase(); return k ? k.charAt(0)+k.slice(1).toLowerCase().replace(/ejecucion/,'ejecución').replace(/ejecutara/,'ejecutará') : 'Sin estado'; };
-  // solo solicitudes de transferencia o pago de la UT; los memos reemplazados no se suman para no contar dos veces
-  const M=L.filter(x=>x.origen!=='Panel' && clase(x.tipo)!=='rendicion' && pivCat(x)!=='rem');
-  const nRem=L.filter(x=>x.origen!=='Panel' && pivCat(x)==='rem').length;
-  const perTxt = state.per==='todo' ? 'todo el período' : `${fmtD(state.desde)} al ${fmtD(state.hasta)}`;
-  // todos los proyectos de la selección (comuna, UT, subtítulo, estado); si se filtra por tipo o estado del trámite, solo los que tienen ese movimiento
-  const Pq = (f.ti||f.e) ? [] : scoped().filter(textProj).filter(p=>!f.ti);
+  const TIPOL = {pago:'Estado de pago', transferencia:'Transferencia', rendicion:'Rendición'};
+  const ESTL = {tr:'Transferido', pa:'Pagado', re:'Rendido', tra:'En trámite', dev:'Devuelto a tu bandeja', sin:'Cursado sin egreso', rec:'Rechazado', rem:'Reemplazado'};
+  const egresoDe = x => { const e=String(x.egreso||'').trim(); if(e) return 'E-'+e.replace(/^E-?/i,'');
+    for (const b of (x.bitacora||[])){ const m=String(b.texto||'').match(/COMP(?:ROBANTE)?\.?\s*(?:DE\s*)?E(?:GRESO)?\.?\s*[-N°º]*\s*(\d{2,})/i); if(m) return 'E-'+m[1]; } return ''; };
+  const dafDe = k => ['tr','pa','re'].includes(k);
+  const fechaDaf = (x,k) => k==='tr'||k==='pa' ? (x.fechaPago||x.fechaCurso||'') : k==='re' ? (x.fechaCurso||'') : '';
+  const M=L.filter(x=>x.origen!=='Panel' && x.enArchivo!==false);   // los que ya no vienen en los archivos están en Por revisar
+  const Pq = (f.ti||f.e) ? [] : scoped().filter(textProj);
   const conMov=new Set(M.map(x=>x.bip)), sinMov=Pq.filter(p=>!conMov.has(p.bip) && (f.i || grupoDe(sitDe(p))!=='cerrado'));
+  const perTxt = state.per==='todo' ? 'todo el período' : `${fmtD(state.desde)} al ${fmtD(state.hasta)}`;
   const nb=conMov.size+sinMov.length;
-  $('pivNote').textContent = `${nb} BIP${sinMov.length?` (${sinMov.length} sin movimientos en el período)`:''} · ${perTxt}${nRem?` · ${nRem} memos reemplazados no se suman`:''}`;
-  if(!M.length && !sinMov.length){ $('piv').innerHTML=`<tbody><tr><td class="empty">${f.ti==='rendicion'?'La tabla muestra transferencias y pagos; las rendiciones están en Movimientos.':state.per!=='todo'?'Sin movimientos en este período. Prueba con «Todo el período».':'Sin movimientos para esta selección.'}</td></tr></tbody>`; return; }
+  $('pivNote').textContent = `${nb} BIP · ${M.length} ${M.length===1?'trámite':'trámites'}${sinMov.length?` · ${sinMov.length} BIP sin movimientos en el período`:''} · ${perTxt}`;
+  if(!M.length && !sinMov.length){ $('piv').innerHTML=`<tbody><tr><td class="empty">${state.per!=='todo'?'Sin movimientos en este período. Prueba con «Todo el período».':'Sin movimientos para esta selección.'}</td></tr></tbody>`; return; }
   const SUBS=['22','29','31','33'].filter(s=>(!f.s||f.s===s) && (M.some(x=>subMov(x)===s) || sinMov.some(p=>p.sub===s)));
-  const hecho = s => s==='33' ? 'Transferido' : 'Pagado';
-  const nuevo = () => ({sol:0, hecho:0, fecha:'', nh:0, ux:null, uf:''});
-  const rows={};
-  M.forEach(x=>{ const r=rows[x.bip]||(rows[x.bip]={bip:x.bip,p:PB()[x.bip],x0:x,s:{}}); const s=subMov(x), c=r.s[s]||(r.s[s]=nuevo()), k=pivCat(x);
-    c.sol+=x.monto||0;
-    if (k==='tr'||k==='pa'){ c.hecho+=x.monto||0; c.nh++; if((x.fechaPago||x.fechaCurso||'')>c.fecha) c.fecha=x.fechaPago||x.fechaCurso||''; }
-    const fm=fechaMov(x)||''; if(fm>=c.uf){ c.uf=fm; c.ux=x; } });
-  sinMov.forEach(p=>{ rows[p.bip]={bip:p.bip,p,x0:{bip:p.bip,ut:p.unidadTecnica,comuna:p.comuna,tipo:''},s:{},vacio:true}; });
-  const keyDe = r => g==='comuna' ? (r.x0.comuna||r.p?.comuna||'Sin comuna') : g==='sub' ? 'Subtítulo '+(r.p?.sub||subMov(r.x0)) : g==='sit' ? sitLbl(r.p?sitDe(r.p):'') : utNom(r.x0.ut||r.p?.unidadTecnica);
-  const grupos={}; Object.values(rows).forEach(r=>(grupos[keyDe(r)]||(grupos[keyDe(r)]=[])).push(r));
-  const estTxt = (c,s) => { if(!c.ux) return ''; const k=pivCat(c.ux); const t=k==='tr'||k==='pa' ? hecho(s) : (PIVL[k]||''); return `<span class="${['rec','dev'].includes(k)?'bad':k==='sin'?'muted':''}">${t}</span>`; };
-  const celdas = (c,s) => !c ? `<td class="r z sb">—</td><td class="r z">—</td>`
-    : `<td class="r num sb" data-l="Sub. ${s} · solicitado por la UT">${fmt$(c.sol)}</td><td class="r num" data-l="Sub. ${s} · ${hecho(s).toLowerCase()}">${c.hecho?fmt$(c.hecho):'<span class="muted">—</span>'}<span class="d">${c.fecha?'<span class="nw">DAF '+fmtD(c.fecha)+'</span>'+(c.nh>1?` (${c.nh} ${s==='33'?'transf.':'pagos'})`:'')+' · ':''}${estTxt(c,s)}</span></td>`;
-  const tot = list => Object.fromEntries(SUBS.map(s=>{ const t=nuevo(); list.forEach(r=>{ const c=r.s[s]; if(c){ t.sol+=c.sol; t.hecho+=c.hecho; } }); return [s,t]; }));
-  const totCells = t => SUBS.map(s=>`<td class="r num sb${t[s].sol?'':' z'}" data-l="Sub. ${s} · solicitado">${t[s].sol?fmt$(t[s].sol):'—'}</td><td class="r num${t[s].sol?'':' z'}" data-l="Sub. ${s} · ${hecho(s).toLowerCase()}">${t[s].hecho?fmt$(t[s].hecho):'—'}</td>`).join('');
+  // filas: un trámite por fila; los BIP de la selección sin movimientos van en una fila vacía
+  const R=M.map(x=>({bip:x.bip, p:PB()[x.bip], x, k:pivCat(x), s:subMov(x), ut:x.ut||PB()[x.bip]?.unidadTecnica, comuna:x.comuna||PB()[x.bip]?.comuna}))
+    .concat(sinMov.map(p=>({bip:p.bip, p, x:null, s:p.sub, ut:p.unidadTecnica, comuna:p.comuna})));
+  const keyDe = r => g==='comuna' ? (r.comuna||'Sin comuna') : g==='sub' ? 'Subtítulo '+r.s : g==='sit' ? sitLbl(r.p?sitDe(r.p):'') : utNom(r.ut);
+  const grupos={}; R.forEach(r=>(grupos[keyDe(r)]||(grupos[keyDe(r)]=[])).push(r));
+  const suma = list => Object.fromEntries(SUBS.map(s=>[s, list.filter(r=>r.x && r.s===s && r.k!=='rem').reduce((a,r)=>a+(r.x.monto||0),0)]));
+  const sumCells = t => SUBS.map(s=>`<td class="r num sb${t[s]?'':' z'}" data-l="Sub. ${s}">${t[s]?fmt$(t[s]):'—'}</td>`).join('');
+  const fila = r => { const p=r.p, bipTd=`<td data-l="BIP"><span class="mono linkbtn open" data-open="${esc(r.bip)}">${esc(r.bip)}</span><span class="d">${esc(p?.nombre||'')}</span></td>`;
+    if(!r.x) return `<tr class="vac">${bipTd}<td colspan="${2+SUBS.length+4}" class="muted" style="font-size:.74rem">Sin movimientos en el período</td></tr>`;
+    const x=r.x, k=r.k, c=clase(x.tipo), daf=dafDe(k), fe=fechaDaf(x,k), eg=egresoDe(x);
+    const cls = k==='rec'||k==='dev' ? 'bad' : k==='sin'||k==='rem' ? 'muted' : '';
+    return `<tr class="${k==='rem'?'rem':''}">${bipTd}<td data-l="Tipo de solicitud UT">${TIPOL[c]}<span class="d">${x.memo?'Memo '+esc(x.memo):''}${x.creado?' · '+fmtD(x.creado):''}</span></td>
+      <td class="r num" data-l="Monto">${fmt$(x.monto)}</td>
+      ${SUBS.map(s=>s===r.s?`<td class="r num sb" data-l="Sub. ${s}">${fmt$(x.monto)}</td>`:`<td class="r z sb"></td>`).join('')}
+      <td class="sb ${cls}" data-l="Estado">${ESTL[k]||esc(x.etapa||'')}</td>
+      <td class="${daf?'ok':''}" data-l="DAF">${daf?'SI':'NO'}</td>
+      <td class="num" data-l="Fecha">${fe?fmtD(fe):''}</td>
+      <td class="num" data-l="Egreso">${esc(eg)}</td></tr>`; };
   let body='';
-  Object.keys(grupos).sort((a,b)=>a.localeCompare(b,'es')).forEach(k=>{ const L2=grupos[k].sort((a,b)=>(!!a.vacio-!!b.vacio)||a.bip.localeCompare(b.bip));
-    body+=`<tr class="grp"><td colspan="2">${esc(k)} · ${L2.length} BIP</td>${totCells(tot(L2))}</tr>`;
-    body+=L2.map(r=>`<tr><td class="mono"><span class="linkbtn open" data-open="${esc(r.bip)}">${esc(r.bip)}</span></td><td class="pn">${esc(r.p?.nombre||'')}</td>${r.vacio?SUBS.map(s=>s===r.p.sub?`<td class="sb muted" colspan="2" data-l="Sub. ${s}" style="font-size:.72rem">Sin movimientos en el período</td>`:celdas(null,s)).join(''):SUBS.map(s=>celdas(r.s[s],s)).join('')}</tr>`).join(''); });
-  $('piv').innerHTML=`<colgroup><col class="cb"><col class="cn">${SUBS.map(()=>'<col><col>').join('')}</colgroup><thead><tr><th rowspan="2">BIP</th><th rowspan="2">Iniciativa</th>${SUBS.map(s=>`<th colspan="2" class="sb sh">Subtítulo ${s}</th>`).join('')}</tr>
-    <tr>${SUBS.map(s=>`<th class="r sb">Solicitado por la UT</th><th class="r">${hecho(s)} · fecha DAF y estado</th>`).join('')}</tr></thead>
-    <tbody>${body}<tr class="ptot"><td colspan="2">Total selección · ${nb} BIP</td>${totCells(tot(Object.values(rows)))}</tr></tbody>`;
+  Object.keys(grupos).sort((a,b)=>a.localeCompare(b,'es')).forEach(k=>{ const L2=grupos[k].sort((a,b)=>(!a.x-!b.x)||a.bip.localeCompare(b.bip)||(a.x&&b.x?(a.x.creado||'').localeCompare(b.x.creado||''):0));
+    const nB=new Set(L2.map(r=>r.bip)).size;
+    body+=`<tr class="grp"><td colspan="3">${esc(k)} · ${nB} BIP</td>${sumCells(suma(L2))}<td colspan="4" class="sb"></td></tr>`+L2.map(fila).join(''); });
+  $('piv').innerHTML=`<colgroup><col class="cb"><col class="ct"><col class="cm">${SUBS.map(()=>'<col class="cs">').join('')}<col class="ce"><col class="cd"><col class="cf"><col class="cg"></colgroup>
+    <thead><tr><th rowspan="2">BIP</th><th rowspan="2">Tipo de solicitud UT</th><th rowspan="2" class="r">Monto</th><th colspan="${SUBS.length}" class="sb sh">Subtítulo</th><th rowspan="2" class="sb">Estado</th><th rowspan="2">DAF</th><th rowspan="2">Fecha</th><th rowspan="2">Egreso</th></tr>
+    <tr>${SUBS.map(s=>`<th class="r sb">Sub. ${s}</th>`).join('')}</tr></thead>
+    <tbody>${body}<tr class="ptot"><td colspan="3">Total selección · ${nb} BIP${M.some(r=>pivCat(r)==='rem')?' (sin reemplazados)':''}</td>${sumCells(suma(R))}<td colspan="4" class="sb"></td></tr></tbody>`;
 }
 /* el tipo depende del subtítulo: 33 tiene transferencias y rendiciones; 22, 29 y 31 solo pagos */
 function syncTipos(){ const s=$('fS').value, el=$('fT'), cur=el.value;

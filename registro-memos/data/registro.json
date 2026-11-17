@@ -1,6 +1,6 @@
 {
  "version": 1,
- "actualizado": "2026-11-16",
+ "actualizado": "2026-11-17",
  "gestiones": [
   {
    "id": 1,
@@ -1492,7 +1492,7 @@
   {
    "id": 91,
    "memo": 320050,
-   "fecha": "",
+   "fecha": "2026-11-17",
    "deriv": "",
    "memo_ut": 2157,
    "fecha_ut": "2026-11-16",
@@ -1501,7 +1501,7 @@
    "materia": "EEPP N° 22 - Buin",
    "monto": 28200232,
    "asociado": "",
-   "sagir": "No",
+   "sagir": "Sí",
    "obs": "EEPP N° 22 - Buin",
    "revisar": false
   }

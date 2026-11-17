@@ -348,7 +348,7 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
   </div>
 
   <div id="tab-inf" role="tabpanel" hidden style="display:grid;gap:14px">
-    <section class="panel noprint"><div class="range"><label>Unidad técnica<select id="infUT"></select></label><label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="infCerr"> Incluir cerrados</label><button class="btn" id="infPrint" type="button">Imprimir o guardar PDF</button></div>
+    <section class="panel noprint"><div class="range"><label>Unidad técnica<select id="infUT"></select></label><label>Ordenar cartera por<select id="infOrd"><option value="ult">Último trámite (más reciente primero)</option><option value="ini">Fecha de inicio de ejecución (más reciente primero)</option><option value="ter">Fecha de término (más próxima primero)</option></select></label><label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="infCerr"> Incluir cerrados</label><button class="btn" id="infPrint" type="button">Imprimir o guardar PDF</button></div>
       <div class="note">Informe para la reunión con la unidad técnica: toda su cartera, por subtítulo. No usa los filtros de arriba. Para proyectar, usa pantalla completa (F11) o guárdalo en PDF.</div></section>
     <article class="panel" id="inf"></article>
   </div>
@@ -788,10 +788,14 @@ function renderInforme(){
   const ult=b=>{ const L=mvDe(b).filter(x=>pivCat(x)!=='rem').sort((a,c)=>(fechaMov(c)||'').localeCompare(fechaMov(a)||'')); const x=L[0]; if(!x) return '<span class="muted">Sin trámites en 2026</span>';
     const k=pivCat(x), lbl={tr:'Transferido',pa:'Pagado',re:'Rendido',tra:'En trámite',dev:'Devuelto',sin:'Cursado sin egreso',rec:'Rechazado'}[k]||'';
     return `<span class="${k==='rec'||k==='dev'?'bad':''}">${lbl}</span> <span class="muted">${clase(x.tipo)==='pago'?'EP':clase(x.tipo)==='rendicion'?'Rend.':'Transf.'} ${fmt$(x.monto)} · ${fmtD(fechaMov(x))}</span>`; };
+  const ultF=b=>mvDe(b).filter(x=>pivCat(x)!=='rem').reduce((m,x)=>{const f=fechaMov(x)||''; return f>m?f:m;},'');
+  const ord=$('infOrd').value, desc=(a,b)=>(b||'').localeCompare(a||''), asc=(a,b)=>(a||'9999').localeCompare(b||'9999');
+  const ordFn=(a,b)=> (ord==='ini' ? desc(a.inicio,b.inicio) : ord==='ter' ? asc(terminoDe(a),terminoDe(b)) : desc(ultF(a.bip),ultF(b.bip))||desc(a.inicio,b.inicio)) || a.bip.localeCompare(b.bip);
+  const ordTxt={ult:'ordenada por último trámite',ini:'ordenada por fecha de inicio de ejecución',ter:'ordenada por fecha de término'}[ord];
   const fila=p=>{ const t=terminoDe(p), g=grupoDe(sitDe(p)), base=baseDe(p), fmt$=n=>Math.round(n||0).toLocaleString('es-CL');
-    return `<tr><td class="mono">${esc(p.bip)}</td><td>${esc(p.nombre)}</td><td><span class="pill ${GRUPOS[g]?.cls||''}">${esc(sitLabel(sitDe(p)))}</span></td><td class="r">${Math.round(p.avance||0)}%</td><td class="num">${t?fmtD(t):'—'}</td>
+    return `<tr><td class="mono">${esc(p.bip)}</td><td>${esc(p.nombre)}</td><td><span class="pill ${GRUPOS[g]?.cls||''}">${esc(sitLabel(sitDe(p)))}</span></td><td class="r">${Math.round(p.avance||0)}%</td><td class="num">${ord==='ini'&&p.inicio?fmtD(p.inicio)+'<span class="d">'+(t?fmtD(t):'')+'</span>':t?fmtD(t):'—'}</td>
       <td class="r num">${fmt$(base)}</td><td class="r num">${fmt$(p.transferido)}<span class="d">${pct(p.transferido,base)}%</span></td>${p.sub==='33'?`<td class="r num">${fmt$(p.rendido)}</td><td class="r num">${fmt$(porRendirDe(p))}</td>`:`<td class="r num" colspan="2">${fmt$(saldoDe(p))}<span class="d">pendiente de pago</span></td>`}<td>${ult(p.bip)}</td></tr>`; };
-  const tabla=(L,titulo,s33)=>!L.length?'':`<h3 class="isub">${titulo}</h3><table class="itab cart"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"><col><col><col><col><col class="c10"></colgroup><thead><tr><th>BIP</th><th>Iniciativa</th><th>Estado</th><th class="r">Avance</th><th>Término</th><th class="r">Monto $</th><th class="r">${s33?'Transferido $':'Pagado $'}</th>${s33?'<th class="r">Rendido $</th><th class="r">Por rendir $</th>':'<th class="r" colspan="2">Saldo $</th>'}<th>Último trámite</th></tr></thead><tbody>${L.sort((a,b)=>Object.keys(GRUPOS).indexOf(grupoDe(sitDe(a)))-Object.keys(GRUPOS).indexOf(grupoDe(sitDe(b)))||a.bip.localeCompare(b.bip)).map(fila).join('')}</tbody></table>`;
+  const tabla=(L,titulo,s33)=>!L.length?'':`<h3 class="isub">${titulo} <span class="note" style="font-weight:400">· ${ordTxt}</span></h3><table class="itab cart"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"><col><col><col><col><col class="c10"></colgroup><thead><tr><th>BIP</th><th>Iniciativa</th><th>Estado</th><th class="r">Avance</th><th>${ord==='ini'?'Inicio / término':'Término'}</th><th class="r">Monto $</th><th class="r">${s33?'Transferido $':'Pagado $'}</th>${s33?'<th class="r">Rendido $</th><th class="r">Por rendir $</th>':'<th class="r" colspan="2">Saldo $</th>'}<th>Último trámite</th></tr></thead><tbody>${L.sort(ordFn).map(fila).join('')}</tbody></table>`;
   $('inf').innerHTML=`<header class="ihead"><div><div class="eyebrow">Gobierno Regional Metropolitano · Revisión de cartera</div><h2>${esc(utNom(u))}</h2><div class="note">${P.length} proyectos${todos?'':' vigentes'} · datos al ${corte}</div></div>${est}</header>
     <section class="ipage">${res}</section>
     <section class="ipage"><h3 class="isub">Puntos para decidir</h3>${dec}</section>
@@ -1194,7 +1198,7 @@ $('lk').addEventListener('input', ()=>{ const b=esBipQ();
   state._bip=b; onFiltro(); });
 ['fS','fC','fU','fI','fT','fE'].forEach(id=>$(id).addEventListener('input', onFiltro));
 $('fGrupo').addEventListener('input', renderRegister);
-$('infUT').addEventListener('input', renderInforme); $('infCerr').addEventListener('input', renderInforme);
+$('infUT').addEventListener('input', renderInforme); $('infCerr').addEventListener('input', renderInforme); $('infOrd').addEventListener('input', renderInforme);
 $('infPrint').addEventListener('click', ()=>{ state.tab='inf'; renderScope(); window.print(); });
 ['pivG'].forEach(id=>$(id).addEventListener('input', ()=>renderPivot(selMoves())));
 $('fP').addEventListener('input', e=>{ if(e.target.value!=='rango') setPer(e.target.value); else state.per='rango'; renderMov(); });

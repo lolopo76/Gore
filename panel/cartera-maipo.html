@@ -87,6 +87,8 @@ td.r,th.r{text-align:right}
 #piv td .n{display:block;font-size:.72rem;color:var(--muted);font-weight:400}
 #piv td.z{color:var(--muted)}
 #piv td.pn{min-width:280px;font-size:.78rem}
+#piv .sb{border-left:2px solid var(--line)}
+#piv th.sh{text-align:center;color:var(--fg,#0f3a5d)}
 #piv td.bad,#piv span.bad{color:var(--danger,#b42318)}
 td.num,td.r{white-space:nowrap}
 tbody tr:hover{background:var(--sunk)}
@@ -289,7 +291,7 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
     <section class="panel" id="pivSec"><div class="panel-head"><h2>Estado de los trámites por BIP</h2><span class="note" id="pivNote"></span></div>
       <div class="range" style="margin-bottom:8px"><label>Agrupar por<select id="pivG"><option value="ut">Unidad técnica</option><option value="comuna">Comuna</option><option value="sub">Subtítulo</option><option value="sit">Estado iniciativa</option></select></label></div>
       <div class="scroll"><table id="piv"></table></div>
-      <div class="note" style="margin-top:8px">Transferido: transferencia hecha por Presupuesto con acción de transferencia o anticipo (o egreso) registrada. Pagado: memo con egreso o acción de pago (pago o anticipo). Lo cursado sin esa acción, como las regularizaciones de anticipo, va en «Cursado sin egreso». Rechazado incluye los memos que el sistema marca como rechazados aunque tengan fecha de pago.</div>
+      <div class="note" style="margin-top:8px">Solicitado por la UT: suma de las solicitudes de transferencia o pago del período (sin los memos reemplazados). Transferido: transferencia hecha con acción de transferencia o anticipo, o egreso. Pagado: memo con egreso o acción de pago. La fecha es la de la transferencia o pago en la DAF; si hay varias, la última y entre paréntesis cuántas. Estado: el del último trámite del subtítulo.</div>
     </section>
   </div>
 
@@ -631,31 +633,35 @@ const PIVL = {tr:'Transferido',re:'Rendido',pa:'Pagado',tra:'En trámite',dev:'D
 function renderPivot(L){
   const f=F(), g=$('pivG').value;
   const sitLbl = k => { k=String(k||'').toUpperCase(); return k ? k.charAt(0)+k.slice(1).toLowerCase().replace(/ejecucion/,'ejecución').replace(/ejecutara/,'ejecutará') : 'Sin estado'; };
-  const M=L.filter(x=>x.origen!=='Panel'), omit=f.e==='otros'?0:M.filter(x=>pivCat(x)==='rem').length;
-  const subs=f.s?new Set([f.s]):new Set(['33','pagos']);
-  const cols=PIVC.filter(([k,,fam])=>{ if(fam==='33' && !subs.has('33')) return false; if(fam==='pagos' && ![...subs].some(s=>s!=='33')) return false;
-    if(f.ti && fam && ({tr:'transferencia',re:'rendicion',pa:'pago'})[k]!==f.ti) return false;
-    if(f.e==='cursado' && !fam && k!=='sin') return false; if(k==='sin' && f.e && f.e!=='cursado') return false; if(f.e==='tramite' && k!=='tra' && k!=='dev') return false; if(f.e==='devuelto' && k!=='dev') return false; if(f.e==='otros' && k!=='rec' && k!=='rem') return false; if(k==='rem' && f.e!=='otros') return false; return true; });
+  // solo solicitudes de transferencia o pago de la UT; los memos reemplazados no se suman para no contar dos veces
+  const M=L.filter(x=>x.origen!=='Panel' && clase(x.tipo)!=='rendicion' && pivCat(x)!=='rem');
+  const nRem=L.filter(x=>x.origen!=='Panel' && pivCat(x)==='rem').length;
   const perTxt = state.per==='todo' ? 'todo el período' : `${fmtD(state.desde)} al ${fmtD(state.hasta)}`;
   const nb=new Set(M.map(x=>x.bip)).size;
-  $('pivNote').textContent = `${nb} ${nb===1?'BIP':'BIP'} · ${perTxt}${omit?` · ${omit} reemplazados no se cuentan`:''}`;
-  if(!M.length){ $('piv').innerHTML=`<tbody><tr><td class="empty">${state.per!=='todo'?'Sin movimientos en este período. Prueba con «Todo el período».':'Sin movimientos para esta selección.'}</td></tr></tbody>`; return; }
-  const acc=()=>Object.fromEntries(cols.map(([k])=>[k,{v:0,n:0}]));
-  const add=(a,x)=>{ const k=pivCat(x); if(a[k]){ a[k].v+=x.monto||0; a[k].n++; } };
+  $('pivNote').textContent = `${nb} BIP · ${perTxt}${nRem?` · ${nRem} memos reemplazados no se suman`:''}`;
+  if(!M.length){ $('piv').innerHTML=`<tbody><tr><td class="empty">${f.ti==='rendicion'?'La tabla muestra transferencias y pagos; las rendiciones están en Movimientos.':state.per!=='todo'?'Sin movimientos en este período. Prueba con «Todo el período».':'Sin movimientos para esta selección.'}</td></tr></tbody>`; return; }
+  const SUBS=['22','29','31','33'].filter(s=>(!f.s||f.s===s) && M.some(x=>subMov(x)===s));
+  const hecho = s => s==='33' ? 'Transferido' : 'Pagado';
+  const nuevo = () => ({sol:0, hecho:0, fecha:'', nh:0, ux:null, uf:''});
   const rows={};
-  M.forEach(x=>{ const r=rows[x.bip]||(rows[x.bip]={bip:x.bip,p:PB()[x.bip],x0:x,a:acc(),ult:'',ux:null}); add(r.a,x); const fm=fechaMov(x)||''; if(fm>=r.ult && pivCat(x)!=='rem'){ r.ult=fm; r.ux=x; } });
+  M.forEach(x=>{ const r=rows[x.bip]||(rows[x.bip]={bip:x.bip,p:PB()[x.bip],x0:x,s:{}}); const s=subMov(x), c=r.s[s]||(r.s[s]=nuevo()), k=pivCat(x);
+    c.sol+=x.monto||0;
+    if (k==='tr'||k==='pa'){ c.hecho+=x.monto||0; c.nh++; if((x.fechaPago||x.fechaCurso||'')>c.fecha) c.fecha=x.fechaPago||x.fechaCurso||''; }
+    const fm=fechaMov(x)||''; if(fm>=c.uf){ c.uf=fm; c.ux=x; } });
   const keyDe = r => g==='comuna' ? (r.x0.comuna||r.p?.comuna||'Sin comuna') : g==='sub' ? 'Subtítulo '+(r.p?.sub||subMov(r.x0)) : g==='sit' ? sitLbl(r.p?sitDe(r.p):'') : utNom(r.x0.ut||r.p?.unidadTecnica);
   const grupos={}; Object.values(rows).forEach(r=>(grupos[keyDe(r)]||(grupos[keyDe(r)]=[])).push(r));
-  const cell=(c,k)=>{ if(!c||!c.n) return `<td class="r z">—</td>`; const bad=k==='rec'||k==='dev'?' bad':'';
-    return `<td class="r num${bad}">${fmt$(c.v)}</td>`; };
-  const sum=list=>{ const a=acc(); list.forEach(r=>cols.forEach(([k])=>{a[k].v+=r.a[k].v; a[k].n+=r.a[k].n;})); return a; };
-  const nCol=4+cols.length;
+  const estTxt = (c,s) => { if(!c.ux) return ''; const k=pivCat(c.ux); const t=k==='tr'||k==='pa' ? hecho(s) : (PIVL[k]||''); return `<span class="${['rec','dev'].includes(k)?'bad':k==='sin'?'muted':''}">${t}</span>`; };
+  const celdas = (c,s) => !c ? `<td class="r z sb">—</td><td class="r z">—</td><td class="z">—</td><td class="z">—</td>`
+    : `<td class="r num sb">${fmt$(c.sol)}</td><td class="r num">${c.hecho?fmt$(c.hecho):'<span class="muted">—</span>'}</td><td class="num">${c.fecha?fmtD(c.fecha)+(c.nh>1?` <span class="muted">(${c.nh})</span>`:''):'—'}</td><td>${estTxt(c,s)}</td>`;
+  const tot = list => Object.fromEntries(SUBS.map(s=>{ const t=nuevo(); list.forEach(r=>{ const c=r.s[s]; if(c){ t.sol+=c.sol; t.hecho+=c.hecho; } }); return [s,t]; }));
+  const totCells = t => SUBS.map(s=>`<td class="r num sb">${t[s].sol?fmt$(t[s].sol):'—'}</td><td class="r num">${t[s].hecho?fmt$(t[s].hecho):'—'}</td><td></td><td></td>`).join('');
   let body='';
-  Object.keys(grupos).sort((a,b)=>a.localeCompare(b,'es')).forEach(k=>{ const L2=grupos[k].sort((a,b)=>a.bip.localeCompare(b.bip)), t=sum(L2);
-    body+=`<tr class="grp"><td colspan="4">${esc(k)} · ${L2.length} BIP</td>${cols.map(([c])=>cell(t[c],c)).join('')}<td></td></tr>`;
-    body+=L2.map(r=>`<tr><td class="mono"><span class="linkbtn open" data-open="${esc(r.bip)}">${esc(r.bip)}</span></td><td class="pn">${esc(r.p?.nombre||'')}</td><td>${esc(r.p?.sub||subMov(r.x0))}</td><td>${esc(r.p?sitLbl(sitDe(r.p)):'')}</td>${cols.map(([c])=>cell(r.a[c],c)).join('')}<td>${r.ux?`<span class="${['rec','dev'].includes(pivCat(r.ux))?'bad':''}">${PIVL[pivCat(r.ux)]||''}</span> <span class="muted">· ${esc(r.ux.tipo)} ${fmt$(r.ux.monto)} · ${r.ult?fmtD(r.ult):''}</span>`:''}</td></tr>`).join(''); });
-  const T=sum(Object.values(rows));
-  $('piv').innerHTML=`<thead><tr><th>BIP</th><th>Proyecto</th><th>Sub.</th><th>Estado iniciativa</th>${cols.map(([,t])=>`<th class="r">${t}</th>`).join('')}<th>Estado del último trámite</th></tr></thead><tbody>${body}<tr class="ptot"><td colspan="4">Total selección · ${nb} BIP</td>${cols.map(([c])=>cell(T[c],c)).join('')}<td></td></tr></tbody>`;
+  Object.keys(grupos).sort((a,b)=>a.localeCompare(b,'es')).forEach(k=>{ const L2=grupos[k].sort((a,b)=>a.bip.localeCompare(b.bip));
+    body+=`<tr class="grp"><td colspan="2">${esc(k)} · ${L2.length} BIP</td>${totCells(tot(L2))}</tr>`;
+    body+=L2.map(r=>`<tr><td class="mono"><span class="linkbtn open" data-open="${esc(r.bip)}">${esc(r.bip)}</span></td><td class="pn">${esc(r.p?.nombre||'')}</td>${SUBS.map(s=>celdas(r.s[s],s)).join('')}</tr>`).join(''); });
+  $('piv').innerHTML=`<thead><tr><th rowspan="2">BIP</th><th rowspan="2">Iniciativa</th>${SUBS.map(s=>`<th colspan="4" class="sb sh">Subtítulo ${s}</th>`).join('')}</tr>
+    <tr>${SUBS.map(s=>`<th class="r sb">Solicitado por la UT</th><th class="r">${hecho(s)}</th><th>Fecha ${s==='33'?'transferencia':'pago'} DAF</th><th>Estado</th>`).join('')}</tr></thead>
+    <tbody>${body}<tr class="ptot"><td colspan="2">Total selección · ${nb} BIP</td>${totCells(tot(Object.values(rows)))}</tr></tbody>`;
 }
 /* el tipo depende del subtítulo: 33 tiene transferencias y rendiciones; 22, 29 y 31 solo pagos */
 function syncTipos(){ const s=$('fS').value, el=$('fT'), cur=el.value;

@@ -87,7 +87,7 @@ td.r,th.r{text-align:right}
 #piv td .n{display:block;font-size:.72rem;color:var(--muted);font-weight:400}
 #piv td.z{color:var(--muted)}
 #piv td.pn{min-width:280px;font-size:.78rem}
-#piv td.bad{color:var(--danger,#b42318)}
+#piv td.bad,#piv span.bad{color:var(--danger,#b42318)}
 td.num,td.r{white-space:nowrap}
 tbody tr:hover{background:var(--sunk)}
 .bar{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden;min-width:60px}
@@ -270,6 +270,7 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
 
   <nav class="tabs" role="tablist" id="tabs">
     <button role="tab" data-tab="mov" aria-selected="true">Movimientos</button>
+    <button role="tab" data-tab="piv" aria-selected="false">Tabla dinámica</button>
     <button role="tab" data-tab="rev" aria-selected="false">Por revisar<span class="n" id="nRev" hidden></span></button>
     <button role="tab" data-tab="proy" aria-selected="false">Proyectos</button>
     <button role="tab" data-tab="cargas" aria-selected="false">Recorrido de solicitudes</button>
@@ -281,10 +282,15 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
       <div class="note" id="rNote"></div>
       <div class="totals" id="rTotals" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))"></div>
     </section>
-    <section class="panel" id="pivSec"><div class="panel-head"><h2>Tabla dinámica por BIP</h2><span class="note" id="pivNote"></span></div>
-      <div class="range" style="margin-bottom:8px"><label>Agrupar por<select id="pivG"><option value="ut">Unidad técnica</option><option value="comuna">Comuna</option><option value="sub">Subtítulo</option><option value="sit">Estado iniciativa</option></select></label><label>Mostrar<select id="pivV"><option value="monto">Montos</option><option value="n">N° de trámites</option></select></label></div>
-      <div class="scroll"><table id="piv"></table></div></section>
     <div id="uts" style="display:grid;gap:10px"></div>
+  </div>
+
+  <div id="tab-piv" role="tabpanel" hidden style="display:grid;gap:14px">
+    <section class="panel" id="pivSec"><div class="panel-head"><h2>Estado de los trámites por BIP</h2><span class="note" id="pivNote"></span></div>
+      <div class="range" style="margin-bottom:8px"><label>Agrupar por<select id="pivG"><option value="ut">Unidad técnica</option><option value="comuna">Comuna</option><option value="sub">Subtítulo</option><option value="sit">Estado iniciativa</option></select></label></div>
+      <div class="scroll"><table id="piv"></table></div>
+      <div class="note" style="margin-top:8px">Transferido: transferencia hecha por Presupuesto con acción de transferencia o anticipo (o egreso) registrada. Pagado: memo con egreso o acción de pago (pago o anticipo). Lo cursado sin esa acción, como las regularizaciones de anticipo, va en «Cursado sin egreso». Rechazado incluye los memos que el sistema marca como rechazados aunque tengan fecha de pago.</div>
+    </section>
   </div>
 
   <div id="tab-rev" role="tabpanel" hidden style="display:grid;gap:14px">
@@ -520,7 +526,7 @@ function renderLoad(){
 }
 function renderScope(){
   document.querySelectorAll('#tabs [data-tab]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===state.tab)));
-  ['mov','rev','proy','cargas'].forEach(t=>$('tab-'+t).hidden = t!==state.tab);
+  ['mov','piv','rev','proy','cargas'].forEach(t=>$('tab-'+t).hidden = t!==state.tab);
 }
 function renderTotals(){
   const P=scoped().filter(p=>grupoDe(sitDe(p))!=='cerrado' && textProj(p));
@@ -546,10 +552,10 @@ function selMoves(){
     if (!movOk(x) || !textMov(x)) return false;
     if (state.desde||state.hasta){ const fm=fechaMov(x); if(!fm || fm<d || fm>h) return false; }
     if (f.ti && clase(x.tipo)!==f.ti) return false;
-    if (f.e==='cursado' && x.etapa!=='cursado') return false;
+    if (f.e==='cursado' && (x.etapa!=='cursado' || pivCat(x)==='rec')) return false;
     if (f.e==='tramite' && x.etapa!=='tramite') return false;
     if (f.e==='devuelto' && !devuelto(x)) return false;
-    if (f.e==='otros' && !['rechazado','reemplazado'].includes(x.etapa)) return false;
+    if (f.e==='otros' && !['rec','rem'].includes(pivCat(x))) return false;
     return true;
   }).sort((a,b)=>(fechaMov(b)||'').localeCompare(fechaMov(a)||''));
 }
@@ -583,7 +589,7 @@ function renderMov(){
     <div>${P.length} ${P.length===1?'proyecto':'proyectos'} en la selección, ${nP} con movimientos · ${resumenL(L)}.</div><div><b>${verTxt}.</b></div>
     <div class="muted">Lo cursado o pagado se ubica por su fecha de curse; lo que sigue en trámite, por su fecha de creación.</div>`;
   const s=(fn)=>{const l=L.filter(fn); return [l.reduce((a,x)=>a+x.monto,0), l.length];};
-  const cur = c => x=>x.origen!=='Panel' && x.etapa==='cursado' && clase(x.tipo)===c;
+  const cur = c => x=>x.origen!=='Panel' && pivCat(x)===({transferencia:'tr',rendicion:'re',pago:'pa'})[c];
   const has33 = P.some(p=>p.sub==='33'), hasPago = P.some(p=>p.sub!=='33');
   const puede = c => (!f.ti||f.ti===c) && (c==='pago' ? hasPago : has33);
   const cells=[];
@@ -615,16 +621,21 @@ function renderMov(){
 }
 
 /* ---------- tabla dinámica por BIP (usa la misma selección y período que la lista) ---------- */
-const PIVC = [['tr','Transferido','33'],['re','Rendido','33'],['pa','Pagado','pagos'],['tra','En trámite',''],['dev','Devuelto a tu bandeja',''],['rec','Rechazado',''],['rem','Reemplazado','']];
-const pivCat = x => devuelto(x) ? 'dev' : x.etapa==='tramite' ? 'tra' : x.etapa==='rechazado' ? 'rec' : x.etapa==='reemplazado' ? 'rem' : x.etapa==='cursado' ? ({transferencia:'tr',rendicion:'re',pago:'pa'})[clase(x.tipo)] : null;
+const PIVC = [['tr','Transferido','33'],['re','Rendido','33'],['pa','Pagado','pagos'],['tra','En trámite',''],['dev','Devuelto a tu bandeja',''],['sin','Cursado sin egreso',''],['rec','Rechazado',''],['rem','Reemplazado','']];
+const conAccion = x => !!String(x.egreso||'').trim() || /^(pago|anticipo|transferencia)$/i.test(String(x.transaccion||'').trim());
+const pivCat = x => { if (/rechaz/i.test(x.estado||'') || x.etapa==='rechazado') return 'rec';
+  if (devuelto(x)) return 'dev'; if (x.etapa==='tramite') return 'tra'; if (x.etapa==='reemplazado') return 'rem';
+  if (x.etapa!=='cursado') return null; const c=clase(x.tipo);
+  if (c==='rendicion') return 're'; return conAccion(x) ? (c==='pago'?'pa':'tr') : 'sin'; };
+const PIVL = {tr:'Transferido',re:'Rendido',pa:'Pagado',tra:'En trámite',dev:'Devuelto a tu bandeja',sin:'Cursado sin egreso',rec:'Rechazado',rem:'Reemplazado'};
 function renderPivot(L){
-  const f=F(), g=$('pivG').value, ver=$('pivV').value;
+  const f=F(), g=$('pivG').value;
   const sitLbl = k => { k=String(k||'').toUpperCase(); return k ? k.charAt(0)+k.slice(1).toLowerCase().replace(/ejecucion/,'ejecución').replace(/ejecutara/,'ejecutará') : 'Sin estado'; };
   const M=L.filter(x=>x.origen!=='Panel'), omit=f.e==='otros'?0:M.filter(x=>pivCat(x)==='rem').length;
   const subs=f.s?new Set([f.s]):new Set(['33','pagos']);
   const cols=PIVC.filter(([k,,fam])=>{ if(fam==='33' && !subs.has('33')) return false; if(fam==='pagos' && ![...subs].some(s=>s!=='33')) return false;
     if(f.ti && fam && ({tr:'transferencia',re:'rendicion',pa:'pago'})[k]!==f.ti) return false;
-    if(f.e==='cursado' && !fam) return false; if(f.e==='tramite' && k!=='tra' && k!=='dev') return false; if(f.e==='devuelto' && k!=='dev') return false; if(f.e==='otros' && k!=='rec' && k!=='rem') return false; if(k==='rem' && f.e!=='otros') return false; return true; });
+    if(f.e==='cursado' && !fam && k!=='sin') return false; if(k==='sin' && f.e && f.e!=='cursado') return false; if(f.e==='tramite' && k!=='tra' && k!=='dev') return false; if(f.e==='devuelto' && k!=='dev') return false; if(f.e==='otros' && k!=='rec' && k!=='rem') return false; if(k==='rem' && f.e!=='otros') return false; return true; });
   const perTxt = state.per==='todo' ? 'todo el período' : `${fmtD(state.desde)} al ${fmtD(state.hasta)}`;
   const nb=new Set(M.map(x=>x.bip)).size;
   $('pivNote').textContent = `${nb} ${nb===1?'BIP':'BIP'} · ${perTxt}${omit?` · ${omit} reemplazados no se cuentan`:''}`;
@@ -632,19 +643,19 @@ function renderPivot(L){
   const acc=()=>Object.fromEntries(cols.map(([k])=>[k,{v:0,n:0}]));
   const add=(a,x)=>{ const k=pivCat(x); if(a[k]){ a[k].v+=x.monto||0; a[k].n++; } };
   const rows={};
-  M.forEach(x=>{ const r=rows[x.bip]||(rows[x.bip]={bip:x.bip,p:PB()[x.bip],x0:x,a:acc(),ult:''}); add(r.a,x); const fm=fechaMov(x)||''; if(fm>r.ult) r.ult=fm; });
+  M.forEach(x=>{ const r=rows[x.bip]||(rows[x.bip]={bip:x.bip,p:PB()[x.bip],x0:x,a:acc(),ult:'',ux:null}); add(r.a,x); const fm=fechaMov(x)||''; if(fm>=r.ult && pivCat(x)!=='rem'){ r.ult=fm; r.ux=x; } });
   const keyDe = r => g==='comuna' ? (r.x0.comuna||r.p?.comuna||'Sin comuna') : g==='sub' ? 'Subtítulo '+(r.p?.sub||subMov(r.x0)) : g==='sit' ? sitLbl(r.p?sitDe(r.p):'') : utNom(r.x0.ut||r.p?.unidadTecnica);
   const grupos={}; Object.values(rows).forEach(r=>(grupos[keyDe(r)]||(grupos[keyDe(r)]=[])).push(r));
   const cell=(c,k)=>{ if(!c||!c.n) return `<td class="r z">—</td>`; const bad=k==='rec'||k==='dev'?' bad':'';
-    return ver==='n' ? `<td class="r${bad}">${c.n}</td>` : `<td class="r num${bad}">${fmt$(c.v)}<span class="n">${c.n} ${c.n===1?'trámite':'trámites'}</span></td>`; };
+    return `<td class="r num${bad}">${fmt$(c.v)}</td>`; };
   const sum=list=>{ const a=acc(); list.forEach(r=>cols.forEach(([k])=>{a[k].v+=r.a[k].v; a[k].n+=r.a[k].n;})); return a; };
   const nCol=4+cols.length;
   let body='';
   Object.keys(grupos).sort((a,b)=>a.localeCompare(b,'es')).forEach(k=>{ const L2=grupos[k].sort((a,b)=>a.bip.localeCompare(b.bip)), t=sum(L2);
     body+=`<tr class="grp"><td colspan="4">${esc(k)} · ${L2.length} BIP</td>${cols.map(([c])=>cell(t[c],c)).join('')}<td></td></tr>`;
-    body+=L2.map(r=>`<tr><td class="mono"><span class="linkbtn open" data-open="${esc(r.bip)}">${esc(r.bip)}</span></td><td class="pn">${esc(r.p?.nombre||'')}</td><td>${esc(r.p?.sub||subMov(r.x0))}</td><td>${esc(r.p?sitLbl(sitDe(r.p)):'')}</td>${cols.map(([c])=>cell(r.a[c],c)).join('')}<td class="num">${r.ult?fmtD(r.ult):''}</td></tr>`).join(''); });
+    body+=L2.map(r=>`<tr><td class="mono"><span class="linkbtn open" data-open="${esc(r.bip)}">${esc(r.bip)}</span></td><td class="pn">${esc(r.p?.nombre||'')}</td><td>${esc(r.p?.sub||subMov(r.x0))}</td><td>${esc(r.p?sitLbl(sitDe(r.p)):'')}</td>${cols.map(([c])=>cell(r.a[c],c)).join('')}<td>${r.ux?`<span class="${['rec','dev'].includes(pivCat(r.ux))?'bad':''}">${PIVL[pivCat(r.ux)]||''}</span> <span class="muted">· ${esc(r.ux.tipo)} ${fmt$(r.ux.monto)} · ${r.ult?fmtD(r.ult):''}</span>`:''}</td></tr>`).join(''); });
   const T=sum(Object.values(rows));
-  $('piv').innerHTML=`<thead><tr><th>BIP</th><th>Proyecto</th><th>Sub.</th><th>Estado iniciativa</th>${cols.map(([,t])=>`<th class="r">${t}</th>`).join('')}<th>Último mov.</th></tr></thead><tbody>${body}<tr class="ptot"><td colspan="4">Total selección · ${nb} BIP</td>${cols.map(([c])=>cell(T[c],c)).join('')}<td></td></tr></tbody>`;
+  $('piv').innerHTML=`<thead><tr><th>BIP</th><th>Proyecto</th><th>Sub.</th><th>Estado iniciativa</th>${cols.map(([,t])=>`<th class="r">${t}</th>`).join('')}<th>Estado del último trámite</th></tr></thead><tbody>${body}<tr class="ptot"><td colspan="4">Total selección · ${nb} BIP</td>${cols.map(([c])=>cell(T[c],c)).join('')}<td></td></tr></tbody>`;
 }
 /* el tipo depende del subtítulo: 33 tiene transferencias y rendiciones; 22, 29 y 31 solo pagos */
 function syncTipos(){ const s=$('fS').value, el=$('fT'), cur=el.value;
@@ -793,10 +804,10 @@ function renderRuta(){
   const f=F(), d=state.desde, h=state.hasta;
   let L=allMoves().filter(x=>x.origen!=='Panel' && x.enArchivo!==false && movOk(x) && textMov(x)).filter(x=>{
     if (f.ti && clase(x.tipo)!==f.ti) return false;
-    if (f.e==='cursado' && x.etapa!=='cursado') return false;
+    if (f.e==='cursado' && (x.etapa!=='cursado' || pivCat(x)==='rec')) return false;
     if (f.e==='tramite' && x.etapa!=='tramite') return false;
     if (f.e==='devuelto' && !devuelto(x)) return false;
-    if (f.e==='otros' && !['rechazado','reemplazado'].includes(x.etapa)) return false;
+    if (f.e==='otros' && !['rec','rem'].includes(pivCat(x))) return false;
     const r=rutaDe(x); if (d && r.fin && r.fin<d) return false; if (h && r.ini && r.ini>h) return false;   // se cruza con el período
     return true; });
   const orden = x => devuelto(x) ? 0 : x.etapa==='tramite' ? 1 : x.etapa==='rechazado' ? 2 : 3;
@@ -1041,7 +1052,7 @@ $('lk').addEventListener('input', ()=>{ const b=esBipQ();
   state._bip=b; onFiltro(); });
 ['fS','fC','fU','fI','fT','fE'].forEach(id=>$(id).addEventListener('input', onFiltro));
 $('fGrupo').addEventListener('input', renderRegister);
-['pivG','pivV'].forEach(id=>$(id).addEventListener('input', ()=>renderPivot(selMoves())));
+['pivG'].forEach(id=>$(id).addEventListener('input', ()=>renderPivot(selMoves())));
 $('fP').addEventListener('input', e=>{ if(e.target.value!=='rango') setPer(e.target.value); else state.per='rango'; renderMov(); });
 $('rDesde').addEventListener('change', e=>{ state.desde=e.target.value; state.per='rango'; renderMov(); });
 $('rHasta').addEventListener('change', e=>{ state.hasta=e.target.value; state.per='rango'; renderMov(); });

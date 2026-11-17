@@ -82,6 +82,37 @@ table{border-collapse:collapse;width:100%;font-size:.85rem}
 th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;white-space:nowrap}
 td.r,th.r{text-align:right}
+#inf .ihead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:flex-end;border-bottom:3px solid #0f3a5d;padding-bottom:10px;margin-bottom:12px}
+#inf .ihead h2{font-size:1.6rem;margin:2px 0}
+#inf .isub{font-size:1.05rem;margin:16px 0 8px;color:#0f3a5d}
+#inf .icards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+#inf .icard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;background:var(--surface)}
+#inf .icard b{font-size:1.2rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+#inf .icard .h{font-size:.75rem;color:var(--muted)}
+#inf .ibar{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden;margin-top:4px}
+#inf .ibar span{display:block;height:100%;background:#0f3a5d}
+#inf .ibar span.r{background:#671ca8}
+#inf .itab{width:100%;font-size:.78rem;table-layout:fixed}
+#inf .itab th{white-space:normal}
+#inf .itab .flag,#inf .itab .pill{white-space:nowrap}
+#inf .itab.dec col.c1{width:200px} #inf .itab.dec col.c2{width:80px} #inf .itab.dec col.c4{width:34%}
+#inf .itab.cart{font-size:.74rem}
+#inf .itab.cart col.c1{width:64px} #inf .itab.cart col.c2{width:23%} #inf .itab.cart col.c3{width:112px} #inf .itab.cart col.c4{width:50px} #inf .itab.cart col.c5{width:74px} #inf .itab.cart col.c10{width:14%}
+#inf .itab.cart td.num{font-size:.7rem}
+#inf .itab.cart td.num{white-space:nowrap}
+#inf .itab td .d{display:block;font-size:.7rem;color:var(--muted)}
+#inf .bad{color:var(--crit)}
+#inf .iest{display:flex;flex-wrap:wrap;gap:6px}
+@media print{
+  body{background:#fff}
+  body *{visibility:hidden}
+  #inf,#inf *{visibility:visible}
+  #inf{position:absolute;left:0;top:0;width:100%;border:0;box-shadow:none;padding:0}
+  #inf .ipage{break-before:page}
+  #inf .ipage:first-of-type{break-before:auto}
+  #inf .itab tr{break-inside:avoid}
+  @page{size:A4 landscape;margin:12mm}
+}
 #piv tr.grp td{background:var(--surface-2,rgba(15,58,93,.06));font-weight:600}
 #piv tr.ptot td{border-top:2px solid var(--line);font-weight:700}
 #piv td .n{display:block;font-size:.72rem;color:var(--muted);font-weight:400}
@@ -293,6 +324,7 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
   <nav class="tabs" role="tablist" id="tabs">
     <button role="tab" data-tab="mov" aria-selected="true">Movimientos</button>
     <button role="tab" data-tab="piv" aria-selected="false">Tabla dinámica</button>
+    <button role="tab" data-tab="inf" aria-selected="false">Informe UT</button>
     <button role="tab" data-tab="rev" aria-selected="false">Por revisar<span class="n" id="nRev" hidden></span></button>
     <button role="tab" data-tab="proy" aria-selected="false">Proyectos</button>
     <button role="tab" data-tab="cargas" aria-selected="false">Recorrido de solicitudes</button>
@@ -313,6 +345,12 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
       <div class="scroll"><table id="piv"></table></div>
       <div class="note" style="margin-top:8px">Una fila por solicitud de la UT. Transferido o Pagado: la DAF registró la transferencia o el pago (acción de pago, transferencia o anticipo, o egreso); en ese caso DAF dice SI y la fecha es la de la DAF. Rendido: rendición aprobada por Contabilidad. Cursado sin egreso: curso sin acción de pago, como las regularizaciones de anticipo. El egreso sale del reporte DAF 33 o de la bitácora («COMP E …»); el reporte DAF 31 no trae el N° de egreso. Los totales no suman los memos reemplazados.</div>
     </section>
+  </div>
+
+  <div id="tab-inf" role="tabpanel" hidden style="display:grid;gap:14px">
+    <section class="panel noprint"><div class="range"><label>Unidad técnica<select id="infUT"></select></label><label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="infCerr"> Incluir cerrados</label><button class="btn" id="infPrint" type="button">Imprimir o guardar PDF</button></div>
+      <div class="note">Informe para la reunión con la unidad técnica: toda su cartera, por subtítulo. No usa los filtros de arriba. Para proyectar, usa pantalla completa (F11) o guárdalo en PDF.</div></section>
+    <article class="panel" id="inf"></article>
   </div>
 
   <div id="tab-rev" role="tabpanel" hidden style="display:grid;gap:14px">
@@ -418,6 +456,7 @@ const baseDe = p => p.contratado>0 ? p.contratado : p.aprobado;
 const saldoDe = p => Math.max(0, baseDe(p)-p.transferido);
 const porRendirDe = p => Math.max(0, p.transferido - p.rendido);
 const grupoDe = sit => { const u=(sit||'').toUpperCase(); for (const k in GRUPOS) if (GRUPOS[k].s.includes(u)) return k; return 'otro'; };
+const sitLabel = k => { k=String(k||'').toUpperCase(); return k ? k.charAt(0)+k.slice(1).toLowerCase().replace(/ejecucion/,'ejecución').replace(/reevaluacion/,'reevaluación').replace(/ejecutara/,'ejecutará').replace(/licitacion/,'licitación').replace(/situacion/,'situación') : 'Sin estado'; };
 const sitDe = p => (state.gestion[p.bip]?.estado) || p.situacion;
 const terminoDe = p => (state.gestion[p.bip]?.vigencia) || p.termino;
 const clase = t => /rendic/i.test(t)?'rendicion':/transf|remesa/i.test(t)?'transferencia':'pago';
@@ -548,7 +587,7 @@ function renderLoad(){
 }
 function renderScope(){
   document.querySelectorAll('#tabs [data-tab]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===state.tab)));
-  ['mov','piv','rev','proy','cargas'].forEach(t=>$('tab-'+t).hidden = t!==state.tab);
+  ['mov','piv','inf','rev','proy','cargas'].forEach(t=>$('tab-'+t).hidden = t!==state.tab);
 }
 function renderTotals(){
   const P=scoped().filter(p=>grupoDe(sitDe(p))!=='cerrado' && textProj(p));
@@ -694,6 +733,72 @@ function renderPivot(L){
     <tr>${SUBS.map(s=>`<th class="r sb">Sub. ${s}</th>`).join('')}</tr></thead>
     <tbody>${body}<tr class="ptot"><td colspan="3">Total selección · ${nb} BIP${M.some(r=>pivCat(r)==='rem')?' (sin reemplazados)':''}</td>${sumCells(suma(R))}<td colspan="4" class="sb"></td></tr></tbody>`;
 }
+/* ---------- informe para reunión con la unidad técnica (proyectable / imprimible) ---------- */
+function renderInforme(){
+  const sel=$('infUT'); if(!sel) return;
+  const uts=[...new Set(state.projects.map(p=>p.unidadTecnica).filter(Boolean))].sort();
+  const cur=sel.value || $('fU').value || uts[0] || '';
+  sel.innerHTML=uts.map(u=>`<option value="${esc(u)}">${esc(utNom(u))}</option>`).join(''); sel.value=cur;
+  const u=sel.value, todos=$('infCerr').checked;
+  const P0=state.projects.filter(p=>p.unidadTecnica===u);
+  const P=P0.filter(p=>todos || grupoDe(sitDe(p))!=='cerrado');
+  if(!P.length){ $('inf').innerHTML='<p class="empty">Sin proyectos para esta unidad técnica.</p>'; return; }
+  const corte=state.meta?.cargado ? fmtD(state.meta.cargado.slice(0,10)) : '';
+  const mv=vivos().filter(x=>x.origen!=='Panel' && P.some(p=>p.bip===x.bip));
+  const mvDe=b=>mv.filter(x=>x.bip===b);
+  const sum=(L,f)=>L.reduce((a,p)=>a+(f(p)||0),0);
+  const pct=(a,b)=>b>0?Math.round(a/b*100):0;
+  const bar=(v,t,cls='')=>`<div class="ibar"><span class="${cls}" style="width:${Math.min(100,pct(v,t))}%"></span></div>`;
+  const T=P.filter(p=>p.sub==='33'), G=P.filter(p=>p.sub!=='33');
+  const tram=(L,c)=>mv.filter(x=>L.some(p=>p.bip===x.bip) && ['tra','dev'].includes(pivCat(x)) && clase(x.tipo)===c);
+  const card=(t,v,s,extra='')=>`<div class="icard"><span class="eyebrow">${t}</span><b>${v}</b><span class="h">${s}</span>${extra}</div>`;
+  const MM=n=>'MM$ '+fmtMM(n);
+  let res='';
+  if(T.length){ const base=sum(T,baseDe), tr=sum(T,p=>p.transferido), re=sum(T,p=>p.rendido), tt=tram(T,'transferencia');
+    res+=`<h3 class="isub">Subtítulo 33 · Transferencias · ${T.length} ${T.length===1?'proyecto':'proyectos'}</h3><div class="icards">
+      ${card('Contratado (o aprobado)',MM(base),'monto del proyecto')}
+      ${card('Transferido al municipio',MM(tr),pct(tr,base)+'% del monto',bar(tr,base))}
+      ${card('Por transferir',MM(sum(T,saldoDe)),'monto − transferido')}
+      ${card('Rendido',MM(re),pct(re,tr)+'% de lo transferido',bar(re,tr,'r'))}
+      ${card('Por rendir',MM(sum(T,porRendirDe)),'transferido − rendido')}
+      ${card('Transferencias en trámite',MM(tt.reduce((a,x)=>a+x.monto,0)),tt.length+' '+(tt.length===1?'solicitud':'solicitudes'))}</div>`; }
+  if(G.length){ const base=sum(G,baseDe), pa=sum(G,p=>p.transferido), tp=tram(G,'pago'), subs=[...new Set(G.map(p=>p.sub))].sort().join(', ');
+    res+=`<h3 class="isub">Subtítulos ${subs} · Pagos · ${G.length} ${G.length===1?'proyecto':'proyectos'}</h3><div class="icards">
+      ${card('Contratado (o aprobado)',MM(base),'monto del proyecto')}
+      ${card('Pagado',MM(pa),pct(pa,base)+'% del monto',bar(pa,base))}
+      ${card('Pendiente de pago',MM(sum(G,saldoDe)),'monto − pagado')}
+      ${card('Pagos en trámite',MM(tp.reduce((a,x)=>a+x.monto,0)),tp.length+' '+(tp.length===1?'estado de pago':'estados de pago'))}</div>`; }
+  // estado de la cartera
+  const nG=Object.fromEntries(Object.keys(GRUPOS).map(k=>[k,P.filter(p=>grupoDe(sitDe(p))===k).length]));
+  const est=`<div class="iest">${Object.entries(GRUPOS).filter(([k])=>nG[k]).map(([k,g])=>`<span class="pill ${g.cls}">${g.label}: ${nG[k]}</span>`).join(' ')}</div>`;
+  // puntos para decidir
+  const AL=['vencido','paralizada','porVencer','devuelto','rechazado','tramite','cierreLento','sinAct'];
+  const al=P.map(p=>({p,a:alertasDe(p).filter(k=>AL.includes(k))})).filter(r=>r.a.length);
+  const detalle=(p,k)=>{ const t=terminoDe(p);
+    if(k==='vencido'||k==='porVencer') return `término ${fmtD(t)}, avance ${Math.round(p.avance)}%`;
+    if(k==='devuelto'||k==='rechazado'||k==='tramite'){ const L=mvDe(p.bip).filter(x=>k==='devuelto'?devuelto(x):k==='rechazado'?pivCat(x)==='rec':(x.etapa==='tramite'&&x.creado&&daysFrom(x.creado)< -30));
+      return L.map(x=>`${clase(x.tipo)==='pago'?'EP':'Transf.'} ${fmt$(x.monto)}${x.memo?' memo '+esc(x.memo):''}`).join('; '); }
+    if(k==='sinAct'||k==='cierreLento') return `última actualización ${fmtD(p.ultimaAct)}`;
+    if(k==='paralizada') return `avance ${Math.round(p.avance)}%${p.ultimaAct?`, última actualización ${fmtD(p.ultimaAct)}`:''}`;
+    return ''; };
+  const dec = al.length ? `<table class="itab dec"><colgroup><col class="c1"><col class="c2"><col><col class="c4"></colgroup><thead><tr><th>Tema</th><th>BIP</th><th>Iniciativa</th><th>Detalle</th></tr></thead><tbody>${
+    AL.flatMap(k=>al.filter(r=>r.a.includes(k)).map(r=>`<tr><td><span class="flag ${ALERTAS[k].sev}">${ALERTAS[k].label.replace(/ \(30 días\)/,'')}</span></td><td class="mono">${esc(r.p.bip)}</td><td>${esc(r.p.nombre)}</td><td>${detalle(r.p,k)}</td></tr>`)).join('')}</tbody></table>`
+    : '<p class="note">No hay contratos vencidos, obras paralizadas, memos devueltos o rechazados ni trámites detenidos.</p>';
+  // cartera completa
+  const ult=b=>{ const L=mvDe(b).filter(x=>pivCat(x)!=='rem').sort((a,c)=>(fechaMov(c)||'').localeCompare(fechaMov(a)||'')); const x=L[0]; if(!x) return '<span class="muted">Sin trámites en 2026</span>';
+    const k=pivCat(x), lbl={tr:'Transferido',pa:'Pagado',re:'Rendido',tra:'En trámite',dev:'Devuelto',sin:'Cursado sin egreso',rec:'Rechazado'}[k]||'';
+    return `<span class="${k==='rec'||k==='dev'?'bad':''}">${lbl}</span> <span class="muted">${clase(x.tipo)==='pago'?'EP':clase(x.tipo)==='rendicion'?'Rend.':'Transf.'} ${fmt$(x.monto)} · ${fmtD(fechaMov(x))}</span>`; };
+  const fila=p=>{ const t=terminoDe(p), g=grupoDe(sitDe(p)), base=baseDe(p), fmt$=n=>Math.round(n||0).toLocaleString('es-CL');
+    return `<tr><td class="mono">${esc(p.bip)}</td><td>${esc(p.nombre)}</td><td><span class="pill ${GRUPOS[g]?.cls||''}">${esc(sitLabel(sitDe(p)))}</span></td><td class="r">${Math.round(p.avance||0)}%</td><td class="num">${t?fmtD(t):'—'}</td>
+      <td class="r num">${fmt$(base)}</td><td class="r num">${fmt$(p.transferido)}<span class="d">${pct(p.transferido,base)}%</span></td>${p.sub==='33'?`<td class="r num">${fmt$(p.rendido)}</td><td class="r num">${fmt$(porRendirDe(p))}</td>`:`<td class="r num" colspan="2">${fmt$(saldoDe(p))}<span class="d">pendiente de pago</span></td>`}<td>${ult(p.bip)}</td></tr>`; };
+  const tabla=(L,titulo,s33)=>!L.length?'':`<h3 class="isub">${titulo}</h3><table class="itab cart"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"><col><col><col><col><col class="c10"></colgroup><thead><tr><th>BIP</th><th>Iniciativa</th><th>Estado</th><th class="r">Avance</th><th>Término</th><th class="r">Monto $</th><th class="r">${s33?'Transferido $':'Pagado $'}</th>${s33?'<th class="r">Rendido $</th><th class="r">Por rendir $</th>':'<th class="r" colspan="2">Saldo $</th>'}<th>Último trámite</th></tr></thead><tbody>${L.sort((a,b)=>Object.keys(GRUPOS).indexOf(grupoDe(sitDe(a)))-Object.keys(GRUPOS).indexOf(grupoDe(sitDe(b)))||a.bip.localeCompare(b.bip)).map(fila).join('')}</tbody></table>`;
+  $('inf').innerHTML=`<header class="ihead"><div><div class="eyebrow">Gobierno Regional Metropolitano · Revisión de cartera</div><h2>${esc(utNom(u))}</h2><div class="note">${P.length} proyectos${todos?'':' vigentes'} · datos al ${corte}</div></div>${est}</header>
+    <section class="ipage">${res}</section>
+    <section class="ipage"><h3 class="isub">Puntos para decidir</h3>${dec}</section>
+    <section class="ipage">${tabla(T,'Cartera Subtítulo 33',true)}${tabla(G,'Cartera Subtítulos 22, 29 y 31',false)}
+      <p class="note">Monto: contratado, o aprobado si no hay contrato. Transferido, rendido y pagado: acumulado de la planilla de proyectos. Último trámite: según los archivos SAGIR y DAF; Transferido o Pagado solo con acción de pago o egreso registrado por la DAF.</p></section>`;
+}
+
 /* el tipo depende del subtítulo: 33 tiene transferencias y rendiciones; 22, 29 y 31 solo pagos */
 function syncTipos(){ const s=$('fS').value, el=$('fT'), cur=el.value;
   const ops = s==='33' ? [['transferencia','Transferencia'],['rendicion','Rendición']] : s ? [['pago','Pago']] : [['transferencia','Transferencia (33)'],['rendicion','Rendición (33)'],['pago','Pago (22, 29, 31)']];
@@ -972,7 +1077,7 @@ function sgdHtml(p){
   return `<section class="panel">${head}<div class="scroll"><table><thead><tr><th>Fecha</th><th>Documento</th><th>Materia</th><th>Estado</th><th>Ubicación actual</th></tr></thead><tbody>${L.map(d=>`<tr><td class="num">${fmtD(d.fecha)}</td><td>${d.tipoDoc?`<b>${esc(d.tipoDoc)} ${esc(d.nDoc)}</b>`:`<span class="mono">N° ${esc(d.numero)}</span>`}<div class="note" style="max-width:340px;overflow-wrap:anywhere">${esc(d.tipoDoc?d.claves:(d.claves||d.doc))}</div>${(d.otros||[]).length?`<div class="note">También BIP ${d.otros.map(esc).join(', ')}</div>`:''}</td><td>${esc(d.materia||'—')}</td><td>${esc(d.estado||'—')}</td><td>${esc(d.ubicacion||'—')}${(d.ruta||[]).length?`<details style="margin-top:4px"><summary class="note" style="cursor:pointer">Ruta (${d.ruta.length})</summary>${sgdRuta(d)}</details>`:''}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
 
-function renderAll(){ state._pb=null; renderScope(); renderLookup(); renderLoad(); renderTotals(); renderCxS(); renderMov(); renderRev(); renderAlerts(); renderRegister(); renderCargas(); if(state.open && draft && $("gEstado")){ syncDraft(); renderSheet(); } }
+function renderAll(){ state._pb=null; try{renderInforme();}catch(e){console.error(e)} renderScope(); renderLookup(); renderLoad(); renderTotals(); renderCxS(); renderMov(); renderRev(); renderAlerts(); renderRegister(); renderCargas(); if(state.open && draft && $("gEstado")){ syncDraft(); renderSheet(); } }
 function renderLive(){ renderLookup(); renderMov(); renderRev(); renderAlerts(); renderRegister(); }
 
 /* ---------- ficha de proyecto ---------- */
@@ -1089,6 +1194,8 @@ $('lk').addEventListener('input', ()=>{ const b=esBipQ();
   state._bip=b; onFiltro(); });
 ['fS','fC','fU','fI','fT','fE'].forEach(id=>$(id).addEventListener('input', onFiltro));
 $('fGrupo').addEventListener('input', renderRegister);
+$('infUT').addEventListener('input', renderInforme); $('infCerr').addEventListener('input', renderInforme);
+$('infPrint').addEventListener('click', ()=>{ state.tab='inf'; renderScope(); window.print(); });
 ['pivG'].forEach(id=>$(id).addEventListener('input', ()=>renderPivot(selMoves())));
 $('fP').addEventListener('input', e=>{ if(e.target.value!=='rango') setPer(e.target.value); else state.per='rango'; renderMov(); });
 $('rDesde').addEventListener('change', e=>{ state.desde=e.target.value; state.per='rango'; renderMov(); });

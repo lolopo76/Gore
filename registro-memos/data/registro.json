@@ -1476,7 +1476,7 @@
   {
    "id": 90,
    "memo": 320032,
-   "fecha": "",
+   "fecha": "2026-11-17",
    "deriv": "",
    "memo_ut": 2156,
    "fecha_ut": "2026-11-16",
@@ -1485,7 +1485,7 @@
    "materia": "3era. Remesa",
    "monto": 17373925,
    "asociado": "",
-   "sagir": "No",
+   "sagir": "Sí",
    "obs": "3ra. Remesa CDT",
    "revisar": false
   },

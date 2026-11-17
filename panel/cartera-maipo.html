@@ -725,7 +725,10 @@ function renderPivot(L){
       <td class="num" data-l="Fecha">${fe?fmtD(fe):''}</td>
       <td class="num" data-l="Egreso">${esc(eg)}</td></tr>`; };
   let body='';
-  Object.keys(grupos).sort((a,b)=>a.localeCompare(b,'es')).forEach(k=>{ const L2=grupos[k].sort((a,b)=>(!a.x-!b.x)||a.bip.localeCompare(b.bip)||(a.x&&b.x?(a.x.creado||'').localeCompare(b.x.creado||''):0));
+  // más reciente primero: fecha DAF si la hay; si no, la del trámite (curse o creación)
+  const fr = r => r.x ? (fechaDaf(r.x,r.k) || fechaMov(r.x) || r.x.creado || '') : '';
+  const gMax = k => grupos[k].reduce((m,r)=>{const f=fr(r); return f>m?f:m;},'');
+  Object.keys(grupos).sort((a,b)=>gMax(b).localeCompare(gMax(a))||a.localeCompare(b,'es')).forEach(k=>{ const L2=grupos[k].sort((a,b)=>(!a.x-!b.x)||fr(b).localeCompare(fr(a))||a.bip.localeCompare(b.bip));
     const nB=new Set(L2.map(r=>r.bip)).size;
     body+=`<tr class="grp"><td colspan="3">${esc(k)} · ${nB} BIP</td>${sumCells(suma(L2))}<td colspan="4" class="sb"></td></tr>`+L2.map(fila).join(''); });
   $('piv').innerHTML=`<colgroup><col class="cb"><col class="ct"><col class="cm">${SUBS.map(()=>'<col class="cs">').join('')}<col class="ce"><col class="cd"><col class="cf"><col class="cg"></colgroup>

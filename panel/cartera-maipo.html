@@ -82,6 +82,12 @@ table{border-collapse:collapse;width:100%;font-size:.85rem}
 th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;white-space:nowrap}
 td.r,th.r{text-align:right}
+#piv tr.grp td{background:var(--surface-2,rgba(15,58,93,.06));font-weight:600}
+#piv tr.ptot td{border-top:2px solid var(--line);font-weight:700}
+#piv td .n{display:block;font-size:.72rem;color:var(--muted);font-weight:400}
+#piv td.z{color:var(--muted)}
+#piv td.pn{min-width:280px;font-size:.78rem}
+#piv td.bad{color:var(--danger,#b42318)}
 td.num,td.r{white-space:nowrap}
 tbody tr:hover{background:var(--sunk)}
 .bar{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden;min-width:60px}
@@ -275,6 +281,9 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
       <div class="note" id="rNote"></div>
       <div class="totals" id="rTotals" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))"></div>
     </section>
+    <section class="panel" id="pivSec"><div class="panel-head"><h2>Tabla dinámica por BIP</h2><span class="note" id="pivNote"></span></div>
+      <div class="range" style="margin-bottom:8px"><label>Agrupar por<select id="pivG"><option value="ut">Unidad técnica</option><option value="comuna">Comuna</option><option value="sub">Subtítulo</option><option value="sit">Estado iniciativa</option></select></label><label>Mostrar<select id="pivV"><option value="monto">Montos</option><option value="n">N° de trámites</option></select></label></div>
+      <div class="scroll"><table id="piv"></table></div></section>
     <div id="uts" style="display:grid;gap:10px"></div>
   </div>
 
@@ -601,8 +610,47 @@ function renderMov(){
       const n=P.filter(p=>p.unidadTecnica===u).length;
       return bloque(u, esc(utNom(u)), `${n} ${n===1?'proyecto':'proyectos'} · ${resumenL(l)}`, l, vacio); }).join('');
   }
+  renderPivot(L);
   $('uts').innerHTML = html || `<div class="panel"><span class="empty">${state.projects.length?vacio:'Sin datos cargados todavía.'}</span></div>`;
 }
+
+/* ---------- tabla dinámica por BIP (usa la misma selección y período que la lista) ---------- */
+const PIVC = [['tr','Transferido','33'],['re','Rendido','33'],['pa','Pagado','pagos'],['tra','En trámite',''],['dev','Devuelto a tu bandeja',''],['rec','Rechazado',''],['rem','Reemplazado','']];
+const pivCat = x => devuelto(x) ? 'dev' : x.etapa==='tramite' ? 'tra' : x.etapa==='rechazado' ? 'rec' : x.etapa==='reemplazado' ? 'rem' : x.etapa==='cursado' ? ({transferencia:'tr',rendicion:'re',pago:'pa'})[clase(x.tipo)] : null;
+function renderPivot(L){
+  const f=F(), g=$('pivG').value, ver=$('pivV').value;
+  const sitLbl = k => { k=String(k||'').toUpperCase(); return k ? k.charAt(0)+k.slice(1).toLowerCase().replace(/ejecucion/,'ejecución').replace(/ejecutara/,'ejecutará') : 'Sin estado'; };
+  const M=L.filter(x=>x.origen!=='Panel'), omit=f.e==='otros'?0:M.filter(x=>pivCat(x)==='rem').length;
+  const subs=f.s?new Set([f.s]):new Set(['33','pagos']);
+  const cols=PIVC.filter(([k,,fam])=>{ if(fam==='33' && !subs.has('33')) return false; if(fam==='pagos' && ![...subs].some(s=>s!=='33')) return false;
+    if(f.ti && fam && ({tr:'transferencia',re:'rendicion',pa:'pago'})[k]!==f.ti) return false;
+    if(f.e==='cursado' && !fam) return false; if(f.e==='tramite' && k!=='tra' && k!=='dev') return false; if(f.e==='devuelto' && k!=='dev') return false; if(f.e==='otros' && k!=='rec' && k!=='rem') return false; if(k==='rem' && f.e!=='otros') return false; return true; });
+  const perTxt = state.per==='todo' ? 'todo el período' : `${fmtD(state.desde)} al ${fmtD(state.hasta)}`;
+  const nb=new Set(M.map(x=>x.bip)).size;
+  $('pivNote').textContent = `${nb} ${nb===1?'BIP':'BIP'} · ${perTxt}${omit?` · ${omit} reemplazados no se cuentan`:''}`;
+  if(!M.length){ $('piv').innerHTML=`<tbody><tr><td class="empty">${state.per!=='todo'?'Sin movimientos en este período. Prueba con «Todo el período».':'Sin movimientos para esta selección.'}</td></tr></tbody>`; return; }
+  const acc=()=>Object.fromEntries(cols.map(([k])=>[k,{v:0,n:0}]));
+  const add=(a,x)=>{ const k=pivCat(x); if(a[k]){ a[k].v+=x.monto||0; a[k].n++; } };
+  const rows={};
+  M.forEach(x=>{ const r=rows[x.bip]||(rows[x.bip]={bip:x.bip,p:PB()[x.bip],x0:x,a:acc(),ult:''}); add(r.a,x); const fm=fechaMov(x)||''; if(fm>r.ult) r.ult=fm; });
+  const keyDe = r => g==='comuna' ? (r.x0.comuna||r.p?.comuna||'Sin comuna') : g==='sub' ? 'Subtítulo '+(r.p?.sub||subMov(r.x0)) : g==='sit' ? sitLbl(r.p?sitDe(r.p):'') : utNom(r.x0.ut||r.p?.unidadTecnica);
+  const grupos={}; Object.values(rows).forEach(r=>(grupos[keyDe(r)]||(grupos[keyDe(r)]=[])).push(r));
+  const cell=(c,k)=>{ if(!c||!c.n) return `<td class="r z">—</td>`; const bad=k==='rec'||k==='dev'?' bad':'';
+    return ver==='n' ? `<td class="r${bad}">${c.n}</td>` : `<td class="r num${bad}">${fmt$(c.v)}<span class="n">${c.n} ${c.n===1?'trámite':'trámites'}</span></td>`; };
+  const sum=list=>{ const a=acc(); list.forEach(r=>cols.forEach(([k])=>{a[k].v+=r.a[k].v; a[k].n+=r.a[k].n;})); return a; };
+  const nCol=4+cols.length;
+  let body='';
+  Object.keys(grupos).sort((a,b)=>a.localeCompare(b,'es')).forEach(k=>{ const L2=grupos[k].sort((a,b)=>a.bip.localeCompare(b.bip)), t=sum(L2);
+    body+=`<tr class="grp"><td colspan="4">${esc(k)} · ${L2.length} BIP</td>${cols.map(([c])=>cell(t[c],c)).join('')}<td></td></tr>`;
+    body+=L2.map(r=>`<tr><td class="mono"><span class="linkbtn open" data-open="${esc(r.bip)}">${esc(r.bip)}</span></td><td class="pn">${esc(r.p?.nombre||'')}</td><td>${esc(r.p?.sub||subMov(r.x0))}</td><td>${esc(r.p?sitLbl(sitDe(r.p)):'')}</td>${cols.map(([c])=>cell(r.a[c],c)).join('')}<td class="num">${r.ult?fmtD(r.ult):''}</td></tr>`).join(''); });
+  const T=sum(Object.values(rows));
+  $('piv').innerHTML=`<thead><tr><th>BIP</th><th>Proyecto</th><th>Sub.</th><th>Estado iniciativa</th>${cols.map(([,t])=>`<th class="r">${t}</th>`).join('')}<th>Último mov.</th></tr></thead><tbody>${body}<tr class="ptot"><td colspan="4">Total selección · ${nb} BIP</td>${cols.map(([c])=>cell(T[c],c)).join('')}<td></td></tr></tbody>`;
+}
+/* el tipo depende del subtítulo: 33 tiene transferencias y rendiciones; 22, 29 y 31 solo pagos */
+function syncTipos(){ const s=$('fS').value, el=$('fT'), cur=el.value;
+  const ops = s==='33' ? [['transferencia','Transferencia'],['rendicion','Rendición']] : s ? [['pago','Pago']] : [['transferencia','Transferencia (33)'],['rendicion','Rendición (33)'],['pago','Pago (22, 29, 31)']];
+  el.innerHTML='<option value="">Todos</option>'+ops.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
+  el.value = ops.some(([v])=>v===cur) ? cur : ''; }
 
 /* ---------- por revisar ---------- */
 function renderRev(){
@@ -960,7 +1008,7 @@ function setPer(k){
   if (k==='anio'){ state.desde=y+'-01-01'; state.hasta=hoy; }
   if (k==='todo'){ state.desde=''; state.hasta=''; }
 }
-function onFiltro(){ syncScope(); fillFilters(); state.filter.alerta=''; state.comentando=null;
+function onFiltro(){ syncScope(); syncTipos(); fillFilters(); state.filter.alerta=''; state.comentando=null;
   try{ localStorage.setItem('cm-sub',$('fS').value); }catch(_){}
   renderTotals(); renderLive(); renderCargas(); }
 
@@ -993,12 +1041,13 @@ $('lk').addEventListener('input', ()=>{ const b=esBipQ();
   state._bip=b; onFiltro(); });
 ['fS','fC','fU','fI','fT','fE'].forEach(id=>$(id).addEventListener('input', onFiltro));
 $('fGrupo').addEventListener('input', renderRegister);
+['pivG','pivV'].forEach(id=>$(id).addEventListener('input', ()=>renderPivot(selMoves())));
 $('fP').addEventListener('input', e=>{ if(e.target.value!=='rango') setPer(e.target.value); else state.per='rango'; renderMov(); });
 $('rDesde').addEventListener('change', e=>{ state.desde=e.target.value; state.per='rango'; renderMov(); });
 $('rHasta').addEventListener('change', e=>{ state.hasta=e.target.value; state.per='rango'; renderMov(); });
 
 
-if (state._sub0){ $('fS').value=state._sub0; } syncScope();
+if (state._sub0){ $('fS').value=state._sub0; } syncScope(); syncTipos();
 /* los cuadros de montos llenan el ancho en filas parejas */
 function fitTotals(){ document.querySelectorAll('.totals').forEach(el=>{ const n=el.children.length, w=el.clientWidth; if(!n||!w) return;
   let c=Math.max(1,Math.min(n,Math.floor(w/165))); const r=Math.ceil(n/c); c=Math.ceil(n/r); el.style.setProperty('--tb',`calc(${100/c}% - 1px)`); }); }

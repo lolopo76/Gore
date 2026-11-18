@@ -355,7 +355,6 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
 
   <nav class="tabs" role="tablist" id="tabs">
     <button role="tab" data-tab="mov" aria-selected="true">Movimientos</button>
-    <button role="tab" data-tab="piv" aria-selected="false">Tabla dinámica</button>
     <button role="tab" data-tab="inf" aria-selected="false">Informe UT</button>
     <button role="tab" data-tab="rev" aria-selected="false">Por revisar<span class="n" id="nRev" hidden></span></button>
     <button role="tab" data-tab="proy" aria-selected="false">Proyectos</button>
@@ -369,14 +368,6 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
       <div class="totals" id="rTotals" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))"></div>
     </section>
     <div id="uts" style="display:grid;gap:10px"></div>
-  </div>
-
-  <div id="tab-piv" role="tabpanel" hidden style="display:grid;gap:14px">
-    <section class="panel" id="pivSec"><div class="panel-head"><h2>Estado de los trámites por BIP</h2><span class="note" id="pivNote"></span></div>
-      <div class="range" style="margin-bottom:8px"><label>Agrupar por<select id="pivG"><option value="ut">Unidad técnica</option><option value="comuna">Comuna</option><option value="sub">Subtítulo</option><option value="sit">Estado iniciativa</option></select></label></div>
-      <div class="scroll"><table id="piv"></table></div>
-      <div class="note" style="margin-top:8px">Una fila por solicitud de la UT. Transferido o Pagado: la DAF registró la transferencia o el pago (acción de pago, transferencia o anticipo, o egreso); en ese caso DAF dice SI y la fecha es la de la DAF. Rendido: rendición aprobada por Contabilidad. Cursado sin egreso: curso sin acción de pago, como las regularizaciones de anticipo. El egreso sale del reporte DAF 33 o de la bitácora («COMP E …»); el reporte DAF 31 no trae el N° de egreso. Los totales no suman los memos reemplazados.</div>
-    </section>
   </div>
 
   <div id="tab-inf" role="tabpanel" hidden style="display:grid">
@@ -617,7 +608,7 @@ function renderLoad(){
 }
 function renderScope(){
   document.querySelectorAll('#tabs [data-tab]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===state.tab)));
-  ['mov','piv','inf','rev','proy','cargas'].forEach(t=>$('tab-'+t).hidden = t!==state.tab);
+  ['mov','inf','rev','proy','cargas'].forEach(t=>$('tab-'+t).hidden = t!==state.tab);
 }
 function renderTotals(){
   const P=scoped().filter(p=>grupoDe(sitDe(p))!=='cerrado' && textProj(p));
@@ -707,7 +698,6 @@ function renderMov(){
       const n=P.filter(p=>p.unidadTecnica===u).length;
       return bloque(u, esc(utNom(u)), `${n} ${n===1?'proyecto':'proyectos'} · ${resumenL(l)}`, l, vacio); }).join('');
   }
-  renderPivot(L);
   $('uts').innerHTML = html || `<div class="panel"><span class="empty">${state.projects.length?vacio:'Sin datos cargados todavía.'}</span></div>`;
 }
 
@@ -719,53 +709,6 @@ const pivCat = x => { if (/rechaz/i.test(x.estado||'') || x.etapa==='rechazado')
   if (x.etapa!=='cursado') return null; const c=clase(x.tipo);
   if (c==='rendicion') return 're'; return conAccion(x) ? (c==='pago'?'pa':'tr') : 'sin'; };
 const PIVL = {tr:'Transferido',re:'Rendido',pa:'Pagado',tra:'En trámite',dev:'Devuelto a tu bandeja',sin:'Cursado sin egreso',rec:'Rechazado',rem:'Reemplazado'};
-function renderPivot(L){
-  const f=F(), g=$('pivG').value;
-  const sitLbl = k => { k=String(k||'').toUpperCase(); return k ? k.charAt(0)+k.slice(1).toLowerCase().replace(/ejecucion/,'ejecución').replace(/ejecutara/,'ejecutará') : 'Sin estado'; };
-  const TIPOL = {pago:'Estado de pago', transferencia:'Transferencia', rendicion:'Rendición'};
-  const ESTL = {tr:'Transferido', pa:'Pagado', re:'Rendido', tra:'En trámite', dev:'Devuelto a tu bandeja', sin:'Cursado sin egreso', rec:'Rechazado', rem:'Reemplazado'};
-  const egresoDe = x => { const e=String(x.egreso||'').trim(); if(e) return 'E-'+e.replace(/^E-?/i,'');
-    for (const b of (x.bitacora||[])){ const m=String(b.texto||'').match(/COMP(?:ROBANTE)?\.?\s*(?:DE\s*)?E(?:GRESO)?\.?\s*[-N°º]*\s*(\d{2,})/i); if(m) return 'E-'+m[1]; } return ''; };
-  const dafDe = k => ['tr','pa','re'].includes(k);
-  const fechaDaf = (x,k) => k==='tr'||k==='pa' ? (x.fechaPago||x.fechaCurso||'') : k==='re' ? (x.fechaCurso||'') : '';
-  const M=L.filter(x=>x.origen!=='Panel' && x.enArchivo!==false);   // los que ya no vienen en los archivos están en Por revisar
-  const Pq = (f.ti||f.e) ? [] : scoped().filter(textProj);
-  const conMov=new Set(M.map(x=>x.bip)), sinMov=Pq.filter(p=>!conMov.has(p.bip) && (f.i || grupoDe(sitDe(p))!=='cerrado'));
-  const perTxt = state.per==='todo' ? 'todo el período' : `${fmtD(state.desde)} al ${fmtD(state.hasta)}`;
-  const nb=conMov.size+sinMov.length;
-  $('pivNote').textContent = `${nb} BIP · ${M.length} ${M.length===1?'trámite':'trámites'}${sinMov.length?` · ${sinMov.length} BIP sin movimientos en el período`:''} · ${perTxt}`;
-  if(!M.length && !sinMov.length){ $('piv').innerHTML=`<tbody><tr><td class="empty">${state.per!=='todo'?'Sin movimientos en este período. Prueba con «Todo el período».':'Sin movimientos para esta selección.'}</td></tr></tbody>`; return; }
-  const SUBS=['22','29','31','33'].filter(s=>(!f.s||f.s===s) && (M.some(x=>subMov(x)===s) || sinMov.some(p=>p.sub===s)));
-  // filas: un trámite por fila; los BIP de la selección sin movimientos van en una fila vacía
-  const R=M.map(x=>({bip:x.bip, p:PB()[x.bip], x, k:pivCat(x), s:subMov(x), ut:x.ut||PB()[x.bip]?.unidadTecnica, comuna:x.comuna||PB()[x.bip]?.comuna}))
-    .concat(sinMov.map(p=>({bip:p.bip, p, x:null, s:p.sub, ut:p.unidadTecnica, comuna:p.comuna})));
-  const keyDe = r => g==='comuna' ? (r.comuna||'Sin comuna') : g==='sub' ? 'Subtítulo '+r.s : g==='sit' ? sitLbl(r.p?sitDe(r.p):'') : utNom(r.ut);
-  const grupos={}; R.forEach(r=>(grupos[keyDe(r)]||(grupos[keyDe(r)]=[])).push(r));
-  const suma = list => Object.fromEntries(SUBS.map(s=>[s, list.filter(r=>r.x && r.s===s && r.k!=='rem').reduce((a,r)=>a+(r.x.monto||0),0)]));
-  const sumCells = t => SUBS.map(s=>`<td class="r num sb${t[s]?'':' z'}" data-l="Sub. ${s}">${t[s]?fmt$(t[s]):'—'}</td>`).join('');
-  const fila = r => { const p=r.p, bipTd=`<td data-l="BIP"><span class="mono linkbtn open" data-open="${esc(r.bip)}">${esc(r.bip)}</span><span class="d">${esc(p?.nombre||'')}</span></td>`;
-    if(!r.x) return `<tr class="vac">${bipTd}<td colspan="${2+SUBS.length+4}" class="muted" style="font-size:.74rem">Sin movimientos en el período</td></tr>`;
-    const x=r.x, k=r.k, c=clase(x.tipo), daf=dafDe(k), fe=fechaDaf(x,k), eg=egresoDe(x);
-    const cls = k==='rec'||k==='dev' ? 'bad' : k==='sin'||k==='rem' ? 'muted' : '';
-    return `<tr class="${k==='rem'?'rem':''}">${bipTd}<td data-l="Tipo de solicitud UT">${TIPOL[c]}<span class="d">${x.memo?'Memo '+esc(x.memo):''}${x.creado?' · '+fmtD(x.creado):''}</span></td>
-      <td class="r num" data-l="Monto">${fmt$(x.monto)}</td>
-      ${SUBS.map(s=>s===r.s?`<td class="r num sb" data-l="Sub. ${s}">${fmt$(x.monto)}</td>`:`<td class="r z sb"></td>`).join('')}
-      <td class="sb ${cls}" data-l="Estado">${ESTL[k]||esc(x.etapa||'')}</td>
-      <td class="${daf?'ok':''}" data-l="DAF">${daf?'SI':'NO'}</td>
-      <td class="num" data-l="Fecha">${fe?fmtD(fe):''}</td>
-      <td class="num" data-l="Egreso">${esc(eg)}</td></tr>`; };
-  let body='';
-  // más reciente primero: fecha DAF si la hay; si no, la del trámite (curse o creación)
-  const fr = r => r.x ? (fechaDaf(r.x,r.k) || fechaMov(r.x) || r.x.creado || '') : '';
-  const gMax = k => grupos[k].reduce((m,r)=>{const f=fr(r); return f>m?f:m;},'');
-  Object.keys(grupos).sort((a,b)=>gMax(b).localeCompare(gMax(a))||a.localeCompare(b,'es')).forEach(k=>{ const L2=grupos[k].sort((a,b)=>(!a.x-!b.x)||fr(b).localeCompare(fr(a))||a.bip.localeCompare(b.bip));
-    const nB=new Set(L2.map(r=>r.bip)).size;
-    body+=`<tr class="grp"><td colspan="3">${esc(k)} · ${nB} BIP</td>${sumCells(suma(L2))}<td colspan="4" class="sb"></td></tr>`+L2.map(fila).join(''); });
-  $('piv').innerHTML=`<colgroup><col class="cb"><col class="ct"><col class="cm">${SUBS.map(()=>'<col class="cs">').join('')}<col class="ce"><col class="cd"><col class="cf"><col class="cg"></colgroup>
-    <thead><tr><th rowspan="2">BIP</th><th rowspan="2">Tipo de solicitud UT</th><th rowspan="2" class="r">Monto</th><th colspan="${SUBS.length}" class="sb sh">Subtítulo</th><th rowspan="2" class="sb">Estado</th><th rowspan="2">DAF</th><th rowspan="2">Fecha</th><th rowspan="2">Egreso</th></tr>
-    <tr>${SUBS.map(s=>`<th class="r sb">Sub. ${s}</th>`).join('')}</tr></thead>
-    <tbody>${body}<tr class="ptot"><td colspan="3">Total selección · ${nb} BIP${M.some(r=>pivCat(r)==='rem')?' (sin reemplazados)':''}</td>${sumCells(suma(R))}<td colspan="4" class="sb"></td></tr></tbody>`;
-}
 /* ---------- informe para reunión con la unidad técnica (proyectable / imprimible) ---------- */
 function renderInforme(){
   const box=$('inf'); if(!box) return;
@@ -1261,7 +1204,6 @@ $('lk').addEventListener('input', ()=>{ const b=esBipQ();
   state._bip=b; onFiltro(); });
 ['fS','fC','fU','fI','fT','fE'].forEach(id=>$(id).addEventListener('input', onFiltro));
 $('fGrupo').addEventListener('input', renderRegister);
-['pivG'].forEach(id=>$(id).addEventListener('input', ()=>renderPivot(selMoves())));
 $('fP').addEventListener('input', e=>{ if(e.target.value!=='rango') setPer(e.target.value); else state.per='rango'; renderMov(); });
 $('rDesde').addEventListener('change', e=>{ state.desde=e.target.value; state.per='rango'; renderMov(); });
 $('rHasta').addEventListener('change', e=>{ state.hasta=e.target.value; state.per='rango'; renderMov(); });

@@ -115,7 +115,7 @@ td.r,th.r{text-align:right}
 #inf .mx tr.mtot td{background:var(--g1);color:#fff;font-weight:700;border:0}
 #inf .mx tr:nth-child(even):not(.n1):not(.mtot) td{background:#fafbfc}
 #inf .mx .tg{display:inline-block;width:11px;height:11px;line-height:9px;text-align:center;border:1px solid #8a96a1;font-size:10px;margin-right:6px;cursor:pointer;color:#333;background:#fff;vertical-align:middle}
-#inf .mx tr.hid{display:none}
+#inf .mx tr.hid,#inf .mx tr.hidp{display:none}
 #inf .mx .neg{color:var(--g3);font-weight:600}
 #inf .mx .mut{color:#7a8590}
 #inf .mx .bip{font-family:Consolas,monospace;font-size:11px;color:var(--g1);cursor:pointer}
@@ -622,6 +622,7 @@ function renderScope(){
 function renderTotals(){
   const P=scoped().filter(p=>grupoDe(sitDe(p))!=='cerrado' && textProj(p));
   const T=P.filter(p=>p.sub==='33'), G=P.filter(p=>p.sub!=='33');
+  const ultF=b=>{ const x=ultX(b); return x?fechaMov(x)||'':''; };
   const sum=(L,k)=>L.reduce((s,p)=>s+(p[k]||0),0);
   const nTot=scoped().filter(textProj).length;
   const items=[['Proyectos vigentes', P.length.toLocaleString('es-CL'), `${nTot} en la selección`], ['Aprobado GORE','MM$ '+fmtMM(sum(P,'aprobado')),'proyectos vigentes'], ['Contratado','MM$ '+fmtMM(sum(P,'contratado')),'proyectos vigentes']];
@@ -785,23 +786,25 @@ function renderInforme(){
   const ultX=b=>mvDe(b).filter(x=>pivCat(x)!=='rem').sort((a,c)=>(fechaMov(c)||'').localeCompare(fechaMov(a)||''))[0];
   const ULB={tr:'Transferido',pa:'Pagado',re:'Rendido',tra:'En trámite',dev:'Devuelto',sin:'Cursado sin egreso',rec:'Rechazado'};
   const T=P.filter(p=>p.sub==='33'), G=P.filter(p=>p.sub!=='33');
+  const ultF=b=>{ const x=ultX(b); return x?fechaMov(x)||'':''; };
   const tg=(id)=>`<span class="tg" data-tg="${id}">${st.open[id]?'−':'+'}</span>`;
   const hid=id=>st.open[id]?'':' hid';
   // ---- matriz resumen: subtítulo > estado de la iniciativa
   const cols33 = L => { const b=sum(L,baseDe), tr=sum(L,p=>p.transferido), L3=L.filter(p=>p.sub==='33'), re=sum(L3,p=>p.rendido), t3=sum(L3,p=>p.transferido), na='<span class="mut">—</span>';
     return [L.length, n$(b), n$(tr), pc(tr,b), L3.length?n$(re):na, L3.length?pc(re,t3):na, L3.length?n$(sum(L3,porRendirDe)):na, n$(sum(L,saldoDe)), n$(tram(L))]; };
   const filas=(L,clave,etq,fn)=>{ let h=`<tr class="n1"><td class="l">${L.length?tg(clave):''}${etq}</td>${fn(L).map(v=>`<td>${v}</td>`).join('')}</tr>`;
-    Object.entries(GRUPOS).forEach(([k,g])=>{ const l=L.filter(p=>grupoDe(sitDe(p))===k); if(!l.length) return;
-      h+=`<tr class="n2${hid(clave)}" data-p="${clave}"><td class="l">${g.label}</td>${fn(l).map(v=>`<td>${v}</td>`).join('')}</tr>`; });
+    Object.entries(GRUPOS).forEach(([k,g])=>{ const l=L.filter(p=>grupoDe(sitDe(p))===k).sort((a,b)=>ultF(b.bip).localeCompare(ultF(a.bip))||a.bip.localeCompare(b.bip)); if(!l.length) return; const id2=clave+'_'+k;
+      h+=`<tr class="n2${hid(clave)}" data-p="${clave}"><td class="l">${tg(id2)}${g.label} (${l.length})</td>${fn(l).map(v=>`<td>${v}</td>`).join('')}</tr>`;
+      h+=l.map(p=>`<tr class="n3${st.open[clave]&&st.open[id2]?'':' hidp'}"><td class="l"><span class="bip open" data-open="${esc(p.bip)}">${esc(p.bip)}</span> ${esc(p.nombre)}</td>${fn([p]).map((v,i)=>`<td>${i===0?esc(p.sub):v}</td>`).join('')}</tr>`).join(''); });
     return h; };
   const fnS = L => { const r=cols33(L); return r; };
   let mx='';
   if(T.length) mx+=filas(T,'s33','Subtítulo 33 · Transferencias',fnS);
-  if(G.length) mx+=filas(G,'spg',`Subtítulos ${[...new Set(G.map(p=>p.sub))].sort().join(', ')} · Pagos`,fnS);
+  [...new Set(G.map(p=>p.sub))].sort().forEach(sb=>{ mx+=filas(G.filter(p=>p.sub===sb),'s'+sb,`Subtítulo ${esc(sb)} · Pagos`,fnS); });
   const tot=cols33(P);
-  const resumen=`<div class="vis"><h4>Estado de la cartera</h4><div class="scr"><table class="mx"><thead><tr><th class="l">Descripción</th><th>N° proy.</th><th>Monto proyecto</th><th>Transferido / pagado</th><th>% Avance fin.</th><th>Rendido</th><th>% Rendido</th><th>Por rendir</th><th>Saldo por transferir / pagar</th><th>En trámite</th></tr></thead>
+  const resumen=`<div class="vis"><h4>Estado de la cartera</h4><div class="scr"><table class="mx"><thead><tr><th class="l">Descripción</th><th>N° proy. / Sub.</th><th>Monto proyecto</th><th>Transferido / pagado</th><th>% Avance fin.</th><th>Rendido</th><th>% Rendido</th><th>Por rendir</th><th>Saldo por transferir / pagar</th><th>En trámite</th></tr></thead>
     <tbody>${mx}<tr class="mtot"><td class="l">Total</td>${tot.map(v=>`<td>${v}</td>`).join('')}</tr></tbody></table></div>
-    <div class="pie">Montos en pesos. Monto proyecto: contratado, o aprobado si no hay contrato. Rendido y por rendir solo aplican al Subtítulo 33. En trámite: solicitudes de la UT aún no transferidas o pagadas. Datos al ${corte}.</div></div>`;
+    <div class="pie">Abre + en cada subtítulo y luego en cada estado para ver los BIP. Montos en pesos. Monto proyecto: contratado, o aprobado si no hay contrato. Rendido y por rendir solo aplican al Subtítulo 33. En trámite: solicitudes de la UT aún no transferidas o pagadas. Datos al ${corte}.</div></div>`;
   // ---- gráfico mensual: transferido (33) y pagado (22/29/31) según fecha DAF
   const anio=(state.meta?.cargado||hoy).slice(0,4), meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   const M=meses.map((m,i)=>{ const k=`${anio}-${String(i+1).padStart(2,'0')}`; const f=c=>mv.filter(x=>pivCat(x)===c && (x.fechaPago||x.fechaCurso||'').startsWith(k)).reduce((a,x)=>a+x.monto,0); return [f('tr'),f('pa')]; });
@@ -819,7 +822,6 @@ function renderInforme(){
   const d1 = T.length ? dona('Subtítulo 33','Transferido sobre monto',sum(T,p=>p.transferido),sum(T,saldoDe),'Transferido','Por transferir','#0f3a5d','#b8c4cf') : '<div class="vis"><h4>Subtítulo 33</h4><div class="pie">Sin proyectos Sub. 33.</div></div>';
   const d2 = G.length ? dona('Subtítulos 22, 29 y 31','Pagado sobre monto',sum(G,p=>p.transferido),sum(G,saldoDe),'Pagado','Pendiente de pago','#671ca8','#d4c4e6') : '<div class="vis"><h4>Pagos</h4><div class="pie">Sin proyectos de pago.</div></div>';
   // ---- cartera por proyecto: estado > proyecto, ordenado por último trámite
-  const ultF=b=>{ const x=ultX(b); return x?fechaMov(x)||'':''; };
   const filaP=p=>{ const x=ultX(p.bip), k=x?pivCat(x):'', t=terminoDe(p), b=baseDe(p);
     return `<td class="l"><span class="bip open" data-open="${esc(p.bip)}">${esc(p.bip)}</span> ${esc(p.nombre)}</td><td>${esc(p.sub)}</td><td>${Math.round(p.avance||0)} %</td><td>${t?fmtD(t):'—'}</td><td>${n$(b)}</td><td>${n$(p.transferido)}</td><td>${pc(p.transferido,b)}</td><td>${p.sub==='33'?n$(p.rendido):'<span class="mut">—</span>'}</td><td>${n$(saldoDe(p))}</td><td class="l">${x?`<span class="${k==='rec'||k==='dev'?'neg':''}">${ULB[k]||''}</span> <span class="mut">${n$(x.monto)} · ${fmtD(fechaMov(x))}</span>`:'<span class="mut">Sin trámites en el año</span>'}</td>`; };
   let cp='';

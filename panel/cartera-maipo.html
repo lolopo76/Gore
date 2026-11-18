@@ -622,7 +622,6 @@ function renderScope(){
 function renderTotals(){
   const P=scoped().filter(p=>grupoDe(sitDe(p))!=='cerrado' && textProj(p));
   const T=P.filter(p=>p.sub==='33'), G=P.filter(p=>p.sub!=='33');
-  const ultF=b=>{ const x=ultX(b); return x?fechaMov(x)||'':''; };
   const sum=(L,k)=>L.reduce((s,p)=>s+(p[k]||0),0);
   const nTot=scoped().filter(textProj).length;
   const items=[['Proyectos vigentes', P.length.toLocaleString('es-CL'), `${nTot} en la selección`], ['Aprobado GORE','MM$ '+fmtMM(sum(P,'aprobado')),'proyectos vigentes'], ['Contratado','MM$ '+fmtMM(sum(P,'contratado')),'proyectos vigentes']];
@@ -787,14 +786,18 @@ function renderInforme(){
   const ULB={tr:'Transferido',pa:'Pagado',re:'Rendido',tra:'En trámite',dev:'Devuelto',sin:'Cursado sin egreso',rec:'Rechazado'};
   const T=P.filter(p=>p.sub==='33'), G=P.filter(p=>p.sub!=='33');
   const ultF=b=>{ const x=ultX(b); return x?fechaMov(x)||'':''; };
+  const ORDS=['POR LICITAR','POR LICITAR 3 O MÁS','EN LICITACION','ADJUDICADO','EN EJECUCION','OBRA PARALIZADA','EN REEVALUACION','TERMINADO OBRAS','TERMINADO','PENDIENTE CIERRE ADMINISTRATIVO','ENVIADO A CIERRE FINANCIERO','CERRADO CONTABLE','NO SE EJECUTARA'];
+  const sk=p=>String(sitDe(p)||'').trim().toUpperCase();
+  const estadosDe=L=>[...new Set(L.map(sk))].sort((a,b)=>{ const i=x=>{const n=ORDS.indexOf(x); return n<0?99:n;}; return i(a)-i(b)||a.localeCompare(b); });
+  const kid=e=>e.replace(/[^A-Z0-9]/g,'').toLowerCase()||'sin';
   const tg=(id)=>`<span class="tg" data-tg="${id}">${st.open[id]?'−':'+'}</span>`;
   const hid=id=>st.open[id]?'':' hid';
   // ---- matriz resumen: subtítulo > estado de la iniciativa
   const cols33 = L => { const b=sum(L,baseDe), tr=sum(L,p=>p.transferido), L3=L.filter(p=>p.sub==='33'), re=sum(L3,p=>p.rendido), t3=sum(L3,p=>p.transferido), na='<span class="mut">—</span>';
     return [L.length, n$(b), n$(tr), pc(tr,b), L3.length?n$(re):na, L3.length?pc(re,t3):na, L3.length?n$(sum(L3,porRendirDe)):na, n$(sum(L,saldoDe)), n$(tram(L))]; };
   const filas=(L,clave,etq,fn)=>{ let h=`<tr class="n1"><td class="l">${L.length?tg(clave):''}${etq}</td>${fn(L).map(v=>`<td>${v}</td>`).join('')}</tr>`;
-    Object.entries(GRUPOS).forEach(([k,g])=>{ const l=L.filter(p=>grupoDe(sitDe(p))===k).sort((a,b)=>ultF(b.bip).localeCompare(ultF(a.bip))||a.bip.localeCompare(b.bip)); if(!l.length) return; const id2=clave+'_'+k;
-      h+=`<tr class="n2${hid(clave)}" data-p="${clave}"><td class="l">${tg(id2)}${g.label} (${l.length})</td>${fn(l).map(v=>`<td>${v}</td>`).join('')}</tr>`;
+    estadosDe(L).forEach(e=>{ const l=L.filter(p=>sk(p)===e).sort((a,b)=>ultF(b.bip).localeCompare(ultF(a.bip))||a.bip.localeCompare(b.bip)); const id2=clave+'_'+kid(e);
+      h+=`<tr class="n2${hid(clave)}" data-p="${clave}"><td class="l">${tg(id2)}${esc(sitLabel(e))} (${l.length})</td>${fn(l).map(v=>`<td>${v}</td>`).join('')}</tr>`;
       h+=l.map(p=>`<tr class="n3${st.open[clave]&&st.open[id2]?'':' hidp'}"><td class="l"><span class="bip open" data-open="${esc(p.bip)}">${esc(p.bip)}</span> ${esc(p.nombre)}</td>${fn([p]).map((v,i)=>`<td>${i===0?esc(p.sub):v}</td>`).join('')}</tr>`).join(''); });
     return h; };
   const fnS = L => { const r=cols33(L); return r; };
@@ -825,11 +828,11 @@ function renderInforme(){
   const filaP=p=>{ const x=ultX(p.bip), k=x?pivCat(x):'', t=terminoDe(p), b=baseDe(p);
     return `<td class="l"><span class="bip open" data-open="${esc(p.bip)}">${esc(p.bip)}</span> ${esc(p.nombre)}</td><td>${esc(p.sub)}</td><td>${Math.round(p.avance||0)} %</td><td>${t?fmtD(t):'—'}</td><td>${n$(b)}</td><td>${n$(p.transferido)}</td><td>${pc(p.transferido,b)}</td><td>${p.sub==='33'?n$(p.rendido):'<span class="mut">—</span>'}</td><td>${n$(saldoDe(p))}</td><td class="l">${x?`<span class="${k==='rec'||k==='dev'?'neg':''}">${ULB[k]||''}</span> <span class="mut">${n$(x.monto)} · ${fmtD(fechaMov(x))}</span>`:'<span class="mut">Sin trámites en el año</span>'}</td>`; };
   let cp='';
-  Object.entries(GRUPOS).forEach(([k,g])=>{ const L=P.filter(p=>grupoDe(sitDe(p))===k).sort((a,b)=>ultF(b.bip).localeCompare(ultF(a.bip))||a.bip.localeCompare(b.bip)); if(!L.length) return;
-    const id='g'+k, b=sum(L,baseDe), tr=sum(L,p=>p.transferido);
-    cp+=`<tr class="n1"><td class="l">${tg(id)}${g.label} (${L.length})</td><td></td><td></td><td></td><td>${n$(b)}</td><td>${n$(tr)}</td><td>${pc(tr,b)}</td><td>${n$(sum(L.filter(p=>p.sub==='33'),p=>p.rendido))}</td><td>${n$(sum(L,saldoDe))}</td><td></td></tr>`
+  estadosDe(P).forEach(e=>{ const L=P.filter(p=>sk(p)===e).sort((a,b)=>ultF(b.bip).localeCompare(ultF(a.bip))||a.bip.localeCompare(b.bip));
+    const id='g'+kid(e), b=sum(L,baseDe), tr=sum(L,p=>p.transferido);
+    cp+=`<tr class="n1"><td class="l">${tg(id)}${esc(sitLabel(e))} (${L.length})</td><td></td><td></td><td></td><td>${n$(b)}</td><td>${n$(tr)}</td><td>${pc(tr,b)}</td><td>${n$(sum(L.filter(p=>p.sub==='33'),p=>p.rendido))}</td><td>${n$(sum(L,saldoDe))}</td><td></td></tr>`
       + L.map(p=>`<tr class="n3${hid(id)}" data-p="${id}">${filaP(p)}</tr>`).join(''); });
-  const cartera=`<div class="vis"><h4>Cartera por proyecto</h4><h5>Agrupada por estado de la iniciativa · ordenada por último trámite</h5><div class="scr"><table class="mx"><thead><tr><th class="l">Iniciativa</th><th>Sub.</th><th>Avance</th><th>Término</th><th>Monto proyecto</th><th>Transferido / pagado</th><th>%</th><th>Rendido</th><th>Saldo</th><th class="l">Último trámite</th></tr></thead><tbody>${cp}
+  const cartera=`<div class="vis"><h4>Cartera por proyecto</h4><h5>Agrupada por estado SAGIR · ordenada por último trámite</h5><div class="scr"><table class="mx"><thead><tr><th class="l">Iniciativa</th><th>Sub.</th><th>Avance</th><th>Término</th><th>Monto proyecto</th><th>Transferido / pagado</th><th>%</th><th>Rendido</th><th>Saldo</th><th class="l">Último trámite</th></tr></thead><tbody>${cp}
     <tr class="mtot"><td class="l">Total</td><td></td><td></td><td></td><td>${n$(sum(P,baseDe))}</td><td>${n$(sum(P,p=>p.transferido))}</td><td>${pc(sum(P,p=>p.transferido),sum(P,baseDe))}</td><td>${n$(sum(T,p=>p.rendido))}</td><td>${n$(sum(P,saldoDe))}</td><td></td></tr></tbody></table></div>
     <div class="pie">Usa + y − para abrir o cerrar cada grupo. Al imprimir se muestran todos los proyectos.</div></div>`;
   // ---- puntos para decidir

@@ -82,36 +82,68 @@ table{border-collapse:collapse;width:100%;font-size:.85rem}
 th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;white-space:nowrap}
 td.r,th.r{text-align:right}
-#inf .ihead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:flex-end;border-bottom:3px solid #0f3a5d;padding-bottom:10px;margin-bottom:12px}
-#inf .ihead h2{font-size:1.6rem;margin:2px 0}
-#inf .isub{font-size:1.05rem;margin:16px 0 8px;color:#0f3a5d}
-#inf .icards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
-#inf .icard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;background:var(--surface)}
-#inf .icard b{font-size:1.2rem;font-variant-numeric:tabular-nums;white-space:nowrap}
-#inf .icard .h{font-size:.75rem;color:var(--muted)}
-#inf .ibar{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden;margin-top:4px}
-#inf .ibar span{display:block;height:100%;background:#0f3a5d}
-#inf .ibar span.r{background:#671ca8}
-#inf .itab{width:100%;font-size:.78rem;table-layout:fixed}
-#inf .itab th{white-space:normal}
-#inf .itab .flag,#inf .itab .pill{white-space:nowrap}
-#inf .itab.dec col.c1{width:200px} #inf .itab.dec col.c2{width:80px} #inf .itab.dec col.c4{width:34%}
-#inf .itab.cart{font-size:.74rem}
-#inf .itab.cart col.c1{width:64px} #inf .itab.cart col.c2{width:23%} #inf .itab.cart col.c3{width:112px} #inf .itab.cart col.c4{width:50px} #inf .itab.cart col.c5{width:74px} #inf .itab.cart col.c10{width:14%}
-#inf .itab.cart td.num{font-size:.7rem}
-#inf .itab.cart td.num{white-space:nowrap}
-#inf .itab td .d{display:block;font-size:.7rem;color:var(--muted)}
-#inf .bad{color:var(--crit)}
-#inf .iest{display:flex;flex-wrap:wrap;gap:6px}
+/* Informe UT: estilo tablero (BI), colores GORE: azul #0f3a5d, morado #671CA8, naranjo #eb4606 */
+#tab-inf{gap:0!important}
+#inf{--g1:#0f3a5d;--g2:#671ca8;--g3:#eb4606;--gl:#e8edf2;--gb:#c9d3dc;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:12.5px;color:#1f2a33;background:#fff;border:1px solid var(--gb);padding:0;border-radius:2px}
+#inf *{letter-spacing:normal}
+#inf .bar-top{display:flex;align-items:center;gap:18px;background:var(--g1);color:#fff;padding:10px 14px;flex-wrap:wrap}
+#inf .logo{display:flex;flex-direction:column;align-items:center;line-height:1;border-right:1px solid rgba(255,255,255,.35);padding-right:16px}
+#inf .logo b{font-size:20px;font-weight:700;letter-spacing:2px}
+#inf .logo small{font-size:9px;margin-top:3px;opacity:.85}
+#inf .bar-top h1{font-size:22px;font-weight:400;color:#fff;margin:0;flex:1;min-width:200px}
+#inf .bar-top h1 span{display:block;font-size:12px;opacity:.8;margin-top:2px}
+#inf .slc{background:#fff;color:#1f2a33;border:1px solid var(--gb);padding:4px 8px 6px;min-width:150px;display:flex;flex-direction:column;font-size:11px;color:#556}
+#inf .slc select{border:0;border-bottom:1px solid #999;font:inherit;font-size:13px;color:#1f2a33;background:transparent;padding:2px 0;margin-top:2px}
+#inf .slc b{font-size:13px;color:#1f2a33;font-weight:400;padding-top:3px}
+#inf .navb{display:flex;gap:6px;padding:8px 10px;background:#f3f5f7;border-bottom:1px solid var(--gb);flex-wrap:wrap}
+#inf .navb button{border:1px solid #9aa7b3;background:#d9dee3;color:#1f2a33;border-radius:12px;padding:4px 16px;font:inherit;font-size:11.5px;cursor:pointer}
+#inf .navb button.on{background:var(--g1);color:#fff;border-color:var(--g1)}
+#inf .navb .sp{flex:1}
+#inf .navb button.pr{border-radius:2px;background:#fff}
+#inf .vis{border:1px solid var(--gb);margin:8px 10px;background:#fff}
+#inf .vis>h4{margin:0;background:#5f6b75;color:#fff;font-weight:400;font-size:14px;padding:5px 8px;font-family:inherit}
+#inf .vis>h5{margin:0;padding:4px 8px;font-size:13px;font-weight:400;color:#1f2a33;border-bottom:3px solid var(--g1);font-family:inherit}
+#inf .mx{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto}
+#inf .mx th{background:var(--g1);color:#fff;font-weight:400;text-transform:none;font-size:11.5px;padding:4px 6px;border:1px solid #2b5578;text-align:right;white-space:nowrap}
+#inf .mx th.l{text-align:left}
+#inf .mx td{padding:3px 6px;border-bottom:1px solid #dfe5ea;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;vertical-align:middle}
+#inf .mx td.l{text-align:left;white-space:normal}
+#inf .mx tr.n1 td{font-weight:700;background:#f4f6f8}
+#inf .mx tr.n1 td.l{text-transform:uppercase}
+#inf .mx tr.n2 td.l{padding-left:22px}
+#inf .mx tr.n3 td.l{padding-left:40px;font-size:11.5px}
+#inf .mx tr.mtot td{background:var(--g1);color:#fff;font-weight:700;border:0}
+#inf .mx tr:nth-child(even):not(.n1):not(.mtot) td{background:#fafbfc}
+#inf .mx .tg{display:inline-block;width:11px;height:11px;line-height:9px;text-align:center;border:1px solid #8a96a1;font-size:10px;margin-right:6px;cursor:pointer;color:#333;background:#fff;vertical-align:middle}
+#inf .mx tr.hid{display:none}
+#inf .mx .neg{color:var(--g3);font-weight:600}
+#inf .mx .mut{color:#7a8590}
+#inf .mx .bip{font-family:Consolas,monospace;font-size:11px;color:var(--g1);cursor:pointer}
+#inf .scr{overflow-x:auto}
+#inf .row3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:0 0;margin:0 0 8px}
+#inf .row3 .vis{margin-top:0}
+#inf .row3 .vis+.vis{margin-left:0}
+#inf svg text{font-family:"Segoe UI",Arial,sans-serif}
+#inf .lg{display:flex;gap:12px;font-size:10.5px;color:#556;padding:4px 8px;text-transform:uppercase;flex-wrap:wrap}
+#inf .lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+#inf .pie{font-size:10.5px;color:#556;padding:4px 10px 8px}
+#inf .sec{display:none}
+#inf .sec.on{display:block}
+@media (max-width:900px){ #inf .row3{grid-template-columns:1fr} }
 @media print{
   body{background:#fff}
   body *{visibility:hidden}
   #inf,#inf *{visibility:visible}
-  #inf{position:absolute;left:0;top:0;width:100%;border:0;box-shadow:none;padding:0}
-  #inf .ipage{break-before:page}
-  #inf .ipage:first-of-type{break-before:auto}
-  #inf .itab tr{break-inside:avoid}
-  @page{size:A4 landscape;margin:12mm}
+  #inf{position:absolute;left:0;top:0;width:100%;border:0}
+  #inf .navb button:not(.on), #inf .navb .pr{display:none}
+  #inf .sec{display:block!important;break-before:page}
+  #inf .sec:first-of-type{break-before:auto}
+  #inf .mx tr.hid{display:table-row}
+  #inf .mx .tg{display:none}
+  #inf .mx tr{break-inside:avoid}
+  #inf .row3{grid-template-columns:2fr 1fr 1fr}
+  @page{size:A4 landscape;margin:8mm}
+  #inf *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 #piv tr.grp td{background:var(--surface-2,rgba(15,58,93,.06));font-weight:600}
 #piv tr.ptot td{border-top:2px solid var(--line);font-weight:700}
@@ -347,10 +379,8 @@ td.proy .nm{font-size:.84rem;line-height:1.3}
     </section>
   </div>
 
-  <div id="tab-inf" role="tabpanel" hidden style="display:grid;gap:14px">
-    <section class="panel noprint"><div class="range"><label>Unidad técnica<select id="infUT"></select></label><label>Ordenar cartera por<select id="infOrd"><option value="ult">Último trámite (más reciente primero)</option><option value="ini">Fecha de inicio de ejecución (más reciente primero)</option><option value="ter">Fecha de término (más próxima primero)</option></select></label><label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="infCerr"> Incluir cerrados</label><button class="btn" id="infPrint" type="button">Imprimir o guardar PDF</button></div>
-      <div class="note">Informe para la reunión con la unidad técnica: toda su cartera, por subtítulo. No usa los filtros de arriba. Para proyectar, usa pantalla completa (F11) o guárdalo en PDF.</div></section>
-    <article class="panel" id="inf"></article>
+  <div id="tab-inf" role="tabpanel" hidden style="display:grid">
+    <article id="inf"></article>
   </div>
 
   <div id="tab-rev" role="tabpanel" hidden style="display:grid;gap:14px">
@@ -738,73 +768,98 @@ function renderPivot(L){
 }
 /* ---------- informe para reunión con la unidad técnica (proyectable / imprimible) ---------- */
 function renderInforme(){
-  const sel=$('infUT'); if(!sel) return;
+  const box=$('inf'); if(!box) return;
+  const st=state._inf||(state._inf={ut:'', sub:'', cerr:false, sec:'res', open:{}});
   const uts=[...new Set(state.projects.map(p=>p.unidadTecnica).filter(Boolean))].sort();
-  const cur=sel.value || $('fU').value || uts[0] || '';
-  sel.innerHTML=uts.map(u=>`<option value="${esc(u)}">${esc(utNom(u))}</option>`).join(''); sel.value=cur;
-  const u=sel.value, todos=$('infCerr').checked;
-  const P0=state.projects.filter(p=>p.unidadTecnica===u);
-  const P=P0.filter(p=>todos || grupoDe(sitDe(p))!=='cerrado');
-  if(!P.length){ $('inf').innerHTML='<p class="empty">Sin proyectos para esta unidad técnica.</p>'; return; }
-  const corte=state.meta?.cargado ? fmtD(state.meta.cargado.slice(0,10)) : '';
+  if(!uts.length){ box.innerHTML='<p class="empty" style="padding:12px">Sin datos cargados.</p>'; return; }
+  if(!uts.includes(st.ut)) st.ut = uts.includes($('fU').value) ? $('fU').value : uts[0];
+  const u=st.ut, corte=state.meta?.cargado ? fmtD(state.meta.cargado.slice(0,10)) : '';
+  const P=state.projects.filter(p=>p.unidadTecnica===u && (st.cerr || grupoDe(sitDe(p))!=='cerrado') && (!st.sub || (st.sub==='33' ? p.sub==='33' : p.sub!=='33')));
   const mv=vivos().filter(x=>x.origen!=='Panel' && P.some(p=>p.bip===x.bip));
   const mvDe=b=>mv.filter(x=>x.bip===b);
+  const n$=v=>{ v=Math.round(v||0); return v<0?`(${(-v).toLocaleString('es-CL')})`:v.toLocaleString('es-CL'); };
+  const mm=v=>(Math.round((v||0)/1e6)).toLocaleString('es-CL');
+  const pc=(a,b)=>b>0?Math.round(a/b*100)+' %':'—';
   const sum=(L,f)=>L.reduce((a,p)=>a+(f(p)||0),0);
-  const pct=(a,b)=>b>0?Math.round(a/b*100):0;
-  const bar=(v,t,cls='')=>`<div class="ibar"><span class="${cls}" style="width:${Math.min(100,pct(v,t))}%"></span></div>`;
+  const tram=(L,c)=>mv.filter(x=>L.some(p=>p.bip===x.bip) && ['tra','dev'].includes(pivCat(x)) && (!c || clase(x.tipo)===c)).reduce((a,x)=>a+x.monto,0);
+  const ultX=b=>mvDe(b).filter(x=>pivCat(x)!=='rem').sort((a,c)=>(fechaMov(c)||'').localeCompare(fechaMov(a)||''))[0];
+  const ULB={tr:'Transferido',pa:'Pagado',re:'Rendido',tra:'En trámite',dev:'Devuelto',sin:'Cursado sin egreso',rec:'Rechazado'};
   const T=P.filter(p=>p.sub==='33'), G=P.filter(p=>p.sub!=='33');
-  const tram=(L,c)=>mv.filter(x=>L.some(p=>p.bip===x.bip) && ['tra','dev'].includes(pivCat(x)) && clase(x.tipo)===c);
-  const card=(t,v,s,extra='')=>`<div class="icard"><span class="eyebrow">${t}</span><b>${v}</b><span class="h">${s}</span>${extra}</div>`;
-  const MM=n=>'MM$ '+fmtMM(n);
-  let res='';
-  if(T.length){ const base=sum(T,baseDe), tr=sum(T,p=>p.transferido), re=sum(T,p=>p.rendido), tt=tram(T,'transferencia');
-    res+=`<h3 class="isub">Subtítulo 33 · Transferencias · ${T.length} ${T.length===1?'proyecto':'proyectos'}</h3><div class="icards">
-      ${card('Contratado (o aprobado)',MM(base),'monto del proyecto')}
-      ${card('Transferido al municipio',MM(tr),pct(tr,base)+'% del monto',bar(tr,base))}
-      ${card('Por transferir',MM(sum(T,saldoDe)),'monto − transferido')}
-      ${card('Rendido',MM(re),pct(re,tr)+'% de lo transferido',bar(re,tr,'r'))}
-      ${card('Por rendir',MM(sum(T,porRendirDe)),'transferido − rendido')}
-      ${card('Transferencias en trámite',MM(tt.reduce((a,x)=>a+x.monto,0)),tt.length+' '+(tt.length===1?'solicitud':'solicitudes'))}</div>`; }
-  if(G.length){ const base=sum(G,baseDe), pa=sum(G,p=>p.transferido), tp=tram(G,'pago'), subs=[...new Set(G.map(p=>p.sub))].sort().join(', ');
-    res+=`<h3 class="isub">Subtítulos ${subs} · Pagos · ${G.length} ${G.length===1?'proyecto':'proyectos'}</h3><div class="icards">
-      ${card('Contratado (o aprobado)',MM(base),'monto del proyecto')}
-      ${card('Pagado',MM(pa),pct(pa,base)+'% del monto',bar(pa,base))}
-      ${card('Pendiente de pago',MM(sum(G,saldoDe)),'monto − pagado')}
-      ${card('Pagos en trámite',MM(tp.reduce((a,x)=>a+x.monto,0)),tp.length+' '+(tp.length===1?'estado de pago':'estados de pago'))}</div>`; }
-  // estado de la cartera
-  const nG=Object.fromEntries(Object.keys(GRUPOS).map(k=>[k,P.filter(p=>grupoDe(sitDe(p))===k).length]));
-  const est=`<div class="iest">${Object.entries(GRUPOS).filter(([k])=>nG[k]).map(([k,g])=>`<span class="pill ${g.cls}">${g.label}: ${nG[k]}</span>`).join(' ')}</div>`;
-  // puntos para decidir
+  const tg=(id)=>`<span class="tg" data-tg="${id}">${st.open[id]?'−':'+'}</span>`;
+  const hid=id=>st.open[id]?'':' hid';
+  // ---- matriz resumen: subtítulo > estado de la iniciativa
+  const cols33 = L => { const b=sum(L,baseDe), tr=sum(L,p=>p.transferido), L3=L.filter(p=>p.sub==='33'), re=sum(L3,p=>p.rendido), t3=sum(L3,p=>p.transferido), na='<span class="mut">—</span>';
+    return [L.length, n$(b), n$(tr), pc(tr,b), L3.length?n$(re):na, L3.length?pc(re,t3):na, L3.length?n$(sum(L3,porRendirDe)):na, n$(sum(L,saldoDe)), n$(tram(L))]; };
+  const filas=(L,clave,etq,fn)=>{ let h=`<tr class="n1"><td class="l">${L.length?tg(clave):''}${etq}</td>${fn(L).map(v=>`<td>${v}</td>`).join('')}</tr>`;
+    Object.entries(GRUPOS).forEach(([k,g])=>{ const l=L.filter(p=>grupoDe(sitDe(p))===k); if(!l.length) return;
+      h+=`<tr class="n2${hid(clave)}" data-p="${clave}"><td class="l">${g.label}</td>${fn(l).map(v=>`<td>${v}</td>`).join('')}</tr>`; });
+    return h; };
+  const fnS = L => { const r=cols33(L); return r; };
+  let mx='';
+  if(T.length) mx+=filas(T,'s33','Subtítulo 33 · Transferencias',fnS);
+  if(G.length) mx+=filas(G,'spg',`Subtítulos ${[...new Set(G.map(p=>p.sub))].sort().join(', ')} · Pagos`,fnS);
+  const tot=cols33(P);
+  const resumen=`<div class="vis"><h4>Estado de la cartera</h4><div class="scr"><table class="mx"><thead><tr><th class="l">Descripción</th><th>N° proy.</th><th>Monto proyecto</th><th>Transferido / pagado</th><th>% Avance fin.</th><th>Rendido</th><th>% Rendido</th><th>Por rendir</th><th>Saldo por transferir / pagar</th><th>En trámite</th></tr></thead>
+    <tbody>${mx}<tr class="mtot"><td class="l">Total</td>${tot.map(v=>`<td>${v}</td>`).join('')}</tr></tbody></table></div>
+    <div class="pie">Montos en pesos. Monto proyecto: contratado, o aprobado si no hay contrato. Rendido y por rendir solo aplican al Subtítulo 33. En trámite: solicitudes de la UT aún no transferidas o pagadas. Datos al ${corte}.</div></div>`;
+  // ---- gráfico mensual: transferido (33) y pagado (22/29/31) según fecha DAF
+  const anio=(state.meta?.cargado||hoy).slice(0,4), meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const M=meses.map((m,i)=>{ const k=`${anio}-${String(i+1).padStart(2,'0')}`; const f=c=>mv.filter(x=>pivCat(x)===c && (x.fechaPago||x.fechaCurso||'').startsWith(k)).reduce((a,x)=>a+x.monto,0); return [f('tr'),f('pa')]; });
+  const mxM=Math.max(1,...M.map(([a,b])=>a+b)), W=640, H=210, bw=32, gap=(W-40)/12;
+  const bars=M.map(([a,b],i)=>{ const x=30+i*gap+(gap-bw)/2, ha=a/mxM*150, hb=b/mxM*150, y0=180;
+    return `<rect x="${x}" y="${y0-ha}" width="${bw}" height="${ha}" fill="#0f3a5d"/><rect x="${x}" y="${y0-ha-hb}" width="${bw}" height="${hb}" fill="#671ca8"/>
+      ${a+b?`<text x="${x+bw/2}" y="${y0-ha-hb-4}" font-size="10" text-anchor="middle" fill="#333">${mm(a+b)} mill.</text>`:''}<text x="${x+bw/2}" y="196" font-size="10.5" text-anchor="middle" fill="#333">${meses[i]}</text>`; }).join('');
+  const graf=`<div class="vis"><h4>Flujo de recursos</h4><h5>Transferido y pagado por mes, ${anio} (fecha DAF)</h5><div class="lg"><span><i style="background:#0f3a5d"></i>Transferido Sub. 33</span><span><i style="background:#671ca8"></i>Pagado Sub. 22, 29 y 31</span></div>
+    <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;max-height:240px"><line x1="26" y1="180" x2="${W-6}" y2="180" stroke="#9aa7b3"/>${bars}</svg></div>`;
+  const dona=(tit,sub,a,b,la,lb,ca,cb)=>{ const t=a+b||1, r=46, C=2*Math.PI*r, fa=a/t;
+    return `<div class="vis"><h4>${tit}</h4><h5>${sub}</h5><div class="lg"><span><i style="background:${ca}"></i>${la}</span><span><i style="background:${cb}"></i>${lb}</span></div>
+      <svg viewBox="0 0 220 170" width="100%" style="display:block;max-height:200px"><g transform="translate(110,82) rotate(-90)"><circle r="${r}" fill="none" stroke="${cb}" stroke-width="26"/><circle r="${r}" fill="none" stroke="${ca}" stroke-width="26" stroke-dasharray="${fa*C} ${C}"/></g>
+      <text x="110" y="78" text-anchor="middle" font-size="16" font-weight="700" fill="#1f2a33">${Math.round(fa*100)} %</text><text x="110" y="94" text-anchor="middle" font-size="10" fill="#556">${la.toLowerCase()}</text>
+      <text x="6" y="160" font-size="10.5" fill="#333">${mm(a)} mill. · ${mm(b)} mill.</text></svg></div>`; };
+  const d1 = T.length ? dona('Subtítulo 33','Transferido sobre monto',sum(T,p=>p.transferido),sum(T,saldoDe),'Transferido','Por transferir','#0f3a5d','#b8c4cf') : '<div class="vis"><h4>Subtítulo 33</h4><div class="pie">Sin proyectos Sub. 33.</div></div>';
+  const d2 = G.length ? dona('Subtítulos 22, 29 y 31','Pagado sobre monto',sum(G,p=>p.transferido),sum(G,saldoDe),'Pagado','Pendiente de pago','#671ca8','#d4c4e6') : '<div class="vis"><h4>Pagos</h4><div class="pie">Sin proyectos de pago.</div></div>';
+  // ---- cartera por proyecto: estado > proyecto, ordenado por último trámite
+  const ultF=b=>{ const x=ultX(b); return x?fechaMov(x)||'':''; };
+  const filaP=p=>{ const x=ultX(p.bip), k=x?pivCat(x):'', t=terminoDe(p), b=baseDe(p);
+    return `<td class="l"><span class="bip open" data-open="${esc(p.bip)}">${esc(p.bip)}</span> ${esc(p.nombre)}</td><td>${esc(p.sub)}</td><td>${Math.round(p.avance||0)} %</td><td>${t?fmtD(t):'—'}</td><td>${n$(b)}</td><td>${n$(p.transferido)}</td><td>${pc(p.transferido,b)}</td><td>${p.sub==='33'?n$(p.rendido):'<span class="mut">—</span>'}</td><td>${n$(saldoDe(p))}</td><td class="l">${x?`<span class="${k==='rec'||k==='dev'?'neg':''}">${ULB[k]||''}</span> <span class="mut">${n$(x.monto)} · ${fmtD(fechaMov(x))}</span>`:'<span class="mut">Sin trámites en el año</span>'}</td>`; };
+  let cp='';
+  Object.entries(GRUPOS).forEach(([k,g])=>{ const L=P.filter(p=>grupoDe(sitDe(p))===k).sort((a,b)=>ultF(b.bip).localeCompare(ultF(a.bip))||a.bip.localeCompare(b.bip)); if(!L.length) return;
+    const id='g'+k, b=sum(L,baseDe), tr=sum(L,p=>p.transferido);
+    cp+=`<tr class="n1"><td class="l">${tg(id)}${g.label} (${L.length})</td><td></td><td></td><td></td><td>${n$(b)}</td><td>${n$(tr)}</td><td>${pc(tr,b)}</td><td>${n$(sum(L.filter(p=>p.sub==='33'),p=>p.rendido))}</td><td>${n$(sum(L,saldoDe))}</td><td></td></tr>`
+      + L.map(p=>`<tr class="n3${hid(id)}" data-p="${id}">${filaP(p)}</tr>`).join(''); });
+  const cartera=`<div class="vis"><h4>Cartera por proyecto</h4><h5>Agrupada por estado de la iniciativa · ordenada por último trámite</h5><div class="scr"><table class="mx"><thead><tr><th class="l">Iniciativa</th><th>Sub.</th><th>Avance</th><th>Término</th><th>Monto proyecto</th><th>Transferido / pagado</th><th>%</th><th>Rendido</th><th>Saldo</th><th class="l">Último trámite</th></tr></thead><tbody>${cp}
+    <tr class="mtot"><td class="l">Total</td><td></td><td></td><td></td><td>${n$(sum(P,baseDe))}</td><td>${n$(sum(P,p=>p.transferido))}</td><td>${pc(sum(P,p=>p.transferido),sum(P,baseDe))}</td><td>${n$(sum(T,p=>p.rendido))}</td><td>${n$(sum(P,saldoDe))}</td><td></td></tr></tbody></table></div>
+    <div class="pie">Usa + y − para abrir o cerrar cada grupo. Al imprimir se muestran todos los proyectos.</div></div>`;
+  // ---- puntos para decidir
   const AL=['vencido','paralizada','porVencer','devuelto','rechazado','tramite','cierreLento','sinAct'];
-  const al=P.map(p=>({p,a:alertasDe(p).filter(k=>AL.includes(k))})).filter(r=>r.a.length);
-  const detalle=(p,k)=>{ const t=terminoDe(p);
-    if(k==='vencido'||k==='porVencer') return `término ${fmtD(t)}, avance ${Math.round(p.avance)}%`;
+  const det=(p,k)=>{ const t=terminoDe(p);
+    if(k==='vencido'||k==='porVencer') return `Término ${fmtD(t)} · avance ${Math.round(p.avance)} %`;
+    if(k==='paralizada') return `Avance ${Math.round(p.avance)} %${p.ultimaAct?` · últ. actualización ${fmtD(p.ultimaAct)}`:''}`;
     if(k==='devuelto'||k==='rechazado'||k==='tramite'){ const L=mvDe(p.bip).filter(x=>k==='devuelto'?devuelto(x):k==='rechazado'?pivCat(x)==='rec':(x.etapa==='tramite'&&x.creado&&daysFrom(x.creado)< -30));
-      return L.map(x=>`${clase(x.tipo)==='pago'?'EP':'Transf.'} ${fmt$(x.monto)}${x.memo?' memo '+esc(x.memo):''}`).join('; '); }
-    if(k==='sinAct'||k==='cierreLento') return `última actualización ${fmtD(p.ultimaAct)}`;
-    if(k==='paralizada') return `avance ${Math.round(p.avance)}%${p.ultimaAct?`, última actualización ${fmtD(p.ultimaAct)}`:''}`;
-    return ''; };
-  const dec = al.length ? `<table class="itab dec"><colgroup><col class="c1"><col class="c2"><col><col class="c4"></colgroup><thead><tr><th>Tema</th><th>BIP</th><th>Iniciativa</th><th>Detalle</th></tr></thead><tbody>${
-    AL.flatMap(k=>al.filter(r=>r.a.includes(k)).map(r=>`<tr><td><span class="flag ${ALERTAS[k].sev}">${ALERTAS[k].label.replace(/ \(30 días\)/,'')}</span></td><td class="mono">${esc(r.p.bip)}</td><td>${esc(r.p.nombre)}</td><td>${detalle(r.p,k)}</td></tr>`)).join('')}</tbody></table>`
-    : '<p class="note">No hay contratos vencidos, obras paralizadas, memos devueltos o rechazados ni trámites detenidos.</p>';
-  // cartera completa
-  const ult=b=>{ const L=mvDe(b).filter(x=>pivCat(x)!=='rem').sort((a,c)=>(fechaMov(c)||'').localeCompare(fechaMov(a)||'')); const x=L[0]; if(!x) return '<span class="muted">Sin trámites en 2026</span>';
-    const k=pivCat(x), lbl={tr:'Transferido',pa:'Pagado',re:'Rendido',tra:'En trámite',dev:'Devuelto',sin:'Cursado sin egreso',rec:'Rechazado'}[k]||'';
-    return `<span class="${k==='rec'||k==='dev'?'bad':''}">${lbl}</span> <span class="muted">${clase(x.tipo)==='pago'?'EP':clase(x.tipo)==='rendicion'?'Rend.':'Transf.'} ${fmt$(x.monto)} · ${fmtD(fechaMov(x))}</span>`; };
-  const ultF=b=>mvDe(b).filter(x=>pivCat(x)!=='rem').reduce((m,x)=>{const f=fechaMov(x)||''; return f>m?f:m;},'');
-  const ord=$('infOrd').value, desc=(a,b)=>(b||'').localeCompare(a||''), asc=(a,b)=>(a||'9999').localeCompare(b||'9999');
-  const ordFn=(a,b)=> (ord==='ini' ? desc(a.inicio,b.inicio) : ord==='ter' ? asc(terminoDe(a),terminoDe(b)) : desc(ultF(a.bip),ultF(b.bip))||desc(a.inicio,b.inicio)) || a.bip.localeCompare(b.bip);
-  const ordTxt={ult:'ordenada por último trámite',ini:'ordenada por fecha de inicio de ejecución',ter:'ordenada por fecha de término'}[ord];
-  const fila=p=>{ const t=terminoDe(p), g=grupoDe(sitDe(p)), base=baseDe(p), fmt$=n=>Math.round(n||0).toLocaleString('es-CL');
-    return `<tr><td class="mono">${esc(p.bip)}</td><td>${esc(p.nombre)}</td><td><span class="pill ${GRUPOS[g]?.cls||''}">${esc(sitLabel(sitDe(p)))}</span></td><td class="r">${Math.round(p.avance||0)}%</td><td class="num">${ord==='ini'&&p.inicio?fmtD(p.inicio)+'<span class="d">'+(t?fmtD(t):'')+'</span>':t?fmtD(t):'—'}</td>
-      <td class="r num">${fmt$(base)}</td><td class="r num">${fmt$(p.transferido)}<span class="d">${pct(p.transferido,base)}%</span></td>${p.sub==='33'?`<td class="r num">${fmt$(p.rendido)}</td><td class="r num">${fmt$(porRendirDe(p))}</td>`:`<td class="r num" colspan="2">${fmt$(saldoDe(p))}<span class="d">pendiente de pago</span></td>`}<td>${ult(p.bip)}</td></tr>`; };
-  const tabla=(L,titulo,s33)=>!L.length?'':`<h3 class="isub">${titulo} <span class="note" style="font-weight:400">· ${ordTxt}</span></h3><table class="itab cart"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"><col><col><col><col><col class="c10"></colgroup><thead><tr><th>BIP</th><th>Iniciativa</th><th>Estado</th><th class="r">Avance</th><th>${ord==='ini'?'Inicio / término':'Término'}</th><th class="r">Monto $</th><th class="r">${s33?'Transferido $':'Pagado $'}</th>${s33?'<th class="r">Rendido $</th><th class="r">Por rendir $</th>':'<th class="r" colspan="2">Saldo $</th>'}<th>Último trámite</th></tr></thead><tbody>${L.sort(ordFn).map(fila).join('')}</tbody></table>`;
-  $('inf').innerHTML=`<header class="ihead"><div><div class="eyebrow">Gobierno Regional Metropolitano · Revisión de cartera</div><h2>${esc(utNom(u))}</h2><div class="note">${P.length} proyectos${todos?'':' vigentes'} · datos al ${corte}</div></div>${est}</header>
-    <section class="ipage">${res}</section>
-    <section class="ipage"><h3 class="isub">Puntos para decidir</h3>${dec}</section>
-    <section class="ipage">${tabla(T,'Cartera Subtítulo 33',true)}${tabla(G,'Cartera Subtítulos 22, 29 y 31',false)}
-      <p class="note">Monto: contratado, o aprobado si no hay contrato. Transferido, rendido y pagado: acumulado de la planilla de proyectos. Último trámite: según los archivos SAGIR y DAF; Transferido o Pagado solo con acción de pago o egreso registrado por la DAF.</p></section>`;
+      return L.map(x=>`${clase(x.tipo)==='pago'?'EP':'Transf.'} ${n$(x.monto)}${x.memo?' · memo '+esc(x.memo):''}`).join('; '); }
+    return p.ultimaAct?`Últ. actualización ${fmtD(p.ultimaAct)}`:''; };
+  let pd='';
+  AL.forEach(k=>{ const L=P.filter(p=>alertasDe(p).includes(k)); if(!L.length) return; const id='a'+k;
+    pd+=`<tr class="n1"><td class="l">${tg(id)}${ALERTAS[k].label}</td><td>${L.length}</td><td></td></tr>`+L.map(p=>`<tr class="n3${hid(id)}" data-p="${id}"><td class="l"><span class="bip open" data-open="${esc(p.bip)}">${esc(p.bip)}</span> ${esc(p.nombre)}</td><td>${esc(p.sub)}</td><td class="l">${det(p,k)}</td></tr>`).join(''); });
+  const puntos=`<div class="vis"><h4>Puntos para decidir</h4><div class="scr"><table class="mx"><thead><tr><th class="l">Tema / iniciativa</th><th>Sub.</th><th class="l">Detalle</th></tr></thead><tbody>${pd||'<tr><td class="l" colspan="3">Sin contratos vencidos, obras paralizadas, memos devueltos o rechazados ni trámites detenidos.</td></tr>'}</tbody></table></div></div>`;
+  const SEC={res:'Resumen', cart:'Cartera por proyecto', dec:'Puntos para decidir'};
+  box.innerHTML=`<div class="bar-top"><div class="logo"><b>GORE</b><small>Región Metropolitana</small></div><h1>Cartera por Unidad Técnica<span>Provincia de Maipo · datos al ${corte}</span></h1>
+      <label class="slc">Unidad técnica<select data-inf="ut">${uts.map(x=>`<option value="${esc(x)}"${x===u?' selected':''}>${esc(utNom(x))}</option>`).join('')}</select></label>
+      <label class="slc">Subtítulo<select data-inf="sub"><option value="">Todos</option><option value="33"${st.sub==='33'?' selected':''}>33 · Transferencias</option><option value="pagos"${st.sub==='pagos'?' selected':''}>22, 29 y 31 · Pagos</option></select></label>
+      <label class="slc">Proyectos<select data-inf="cerr"><option value="">Vigentes</option><option value="1"${st.cerr?' selected':''}>Incluir cerrados</option></select></label></div>
+    <div class="navb">${Object.entries(SEC).map(([k,t])=>`<button type="button" data-isec="${k}" class="${st.sec===k?'on':''}">${t}</button>`).join('')}<span class="sp"></span><button type="button" class="pr" data-iprint>Imprimir o guardar PDF</button></div>
+    <section class="sec${st.sec==='res'?' on':''}">${resumen}<div class="row3">${graf}${d1}${d2}</div></section>
+    <section class="sec${st.sec==='cart'?' on':''}">${cartera}</section>
+    <section class="sec${st.sec==='dec'?' on':''}">${puntos}</section>`;
 }
+document.addEventListener('click', e=>{
+  const st=state._inf; if(!st || !e.target.closest('#inf')) return;
+  const t=e.target.closest('[data-tg]'); if(t){ const id=t.dataset.tg; st.open[id]=!st.open[id]; renderInforme(); return; }
+  const s=e.target.closest('[data-isec]'); if(s){ st.sec=s.dataset.isec; renderInforme(); return; }
+  if(e.target.closest('[data-iprint]')){ window.print(); }
+});
+document.addEventListener('input', e=>{ const k=e.target.dataset?.inf; if(!k || !state._inf) return; const st=state._inf;
+  if(k==='ut') st.ut=e.target.value; if(k==='sub') st.sub=e.target.value; if(k==='cerr') st.cerr=!!e.target.value; renderInforme(); });
 
 /* el tipo depende del subtítulo: 33 tiene transferencias y rendiciones; 22, 29 y 31 solo pagos */
 function syncTipos(){ const s=$('fS').value, el=$('fT'), cur=el.value;
@@ -1201,8 +1256,6 @@ $('lk').addEventListener('input', ()=>{ const b=esBipQ();
   state._bip=b; onFiltro(); });
 ['fS','fC','fU','fI','fT','fE'].forEach(id=>$(id).addEventListener('input', onFiltro));
 $('fGrupo').addEventListener('input', renderRegister);
-$('infUT').addEventListener('input', renderInforme); $('infCerr').addEventListener('input', renderInforme); $('infOrd').addEventListener('input', renderInforme);
-$('infPrint').addEventListener('click', ()=>{ state.tab='inf'; renderScope(); window.print(); });
 ['pivG'].forEach(id=>$(id).addEventListener('input', ()=>renderPivot(selMoves())));
 $('fP').addEventListener('input', e=>{ if(e.target.value!=='rango') setPer(e.target.value); else state.per='rango'; renderMov(); });
 $('rDesde').addEventListener('change', e=>{ state.desde=e.target.value; state.per='rango'; renderMov(); });

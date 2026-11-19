@@ -1520,6 +1520,22 @@
    "sagir": "No",
    "obs": "EEPP N° 11 ATO - Paseo Linderos",
    "revisar": false
+  },
+  {
+   "id": 93,
+   "memo": 320837,
+   "fecha": "",
+   "deriv": "DAF",
+   "memo_ut": 2196,
+   "fecha_ut": "2026-11-18",
+   "ut": "MUNICIPALIDAD DE BUIN",
+   "bip": 40000968,
+   "materia": "Memo Cierre Contables Iniciativas",
+   "monto": "",
+   "asociado": "",
+   "sagir": "No",
+   "obs": "Memo Cierre Contables Iniciativas",
+   "revisar": false
   }
  ],
  "catalogo": {

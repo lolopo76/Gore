@@ -1,6 +1,6 @@
 {
  "version": 1,
- "actualizado": "2026-11-17",
+ "actualizado": "2026-11-19",
  "gestiones": [
   {
    "id": 1,
@@ -1503,6 +1503,22 @@
    "asociado": "",
    "sagir": "Sí",
    "obs": "EEPP N° 22 - Buin",
+   "revisar": false
+  },
+  {
+   "id": 92,
+   "memo": 320798,
+   "fecha": "",
+   "deriv": "DEIN",
+   "memo_ut": 2191,
+   "fecha_ut": "2026-11-18",
+   "ut": "MUNICIPALIDAD DE BUIN",
+   "bip": 30369572,
+   "materia": "EEPP N° 11 ATO - Paseo Linderos",
+   "monto": 2900000,
+   "asociado": "",
+   "sagir": "No",
+   "obs": "EEPP N° 11 ATO - Paseo Linderos",
    "revisar": false
   }
  ],

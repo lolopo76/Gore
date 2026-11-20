@@ -1,6 +1,6 @@
 {
  "version": 1,
- "actualizado": "2026-11-19",
+ "actualizado": "2026-11-20",
  "gestiones": [
   {
    "id": 1,
@@ -1535,22 +1535,6 @@
    "asociado": "",
    "sagir": "No",
    "obs": "Memo Cierre Contables Iniciativas",
-   "revisar": false
-  },
-  {
-   "id": 94,
-   "memo": "",
-   "fecha": "",
-   "deriv": "",
-   "memo_ut": 2196,
-   "fecha_ut": "2026-11-19",
-   "ut": "",
-   "bip": "",
-   "materia": "",
-   "monto": "",
-   "asociado": "",
-   "sagir": "No",
-   "obs": "Pendiente Uso Pago o Transferencia",
    "revisar": false
   }
  ],

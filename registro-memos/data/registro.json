@@ -1536,6 +1536,22 @@
    "sagir": "No",
    "obs": "Memo Cierre Contables Iniciativas",
    "revisar": false
+  },
+  {
+   "id": 94,
+   "memo": 321347,
+   "fecha": "",
+   "deriv": "DAF",
+   "memo_ut": 1455,
+   "fecha_ut": "2026-11-23",
+   "ut": "MUNICIPALIDAD DE SAN BERNARDO",
+   "bip": 30460085,
+   "materia": "FINFAST GARANTIA",
+   "monto": 39301700,
+   "asociado": "",
+   "sagir": "No",
+   "obs": "FINFAST GARANTIA",
+   "revisar": false
   }
  ],
  "catalogo": {

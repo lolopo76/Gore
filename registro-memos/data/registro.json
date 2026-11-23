@@ -1552,6 +1552,22 @@
    "sagir": "No",
    "obs": "FINFAST GARANTIA",
    "revisar": false
+  },
+  {
+   "id": 95,
+   "memo": 321470,
+   "fecha": "",
+   "deriv": "DEIN",
+   "memo_ut": 2212,
+   "fecha_ut": "2026-11-23",
+   "ut": "MUNICIPALIDAD DE PAINE",
+   "bip": 40064908,
+   "materia": "3era. Remesa",
+   "monto": 11845700,
+   "asociado": "",
+   "sagir": "No",
+   "obs": "",
+   "revisar": false
   }
  ],
  "catalogo": {

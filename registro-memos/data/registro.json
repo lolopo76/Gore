@@ -1568,6 +1568,22 @@
    "sagir": "No",
    "obs": "",
    "revisar": false
+  },
+  {
+   "id": 96,
+   "memo": 321478,
+   "fecha": "",
+   "deriv": "DEIN",
+   "memo_ut": 2213,
+   "fecha_ut": "2026-11-23",
+   "ut": "MUNICIPALIDAD DE PAINE",
+   "bip": 40064908,
+   "materia": "2da. Rendicion",
+   "monto": 0,
+   "asociado": "",
+   "sagir": "No",
+   "obs": "Rendición Sin Movimiento",
+   "revisar": false
   }
  ],
  "catalogo": {

@@ -1524,7 +1524,7 @@
   {
    "id": 93,
    "memo": 320837,
-   "fecha": "",
+   "fecha": "2026-11-23",
    "deriv": "DAF",
    "memo_ut": 1451,
    "fecha_ut": "2026-11-18",
@@ -1533,7 +1533,7 @@
    "materia": "Memo Cierre Contables Iniciativas",
    "monto": "",
    "asociado": "",
-   "sagir": "No",
+   "sagir": "Sí",
    "obs": "Memo Cierre Contables Iniciativas",
    "revisar": false
   },

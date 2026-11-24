@@ -1508,7 +1508,7 @@
   {
    "id": 92,
    "memo": 320798,
-   "fecha": "",
+   "fecha": "2026-11-24",
    "deriv": "DEIN",
    "memo_ut": 2191,
    "fecha_ut": "2026-11-18",
@@ -1517,7 +1517,7 @@
    "materia": "EEPP N° 11 ATO - Paseo Linderos",
    "monto": 2900000,
    "asociado": "",
-   "sagir": "No",
+   "sagir": "Sí",
    "obs": "EEPP N° 11 ATO - Paseo Linderos",
    "revisar": false
   },

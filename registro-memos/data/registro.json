@@ -1556,7 +1556,7 @@
   {
    "id": 95,
    "memo": 321470,
-   "fecha": "",
+   "fecha": "2026-11-24",
    "deriv": "DEIN",
    "memo_ut": 2212,
    "fecha_ut": "2026-11-23",
@@ -1565,7 +1565,7 @@
    "materia": "3era. Remesa",
    "monto": 11845700,
    "asociado": "",
-   "sagir": "No",
+   "sagir": "Sí",
    "obs": "",
    "revisar": false
   },

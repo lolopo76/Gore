@@ -1,6 +1,6 @@
 {
  "version": 1,
- "actualizado": "2026-11-23",
+ "actualizado": "2026-11-24",
  "gestiones": [
   {
    "id": 1,
@@ -1583,6 +1583,22 @@
    "asociado": "",
    "sagir": "No",
    "obs": "Rendición Sin Movimiento",
+   "revisar": false
+  },
+  {
+   "id": 97,
+   "memo": 321876,
+   "fecha": "",
+   "deriv": "DEIN",
+   "memo_ut": 2229,
+   "fecha_ut": "2026-11-24",
+   "ut": "MUNICIPALIDAD DE PAINE",
+   "bip": 40064173,
+   "materia": "2da. Rendicion",
+   "monto": 41325132,
+   "asociado": "",
+   "sagir": "No",
+   "obs": "2da. Rendición",
    "revisar": false
   }
  ],

@@ -1588,7 +1588,7 @@
   {
    "id": 97,
    "memo": 321876,
-   "fecha": "",
+   "fecha": "2026-11-24",
    "deriv": "DEIN",
    "memo_ut": 2229,
    "fecha_ut": "2026-11-24",
@@ -1597,7 +1597,7 @@
    "materia": "2da. Rendicion",
    "monto": 41325132,
    "asociado": "",
-   "sagir": "No",
+   "sagir": "Sí",
    "obs": "2da. Rendición",
    "revisar": false
   },

@@ -1604,7 +1604,7 @@
   {
    "id": 98,
    "memo": 321865,
-   "fecha": "",
+   "fecha": "2026-11-24",
    "deriv": "DEIN",
    "memo_ut": 2228,
    "fecha_ut": "2026-11-24",
@@ -1613,7 +1613,7 @@
    "materia": "3ra. Remesa",
    "monto": 33034186,
    "asociado": "",
-   "sagir": "No",
+   "sagir": "Sí",
    "obs": "3ra. Remesa - Complemento Oficio 197",
    "revisar": false
   }

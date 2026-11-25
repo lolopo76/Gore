@@ -1,6 +1,6 @@
 {
  "version": 1,
- "actualizado": "2026-11-24",
+ "actualizado": "2026-11-25",
  "gestiones": [
   {
    "id": 1,
@@ -1615,6 +1615,22 @@
    "asociado": "",
    "sagir": "Sí",
    "obs": "3ra. Remesa - Complemento Oficio 197",
+   "revisar": false
+  },
+  {
+   "id": 99,
+   "memo": 322213,
+   "fecha": "",
+   "deriv": "DEIN",
+   "memo_ut": 2253,
+   "fecha_ut": "2026-11-25",
+   "ut": "MUNICIPALIDAD DE BUIN",
+   "bip": 40065232,
+   "materia": "2da. Rendicion",
+   "monto": 14333753,
+   "asociado": "",
+   "sagir": "No",
+   "obs": "2da. Rendicion",
    "revisar": false
   }
  ],

@@ -1632,6 +1632,22 @@
    "sagir": "No",
    "obs": "2da. Rendicion",
    "revisar": false
+  },
+  {
+   "id": 100,
+   "memo": 322220,
+   "fecha": "",
+   "deriv": "DEIN",
+   "memo_ut": 2254,
+   "fecha_ut": "2026-11-25",
+   "ut": "MUNICIPALIDAD DE BUIN",
+   "bip": 40065232,
+   "materia": "3era. Remesa",
+   "monto": 57335011,
+   "asociado": "",
+   "sagir": "No",
+   "obs": "3era. Remesa",
+   "revisar": false
   }
  ],
  "catalogo": {

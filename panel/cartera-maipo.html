@@ -443,7 +443,7 @@ const CAMPOS = {etapa:'Etapa', estado:'Estado SAGIR', ubicacion:'Ubicación', ca
   situacion:'Situación', aprobado:'Aprobado', contratado:'Contratado', transferido:'Transferido / pagado', rendido:'Rendido', avance:'Avance', inicio:'Inicio', termino:'Término', duracion:'Duración', empresa:'Empresa'};
 const ETAPAS = {cursado:'Cursado', tramite:'En trámite', rechazado:'Rechazado', reemplazado:'Reemplazado'};
 
-const state = {projects:[], libro:[], meta:null, gestion:{}, hist:{}, lic:{}, licAct:'', sgd:{}, sgdMeta:null, cargas:[], cuad:[], filter:{alerta:''}, open:null, scope:'33', tab:'mov', comentando:null, desde:'', hasta:''};
+const state = {projects:[], libro:[], meta:null, gestion:{}, hist:{}, lic:{}, licAct:'', sgd:{}, sgdMeta:null, temas:{}, temasMeta:null, cargas:[], cuad:[], filter:{alerta:''}, open:null, scope:'33', tab:'mov', comentando:null, desde:'', hasta:''};
 state.scope='todos'; state.per='mes';
 try{ const t=localStorage.getItem('cm-tab'); if(['mov','rev','proy','cargas'].includes(t)) state.tab=t; }catch(_){}
 const $ = id => document.getElementById(id);
@@ -787,6 +787,10 @@ function renderInforme(){
       return L.map(x=>`${clase(x.tipo)==='pago'?'EP':'Transf.'} ${n$(x.monto)}${x.memo?' · memo '+esc(x.memo):''}`).join('; '); }
     return p.ultimaAct?`Últ. actualización ${fmtD(p.ultimaAct)}`:''; };
   let pd='';
+  { const PT=state.projects.filter(p=>p.unidadTecnica===u && state.temas[p.bip]).sort((a,b)=>a.bip.localeCompare(b.bip));
+    if(PT.length){ const id='atemas', dt=t=>[t.tema, t.ord, t.fechaSol?'solicitud '+fmtD(t.fechaSol):'', t.memo?'memo '+t.memo+(t.fechaMemo?' del '+fmtD(t.fechaMemo):''):'', t.monto?'$ '+n$(t.monto):'', t.estado].filter(Boolean).map(esc).join(' · ');
+      pd+=`<tr class="n1"><td class="l">${tg(id)}Temas para la reunión</td><td>${PT.length}</td><td class="l"><span class="mut">${esc(state.temasMeta?.fecha?'Lista de Rodrigo al '+fmtD(state.temasMeta.fecha):'')}</span></td></tr>`
+        + PT.map(p=>`<tr class="n3${hid(id)}" data-p="${id}"><td class="l"><span class="bip open" data-open="${esc(p.bip)}">${esc(p.bip)}</span> ${esc(p.nombre)}</td><td>${esc(p.sub)}</td><td class="l">${state.temas[p.bip].map(t=>dt(t)||'Revisar situación del proyecto').join('<br>')}</td></tr>`).join(''); } }
   AL.forEach(k=>{ const L=P.filter(p=>alertasDe(p).includes(k)); if(!L.length) return; const id='a'+k;
     pd+=`<tr class="n1"><td class="l">${tg(id)}${ALERTAS[k].label}</td><td>${L.length}</td><td></td></tr>`+L.map(p=>`<tr class="n3${hid(id)}" data-p="${id}"><td class="l"><span class="bip open" data-open="${esc(p.bip)}">${esc(p.bip)}</span> ${esc(p.nombre)}</td><td>${esc(p.sub)}</td><td class="l">${det(p,k)}</td></tr>`).join(''); });
   const puntos=`<div class="vis"><h4>Puntos para decidir</h4><div class="scr"><table class="mx"><thead><tr><th class="l">Tema / iniciativa</th><th>Sub.</th><th class="l">Detalle</th></tr></thead><tbody>${pd||'<tr><td class="l" colspan="3">Sin contratos vencidos, obras paralizadas, memos devueltos o rechazados ni trámites detenidos.</td></tr>'}</tbody></table></div></div>`;
@@ -1234,6 +1238,7 @@ renderAll();
     else if (id==='cuadratura') state.cuad=v.items||[];
     else if (id==='meta') state.meta=v;
     else if (id==='sgd'){ state.sgd=v.items||{}; state.sgdMeta={archivo:v.archivo,hasta:v.hasta}; }
+    else if (id==='temas'){ state.temas=v.items||{}; state.temasMeta={archivo:v.archivo,fecha:v.fecha}; }
   };
   const sincronizar=async()=>{
     if (sincronizando || !canWrite) return; sincronizando=true;
@@ -1257,6 +1262,7 @@ renderAll();
       else if (d.id==='meta') state.meta=v;
       else if (d.id==='licitaciones'){ state.lic=v.items||{}; state.licAct=v.actualizado||''; }
       else if (d.id==='sgd'){ state.sgd=v.items||{}; state.sgdMeta={archivo:v.archivo,hasta:v.hasta}; }
+      else if (d.id==='temas'){ state.temas=v.items||{}; state.temasMeta={archivo:v.archivo,fecha:v.fecha}; }
     });
     snap.docChanges().forEach(ch=>{ if(ch.type==='removed' && ch.doc.id.startsWith('proyectos_')) delete parts[ch.doc.id]; });
     rebuild();

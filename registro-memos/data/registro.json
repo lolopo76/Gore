@@ -1,6 +1,6 @@
 {
  "version": 1,
- "actualizado": "2026-11-25",
+ "actualizado": "2026-11-27",
  "gestiones": [
   {
    "id": 1,
@@ -1647,6 +1647,22 @@
    "asociado": "",
    "sagir": "Sí",
    "obs": "3era. Remesa",
+   "revisar": false
+  },
+  {
+   "id": 101,
+   "memo": 322575,
+   "fecha": "",
+   "deriv": "DEIN",
+   "memo_ut": 2272,
+   "fecha_ut": "2026-11-26",
+   "ut": "MUNICIPALIDAD DE SAN BERNARDO",
+   "bip": 40037723,
+   "materia": "",
+   "monto": 600340039,
+   "asociado": "",
+   "sagir": "No",
+   "obs": "",
    "revisar": false
   }
  ],
